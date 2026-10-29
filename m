@@ -1,65 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.171.202.116
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793280910;
-	b=DHRO90AXqogTCs7uqEGiQqU7XJ4K3WT4Re70I0rmaxxBiI3ssEdoLQzh5jfYZF6Z22MJ
-	 /FnQyKMOu6WryVlpgFDDgZ8r57Stsp6ZtALiZtoSMSnRYrs9zeVYrWApe5U5Y9W1CZZkz
-	 CewZRRSQHdXtJ3Qb4OJ1fRrBW4KSCdWPci3mt1u61JvadQfWrOD+ZfCi8aJyrzzJyv1sm
-	 wKcSTzPE5oBJg/8MHT/0ahcjKUzCnfbiT4wQbYbNAyCsn57a4li204raB7yjIJBPue+hC
-	 bqWi40/2UZj2fT2bNYhMWR7bwALDZr6WQVxBPTFd9cBFFM4uW7YeqXyb9b0gODA4+3w==
+	t=1793281118;
+	b=dJH5+JJGDjBUc+ouGssrGqTPKZvvw3HYBSRz6yxHoVMLoCviPG4Ita2DB38DKR6A65cE
+	 mxbattuYc93rgEGTaw+M2ZZxDvuzvYfx11Qd9LNsxJwV0rYt0ZLB5Qanxh86mqC9+qTY7
+	 ySqYSGvMh5sKo68831DB4zjLDil3Bxz8vXAJZ9e62qHv4bhKci8JMrMOEMZKAck16m/wg
+	 roUHQTvGOjfxFk/NdQa1R14VRj56rr17qroLjD/MtZKfoib49liu3vNEYMSA6rUu05x3L
+	 k9ipc1hef2MH4i5yn7sRZwdcogbZ/GFdKxV8eYPDRQiFFmPFv0gOW+PqUcKWVIzM0Yg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793280910;
-	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:From:To:Cc:
-	 Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding:X-Last-TLS-Session-Version;
-	bh=ewotBPttJsEwIQ9ge/HE7qXTU/gs1slzir9JWzWgWek=;
-	b=eg4VLjInxf40PHohUnIfVtD+yEipZFZVdeyozwykpoIgtIPQ2K2mOtOhn2SIvoqn6U8c
-	 uwRsJrVMVVxzQW6SMJe2zf6ko7WKPNM/j30qLvxXYBOmGmqvL19nDEVcCNcbyPslbTps9
-	 kwLOfH5T1CDP1wtQ54hz2b8gBmKfB7VmWkYLgegZ7xxJAqWizCbVkTPKfvAqaB4w4wKJF
-	 dFZy+HQDTll3o3232095/yjsu7D8q5cNPKqt8IOItruF7NeLcciY6lBzV9lR/bg7y/nJQ
-	 sycFQcFFMirV4idzi+P6vIE9/LLuVoobso2w65WiS4uXKRxhzT7albasjfBvrOJuT0A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793281118;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=1SAsEhP3j6zYMKc5QCne6ROLHH9Z2WoaW/ZqJnDITQ0=;
+	b=zggu9iaDYgduIAIsc+ZaW369R6L8tPFXzi+aKmQE12wvuycdrjS53C+w7XYNfwfx0Jh5
+	 EIKcYOrmYyi7t26JeqROK8JHY80jogDj0UX8+EqeUPZFW3LGbSi0JDYcRdN4ftjb4qg+u
+	 a2wDMEgHMNrN9GkJjxym7qiKgN7EBqi5wSFM3koV//wwXjPVdAXtnZ0pYKMCsbFeMs6v5
+	 i1DuRufWtaVJK3P7cLASRBD9Mt5/E+Vf6sL2BBVD2mDgneZB7Bv0epG3PRARTESQ0YqVP
+	 mMzREkkGHIEDUuUFSpNRaCu4nlzRHGpgkdUkf8/lkyU83ZfhmCEnVP764oflM0HRFsg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=bootlin.com;
-	spf=pass smtp.mailfrom=bootlin.com;
-	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=cqTQv+2A;
-	arc=none smtp.remote-ip=185.171.202.116
-Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YtGjxBVb;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97D5D60A2602
-	for <linux-rtc@vger.kernel.org>; Thu, 29 Oct 2026 13:35:09 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 97D5D60A2602
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2B86606A33B
+	for <linux-rtc@vger.kernel.org>; Thu, 29 Oct 2026 13:38:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=cqTQv+2A
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-04.galae.net (Postfix) with ESMTPS id 87114C49F44
-	for <linux-rtc@vger.kernel.org>; Thu, 29 Oct 2026 13:36:10 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 2E34360360;
-	Thu, 29 Oct 2026 13:35:08 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 4E3911032900F;
-	Thu, 29 Oct 2026 14:35:07 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1793280907; h=from:subject:date:message-id:to:cc:mime-version:
-	 content-transfer-encoding:in-reply-to:references;
-	bh=ewotBPttJsEwIQ9ge/HE7qXTU/gs1slzir9JWzWgWek=;
-	b=cqTQv+2AoWDhau9sjYIeMi4BVwVTQbGRdYFCfHvWAvVkMDEZfXSEd6GPX8O5OyCavYLUA7
-	NbWgG37l477gzs24FkJZP8SlSPUKLrbTd6xCZ1nLSML2UZ2K+rfKXaArjYjCDR+cSV7Nwo
-	zvbXvKdIJah8ejvTBz2ZYrDhz+Q7GaaPIJJw7Xv4qoJBhABBiC8YnyNUuhfvl9Mz1eP1oj
-	8vMB8/GrixUUTgRZ66kzXimNARdVrwLG+QfJ4+ieT7Nk3jzCKcPfvazJfc7LH3IxqLG5Ju
-	3g7RHoiW9o0/wkn8fAZv6JWVvyRzhte2VnTHUo6P981iKmB13oskDwSQoiZeZQ==
-From: alexandre.belloni@bootlin.com
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: linux-rtc@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH 12/12] rtc: rs5c372: use sysfs_emit() instead of sprintf()
-Date: Thu, 29 Oct 2026 14:23:35 +0100
-Message-ID: <20261029132339.925021-12-alexandre.belloni@bootlin.com>
-X-Mailer: git-send-email 2.56.0
-In-Reply-To: <20261029132339.925021-1-alexandre.belloni@bootlin.com>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YtGjxBVb
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CD791F01242;
+	Thu, 29 Oct 2026 13:38:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793281117;
+	bh=1SAsEhP3j6zYMKc5QCne6ROLHH9Z2WoaW/ZqJnDITQ0=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=YtGjxBVbWBcLRfihnDZKJHWUCb7daB9x9r5X5FgASGm2p+dEbpVGKuaDf3n42Lx+l
+	 u2+aDlF592LEx/ccfiJ0pJ+2cwKahFeU0I3ke2VzqVD6qHrs0vjnWvuspIcrUN6h7N
+	 BguRJfpSmieGhgYJj3AOxbgKI3KUmzeIRfDeJ54J2zFduhy20S/bFfauD6Cw9D9WVQ
+	 8Bj9MjCsxnk5/G4fDUk0PCFn5xOSPUUG2flHSzlrTLDYYpDb7f2pmGSaG3MBeJNiZX
+	 8gcOcZ0B7A/QTG8NXi+PyfxTUe7AvJp26LCJMl1A/0tw3TE+bXSYOQYv5DXeRpYdHn
+	 4Fr+oiLsM/4qQ==
+Message-ID: <sashiko-outbox-189399@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 08/12] rtc: ds1343: use sysfs_emit() instead of
+ sprintf()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: alexandre.belloni@bootlin.com
+Cc: linux-rtc@vger.kernel.org
+In-Reply-To: <20261029132339.925021-8-alexandre.belloni@bootlin.com>
 References: <20261029132339.925021-1-alexandre.belloni@bootlin.com>
+ <20261029132339.925021-8-alexandre.belloni@bootlin.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 29 Oct 2026 13:38:36 +0000
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -68,44 +60,19 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Last-TLS-Session-Version: TLSv1.3
 
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+>=20
+> Use sysfs_emit() instead of sprintf() in sysfs show callbacks
+> (ds1343_show_glitchfilter and ds1343_show_tricklecharger) to conform
+> to the recommended sysfs attribute formatting guidelines in
+> Documentation/filesystems/sysfs.rst.
+>=20
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-Use sysfs_emit() instead of sprintf() in sysfs show callbacks
-(rs5c372_sysfs_show_trim and rs5c372_sysfs_show_osc) to conform to the
-recommended sysfs attribute formatting guidelines in
-Documentation/filesystems/sysfs.rst.
+Sashiko has reviewed this patch and found no issues.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-rs5c372.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/rtc/rtc-rs5c372.c b/drivers/rtc/rtc-rs5c372.c
-index 9ab6f2c28f7b..a4bd042908b8 100644
---- a/drivers/rtc/rtc-rs5c372.c
-+++ b/drivers/rtc/rtc-rs5c372.c
-@@ -699,7 +699,7 @@ static ssize_t rs5c372_sysfs_show_trim(struct device *dev,
- 	if (err)
- 		return err;
- 
--	return sprintf(buf, "%d\n", trim);
-+	return sysfs_emit(buf, "%d\n", trim);
- }
- static DEVICE_ATTR(trim, S_IRUGO, rs5c372_sysfs_show_trim, NULL);
- 
-@@ -712,7 +712,7 @@ static ssize_t rs5c372_sysfs_show_osc(struct device *dev,
- 	if (err)
- 		return err;
- 
--	return sprintf(buf, "%d.%03d KHz\n", osc / 1000, osc % 1000);
-+	return sysfs_emit(buf, "%d.%03d KHz\n", osc / 1000, osc % 1000);
- }
- static DEVICE_ATTR(osc, S_IRUGO, rs5c372_sysfs_show_osc, NULL);
- 
--- 
-2.56.0
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261029132339.9250=
+21-1-alexandre.belloni@bootlin.com?part=3D8
 
