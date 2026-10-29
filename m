@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793281316;
-	b=LGUh8TvpJ62/kb2gILWc2qpW/o1lHIjJeIv9mfcop2lBBaqw/zD7mVs9LlL5isOlbKu1
-	 0bsNmejZn3MYDMzfWr2SbkLd3mxHm5ks8B3SsQQN9YQZ/Mb+HvwjDvJB1cOvpQFhwRDiD
-	 Ou7Iavnh9hqLSLIBdZmLbl3wz/mH9t+4xbBbGEr4LYee5opVIfa5ZS+DEz05wXl8Y/EWJ
-	 E+b5QE1EFMYPltSJGkd5d4H/9o0Jg6XM6i62AnG88LtUwI77gdV5pK6if6+/JyQ4r4hCt
-	 Fu3KPOwlnmuAMij1/ODdGzo2KKxW3g6wwJMaypb7VlxRaPHjGIos/oFLT4gmxT7RuEQ==
+	t=1793281317;
+	b=zbPAZRD0mmrIJlvEwp19r2Qs1L/Aheg8kGNxnrLP8xYwg8OB8nH5HSSZkt2d4Go6c3qc
+	 Ru0EKkG0yxM0oyvt47Zhhi/5+NbASbkQfA38HCb6x30TaDvBe+LUPhSgU89XwXNwX3gzt
+	 GnJfnkY8Dz7uKNUNlW6SqwMtlRnUXBZFrVfqzfX7xp4eF0GHTAYcKTECg+zntvyRfPkWV
+	 hG/EMpdzPkKZyC4nFxYIG3OvvS+e3drAXGmDuVXqfoHZIuMMK6UCPCKHcc5NFN9XboJRK
+	 9mk5oVLOPI64/PmGvurlTl+Yk41LvAQSoGYgKFl19ei/TC3qXFN5CA/7F7a7Bl5cHRg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793281316;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793281317;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=iFdkL6vfFykh7OYSS2suN9CmLWI/23yw0AbuEeN+XIE=;
-	b=44D3LWcWJM8XEPdTpLPiZwaTgyJN3zaNVX1pqzJqTdws6z4Gs2YcEO6NJRMMUm9ZDV6i
-	 5nFYyM3UNKiiFlxgR6CAlPI45xhDPwlCz4mjIag6RbHV2Fv6HFJivbj2Hv99ULAGX4AJn
-	 g301PI1Zc6yypkGTdEX2zLsKypN/7RTb8JttbV0oE24LDs68OTRBp02z/B1D+rRT4PnyF
-	 jcPSJkfRfamiug+yxm9IfEVbUOGl4iHqnL41kZJ3B3KUoRVg+E8ghmsEC7YZGXXLcgPUn
-	 BbcPpSRj2XP7J1pXZve1BVdox1kW0DK7w60PjoHbN3VEA/JPhcMZaoDQha21dkm+trg==
+	bh=69kSjZkjgZidm/rjkp31veE8B+F4B7x220CiuCZMsPs=;
+	b=qZUB89yiefzCnuN2+gPrx/n1/Y1aeG7YyChUA3aE8NksGx3KhkYTAInQjLOG9ywdNjXK
+	 j0jO4hpUa8rcKC9+jet1KiY5+8658Cce4SebjYzjml/iQGJ1fTKk0cb9VoyFo2ZoV1qm1
+	 g93KOtMFgl4CVT4i7RvHkBXLtLfF2o/NGxMHNqwsJviYjbZIUr2vFjJ0fyhwBXgaqgaNK
+	 mw7247dIGTOqSGzaIpNOZ31Db2MCXdBMot986E8yQgR40bCGcMQKDTniWtefdT/btfHzJ
+	 itQxS4aJ1Meq5BFLkx5pLHWte6U6ItyQ4jH9eLmbL+bTynAopcjzmo2rdiAAWWtxBYg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mf+Qcj0L;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dJP5gH5T;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B358606A333
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC14460A260F
 	for <linux-rtc@vger.kernel.org>; Thu, 29 Oct 2026 13:41:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mf+Qcj0L
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E37001F01825;
-	Thu, 29 Oct 2026 13:41:55 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dJP5gH5T
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 923C41F031E1;
+	Thu, 29 Oct 2026 13:41:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
 	s=k20260515; t=1793281316;
-	bh=iFdkL6vfFykh7OYSS2suN9CmLWI/23yw0AbuEeN+XIE=;
+	bh=69kSjZkjgZidm/rjkp31veE8B+F4B7x220CiuCZMsPs=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=mf+Qcj0LICj5ebbcsmFs6+xEhRXmGrEBrB+VIIQVQdsg6cMLwDjtA+BvPf8TxIX8F
-	 Lpf3gBmD1AhNbPlj+BeA3EluC4iU2ZpOW4Kw4rxdiAGvH7zExrBsO5wi1rptpYHtRZ
-	 CryBrJEQEDGBVcEHsteckYVD8nKvwkPXCz8ySmCZBMuXHYBRF0sCi9Uj+1HZJumFe5
-	 F7c+pdypmQsMqFIa4G86o8gieAKJ9Q5ouNxWecM7PWJTFhgS2kbb0mfguM+ivDFFaC
-	 PDR5EsRO6n9k+u2mbkHUtMYp1B3apEuCQXeRuAXr0VoqYeJW+j4qUhJQFOBN3i4pJG
-	 QRPtzcl1ds+pA==
-Message-ID: <sashiko-outbox-189413@kernel.org>
+	b=dJP5gH5T3MGuHqy1ji9LcHG5CRA9vsNQupoeBrryHmndV13fnPfhc2TPKExOLavp9
+	 iNvEYBtsqColB2kiW6kTtIQoVkAmjzAO9jxvDGvXkyxO5YG3mMXVNZYef6n9BziXbS
+	 tfS5+9BBWZLXMjlt8rHN3p14RyT3vEwC2TO6S6ofoR4iJzq6ASDznMLman83bTnztc
+	 6aR5QETjfLQMNyGb3tjBGybxhWwHCnMivysMcuXqEGOxuJ37UqGV73LCG4n7gHwLDN
+	 R7UsqZkBKSAjB6AGkSJzT5Umeq3FIwyLO8EP8eGmaHMKEczzeNfbWDGZCY37sc7lA2
+	 DToQt6JQnKF7w==
+Message-ID: <sashiko-outbox-189414@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 12/12] rtc: rs5c372: use sysfs_emit() instead of
+Subject: Re: [PATCH 07/12] rtc: rx8025: use sysfs_emit() instead of
  sprintf()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: alexandre.belloni@bootlin.com
 Cc: linux-rtc@vger.kernel.org
-In-Reply-To: <20261029132339.925021-12-alexandre.belloni@bootlin.com>
+In-Reply-To: <20261029132339.925021-7-alexandre.belloni@bootlin.com>
 References: <20261029132339.925021-1-alexandre.belloni@bootlin.com>
- <20261029132339.925021-12-alexandre.belloni@bootlin.com>
+ <20261029132339.925021-7-alexandre.belloni@bootlin.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 29 Oct 2026 13:41:55 +0000
+Date: Thu, 29 Oct 2026 13:41:56 +0000
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -63,10 +63,9 @@ Precedence: list
 
 > From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 >=20
-> Use sysfs_emit() instead of sprintf() in sysfs show callbacks
-> (rs5c372_sysfs_show_trim and rs5c372_sysfs_show_osc) to conform to the
-> recommended sysfs attribute formatting guidelines in
-> Documentation/filesystems/sysfs.rst.
+> Use sysfs_emit() instead of sprintf() in the sysfs show callback
+> (rx8025_sysfs_show_clock_adjust) to conform to the recommended sysfs
+> attribute formatting guidelines in Documentation/filesystems/sysfs.rst.
 >=20
 > Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
@@ -74,5 +73,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261029132339.9250=
-21-1-alexandre.belloni@bootlin.com?part=3D12
+21-1-alexandre.belloni@bootlin.com?part=3D7
 
