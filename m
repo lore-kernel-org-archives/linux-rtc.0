@@ -1,62 +1,62 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.171.202.116
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.246.85.4
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793280886;
-	b=Hni0fNfJDjps7lTjIHtgKEw4spTwM/Fugt5yoS0k2PC9iT+MQvHKr7HgCZb2UR/WQLrc
-	 VmJa+GH7hDx87vIh9I7fuI4R9ThjRjYQswdavc2p0cqruCv02WDzoIJmnzUNhwPOfsfiL
-	 ZV5RFIQZsX/Ux4fIbBMhRExG7C/Ibrtvc6kJbQUnSj4K58gz+yTBKlcJT2Ju0FIZMlpww
-	 iZJZhY4E5K2c/eb6iFqGbVb0v7j+3RuzQL0WF6I0RM93WoOPYvrm/Z0fv+s8G999tRMgV
-	 eJNDzvGL4STVg5GRMR9o01WU4ut72pQHngqVkvi1ZYXKlmwJUfMqdzLsoa4AwzTHxYA==
+	t=1793280891;
+	b=k2ChKxqjcBUTNNAYckCXGn/k/C1fKq9GUCj9mfnOYXdEaVxXoGD6RRXuwwET/YiGnX2/
+	 YXUuXKTdglmbGfZVPuqF4Xswzrwf+8NZ81Gfd+ZAbIcK3dLkERnnomJPqepQUKrzDeJzJ
+	 n9MKOg/4YYJKlrwmR5kPbv9wpYFixqqc47CeL1UCEBMsUDvzU0t/AUMxZD3eeeNUpePfH
+	 24cNnFkmc5QjsiLJ3tTRIJmUV+hbhIW0WufHfIZrI1II4hDrGJUefXhwa2ItMr9hKEqpl
+	 bCf4qspAp7pUcRnmM0i0diKl3vcDgbdaFIgBhDxmScxOwq5ICpGtqajzZikMcdPf1Gg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793280886;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793280891;
 	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:From:To:Cc:
 	 Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding:X-Last-TLS-Session-Version;
-	bh=w1hruLV6HKN+T5ZDxe76kALw51wUirPXG5Dg9/PUjtI=;
-	b=ztTpDxWdQQit0s1IvDcN6u1M797sATpvwe1TQSGbaiRxeI7kD779oUxc+TwKpqqHDR1+
-	 /uXTXBbHLuBnlcAn8SZIljRtJ8C5OpQvtONrz2rHx3+pQi7lYBHBul8edgxtQFAL56uM+
-	 2XkIBAbBC3ZDzrq52bKtO6cP8IDRlHJ5yYDZi7fr9WfWvUqron1MzSudotvm4Xceknw/6
-	 zJR5G1LtyiBE3V39KhvdtwcKzL9EaIO3CktFv8GDVLS5VL5bBATMzDyhNqNhCus4gfkTy
-	 oVBYRQtZPbcuQ8rRXZqzf9wEWR6FqrWeFupy/idKYynSbaY0KbMG306uv3dXMIV74Rw==
+	bh=nNOo9ztPq2H1V9K18/duaVRD55SEQg7q5xZq3bqGz2Y=;
+	b=hafCxEj+Xz8G5mHObnPdw5iAbfp844kjlwr2wBkJe9CtRFdUXViRb9Ut6JL6sYs1W7s4
+	 WFNxZY4J3ekXWIPeKPeBwTbB3MefClxCtB71DtZheJzbCq2k5Oy/ZzJjRfdBGYVSt5QgS
+	 m6o51Mz1KuNo2HM9/9cwb+97g2/AUc8bEwDjohx+Ch8b0ulre2HuBye1yTAbZTM1oNsdK
+	 zlNx2t3VbZJuvRxcoJtxMf3Hy8M9lGIyTk5T7pSZjeaCBoA7RZawM0JZog8M6ew9k4E7U
+	 E0BRKW3qU+IpqiAb/aFs3jV+oibt3KN+rAl5co+Ke7wePRngjMWQijzSPbKpqYFRHeA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=bootlin.com;
 	spf=pass smtp.mailfrom=bootlin.com;
-	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=KOSn4OM0;
-	arc=none smtp.remote-ip=185.171.202.116
-Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
+	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=DoogYOgx;
+	arc=none smtp.remote-ip=185.246.85.4
+Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9DE0606A31E;
-	Thu, 29 Oct 2026 13:34:45 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D9DE0606A31E
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FFC3606A31E
+	for <linux-rtc@vger.kernel.org>; Thu, 29 Oct 2026 13:34:51 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2FFC3606A31E
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=KOSn4OM0
+	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=DoogYOgx
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-04.galae.net (Postfix) with ESMTPS id 0A473C49F44;
-	Thu, 29 Oct 2026 13:35:47 +0000 (UTC)
+	by smtpout-03.galae.net (Postfix) with ESMTPS id DB1904E4138B
+	for <linux-rtc@vger.kernel.org>; Thu, 29 Oct 2026 13:34:49 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id A548160360;
-	Thu, 29 Oct 2026 13:34:44 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id BF7161032900F;
-	Thu, 29 Oct 2026 14:34:39 +0100 (CET)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id B0EA360360;
+	Thu, 29 Oct 2026 13:34:49 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id E8ED31032900F;
+	Thu, 29 Oct 2026 14:34:44 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1793280880; h=from:subject:date:message-id:to:cc:mime-version:
+	t=1793280885; h=from:subject:date:message-id:to:cc:mime-version:
 	 content-transfer-encoding:in-reply-to:references;
-	bh=w1hruLV6HKN+T5ZDxe76kALw51wUirPXG5Dg9/PUjtI=;
-	b=KOSn4OM02uxYUsSdIh8FVpuXFlGngEbqnlCCVU215SXAiIYk1SqXabNmo2Rxk+XpyDE0Ub
-	0E764U51Lo1GNlPAd+3m2R9ceRcWsd9KMEX+q2GIiAfSa9VROiZzYjTzm/Mf2AZBP/KExZ
-	06N/M99GgwHE2VoTqw2OvkHEv7aUv7qKo4XuPxkKdwvRPDmwtx0h/dDwhOj5vlwf1Cqgfv
-	17Qfcw8j+FGLnjwuYeiivDFngGRFHqYDPzTABoSN/P8b1C+czO7Fku5K4q35Yw/LLWKQpF
-	62+Ujq5y7+dH2zmRMsWGP14yusBWUvkwdJxqMbZqDDlVRjqbnN9Hx9ErpF7cAQ==
+	bh=nNOo9ztPq2H1V9K18/duaVRD55SEQg7q5xZq3bqGz2Y=;
+	b=DoogYOgxvPvZsXRXiki1NVQmA1JmsUoDXuKTcP+1epCe9qp9fguE0SPcIcTFdR7Na2qN0E
+	r2M/tnmmF12pYcmHrFTbiAaVun8nToKbYx6At9pMotgwCgQ5MO8vOJCGqYVwP/5KiQrw1Y
+	ll2z5jwSJDep5uzGKTxAoRWPwiXBQe/MH2AGrJtYnqS5Ym1rF4R249hw3uG9OLyfaIC461
+	ryWoKygSyx8dCbpx1+YRlkHq0lk8zZvP/cFIrfw16aXBgi4+1oG8vIrWGg9h8/sXOCfauC
+	krlafdJ2RrI7ZRH0nS00MHCPPfij6ZGzqMNsLy7UA75bAuq4ZglpVtmHsxLhfQ==
 From: alexandre.belloni@bootlin.com
 To: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc: linux-rtc@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH 06/12] rtc: abx80x: use sysfs_emit() instead of sprintf()
-Date: Thu, 29 Oct 2026 14:23:29 +0100
-Message-ID: <20261029132339.925021-6-alexandre.belloni@bootlin.com>
+Subject: [PATCH 07/12] rtc: rx8025: use sysfs_emit() instead of sprintf()
+Date: Thu, 29 Oct 2026 14:23:30 +0100
+Message-ID: <20261029132339.925021-7-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.56.0
 In-Reply-To: <20261029132339.925021-1-alexandre.belloni@bootlin.com>
 References: <20261029132339.925021-1-alexandre.belloni@bootlin.com>
@@ -74,52 +74,28 @@ X-Last-TLS-Session-Version: TLSv1.3
 
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-Use sysfs_emit() instead of sprintf() in sysfs show callbacks
-(autocalibration_show and oscillator_show) to conform to the
-recommended sysfs attribute formatting guidelines in
-Documentation/filesystems/sysfs.rst.
+Use sysfs_emit() instead of sprintf() in the sysfs show callback
+(rx8025_sysfs_show_clock_adjust) to conform to the recommended sysfs
+attribute formatting guidelines in Documentation/filesystems/sysfs.rst.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-abx80x.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/rtc/rtc-rx8025.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-abx80x.c b/drivers/rtc/rtc-abx80x.c
-index 1c69d0e2f940..a0d67818eb58 100644
---- a/drivers/rtc/rtc-abx80x.c
-+++ b/drivers/rtc/rtc-abx80x.c
-@@ -442,11 +442,11 @@ static ssize_t autocalibration_show(struct device *dev,
- 	autocalibration = abx80x_rtc_get_autocalibration(dev->parent);
- 	if (autocalibration < 0) {
- 		dev_err(dev, "Failed to read RTC autocalibration\n");
--		sprintf(buf, "0\n");
-+		sysfs_emit(buf, "0\n");
- 		return autocalibration;
- 	}
+diff --git a/drivers/rtc/rtc-rx8025.c b/drivers/rtc/rtc-rx8025.c
+index 2f2deb59cbee..96a04c977d0f 100644
+--- a/drivers/rtc/rtc-rx8025.c
++++ b/drivers/rtc/rtc-rx8025.c
+@@ -486,7 +486,7 @@ static ssize_t rx8025_sysfs_show_clock_adjust(struct device *dev,
+ 	if (err)
+ 		return err;
  
--	return sprintf(buf, "%d\n", autocalibration);
-+	return sysfs_emit(buf, "%d\n", autocalibration);
+-	return sprintf(buf, "%ld\n", -adj);
++	return sysfs_emit(buf, "%ld\n", -adj);
  }
  
- static DEVICE_ATTR_RW(autocalibration);
-@@ -490,14 +490,14 @@ static ssize_t oscillator_show(struct device *dev,
- 
- 	if (rc_mode < 0) {
- 		dev_err(dev, "Failed to read RTC oscillator selection\n");
--		sprintf(buf, "\n");
-+		sysfs_emit(buf, "\n");
- 		return rc_mode;
- 	}
- 
- 	if (rc_mode)
--		return sprintf(buf, "rc\n");
-+		return sysfs_emit(buf, "rc\n");
- 	else
--		return sprintf(buf, "xtal\n");
-+		return sysfs_emit(buf, "xtal\n");
- }
- 
- static DEVICE_ATTR_RW(oscillator);
+ static ssize_t rx8025_sysfs_store_clock_adjust(struct device *dev,
 -- 
 2.56.0
 
