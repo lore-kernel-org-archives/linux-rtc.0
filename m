@@ -1,73 +1,62 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.246.85.4
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.246.84.56
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793269429;
-	b=Jh8PDeQThFNwikS7Am718X6AX3ch3au/PufBYcvEBqLl6WnOP2/xsJfUdw15g6fjf4lP
-	 J/vL9uNbXVYydyN68r1nqH69u/NpiGd4ee44Bm46DTd3Es5ZIUUVYHs7CV+kpa0dSdTcG
-	 ay2NKAuulCM77xUmqHUWJS5JN96MFAO25mRQ4Nq7RLBae3NF+g1IJMN8YTZ1VaNSVmysh
-	 menNaeTWM11kKrNq63ezn0EK5HG9kJ0TKV61R1UVjrcL49BK0Sd0h+OBwKqOtzktG0jTg
-	 LmpfQOZDJNKJpgupmEGSp/NQ6p8C/YIBv9sb786oCQwfSGT04tKLFbWut1gLy0PcWpQ==
+	t=1793269479;
+	b=QrTzFsOBn/M8KwE0d2McGSi9bhU+D2lT64WzA/roP9OVI85owN5eTbjoAnhOxSZDs1/k
+	 uykemTSZhzRM7QZYpGP+zGf1/OiSGho10q/IS436zQljIOh4xg9+i78SqH+YwxDl2x751
+	 tLx7qOj5V2rqev6g3U5AFg+F2zwyKeno815obuM6abyggKnb+GMm5TOiN8T/puJxzwXf6
+	 L1hjOEzh0+bZykQNBd75HyK2LkifW88YUWrXP/OHIos4gi71mcfCDCM6mbMVOPqNOton+
+	 pmb/D/W+AJG9IAEGkHXcDyif2dBynmWuGKgfuz3wZwdMqTw6VxEr0B6ALNuGfHVfyuw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793269429;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793269479;
 	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:Date:From:To:
 	 Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
 	 Content-Disposition:In-Reply-To:X-Last-TLS-Session-Version;
-	bh=26yG4eXWQUuRwTEMaMGincq8OXRaC7BKnOkTFxcAKtI=;
-	b=hLv8vqIB/zIERJ+zrlTJsa10naHGM3RWdrGXhNkrb3fKJ3zW5Ewl6I4uXlGSBBiIvgqW
-	 gkP3/5htFdgWxV6Hgo95sZzdgCooOrzGW2A7174bJAig24JzPNDOCk9Jvmk5WGGZAEh0U
-	 r82CEcbe12X559vSiQS7D/3FNPEXPQeNJLwOGPVhqQS+1qKe9bufpaaW4ewQrZZQpPc21
-	 WGO4Hy+YNBFN54VaU4b7TrV5oSN+8XaU+BcDpmTjfpHURlt/NAA3tef7DFXGKLmiUP2G0
-	 7pLzo4d/mmO9St7WYGxIhMjJJ1OlfPEhTgjbMzWxeI5zkTRJwI1x9NBUqoD++EUGvvw==
+	bh=PRGCV9cZ4VthOUaNo51WkRzJnsZvTbLhbXjN4sI6wPc=;
+	b=1YPTibas2ToFLqz30/uaPvw1Vls8eySTrymgPeM1kSO3SQQjr7xAUeur5JR5P6OB2GWj
+	 FzIo9Y3ngC7gKwsXXDv3S9arDhvFqWNv/orOeyeZjyDwUcEnl+zamsWW1KYCjw/+gij97
+	 xXISb533lYd9CmmCLJVRiibtpHz/A8scYTHF3aGR0bnwtET+H0uei/NMs+LW/6HZVyHaV
+	 rOvRHhpQG9T4m7Q2a8s1W+nkIRJftyW0FMasM6PMmmjZE/FcVr8P8xJ0Wn9HGCghykxq5
+	 mmrNMUn/jarROnqG0FvsBp4EQ5ToAhMSt8DSyWxP2VaYeAxrGdwgXoMPVLCn9h06bSA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=bootlin.com;
 	spf=pass smtp.mailfrom=bootlin.com;
-	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=1EHMp+Zv;
-	arc=none smtp.remote-ip=185.246.85.4
-Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
+	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=uzQ2084k;
+	arc=none smtp.remote-ip=185.246.84.56
+Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A001606A326;
-	Thu, 29 Oct 2026 10:23:46 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1A001606A326
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E54F606A31F
+	for <linux-rtc@vger.kernel.org>; Thu, 29 Oct 2026 10:24:38 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4E54F606A31F
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=1EHMp+Zv
+	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=uzQ2084k
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id 489B14E4137A;
-	Thu, 29 Oct 2026 10:23:45 +0000 (UTC)
+	by smtpout-02.galae.net (Postfix) with ESMTPS id CBE0C1A1390
+	for <linux-rtc@vger.kernel.org>; Thu, 29 Oct 2026 10:24:36 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 06E7560360;
-	Thu, 29 Oct 2026 10:23:45 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id D69DF10329104;
-	Thu, 29 Oct 2026 11:23:38 +0100 (CET)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 9CE4B60360;
+	Thu, 29 Oct 2026 10:24:36 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id EA873103290ED;
+	Thu, 29 Oct 2026 11:24:34 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1793269423; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 in-reply-to:references; bh=26yG4eXWQUuRwTEMaMGincq8OXRaC7BKnOkTFxcAKtI=;
-	b=1EHMp+ZvIZYUiY0Fs+NQ34l+xN9Aa85DGUxDMkpVM+qBPKo78H5FoqAiT2z7MnI4VpJHP6
-	bQIpXzpHh7c0SP5+HghUNK4LwwdREjXPgOT6/8bdVUJtolx0KulDYttcoZ1KljrRN89whF
-	xWIRGxe/Qj/RvZeMzLZf+2RjkUhr3qCJ8BaSR8XbTHLNzA/MguOk9airmBS4wB10/q+vu6
-	h+1xcPoHWeMampabcBvw2YvzucrPJLkQiGwmNbA6TdltVtdSfDrTYK5p3MXxToXBxRiKqx
-	Rm75b1vlDK8cekIvT2/fXsIn0BFABuoqmrXH2nOSzyNpqj8x1yoXFkSr2M5iIg==
-Date: Thu, 29 Oct 2026 11:23:38 +0100
+	t=1793269475; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 in-reply-to:references; bh=PRGCV9cZ4VthOUaNo51WkRzJnsZvTbLhbXjN4sI6wPc=;
+	b=uzQ2084kCbRviD1yaE++rtmTpeeSVrFpFtGgZ44sVgqlc/NSZTAduSD2P8eTJVLYSpuR3W
+	dl43Tv4/VBfZPBmlz/Fr9EiTg9etCbpRFwPhvgAnyRXdZSsO8hhkXf52VLAwDfjUoVtg/F
+	laKAnHBqXupmsHqtakj1Q9yW3B9yUdzQ2+WMRCmO+ZjFuKgXJJdU5XOaXSyhhLAy8R8bUB
+	WVULSzjCM37uY38g7v9M+fKlUoGFsnp1LVme26DZ2g0ncjfWOuG9LivnJadfoDim9I0YiV
+	dImIPOz+4L0Q9TearVPLef7HKXSxYnJn1iM0b/bkMb41lRYM+sudGFR/hkUytw==
+Date: Thu, 29 Oct 2026 11:24:34 +0100
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <uwe@kleine-koenig.org>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Gregory Clement <gregory.clement@bootlin.com>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Michael Langer <michael.brainbug.langer@googlemail.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Linus Walleij <linusw@kernel.org>,
-	Markus Probst <markus.probst@posteo.de>
-Cc: linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-gpio@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v10 0/6] rtc: s35390a: Allow use of output pin for
- interrupt signal 1 for wakealarm
-Message-ID: <179326901959.870466.10617976319707000854.b4-ty@b4>
-References: <20260930-rtc_s35390a_int1-v10-0-e7b1cbc50a7b@posteo.de>
+To: linux-rtc@vger.kernel.org,
+	"A. Sverdlin" <alexander.sverdlin@siemens.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 0/4] rtc: pcf85063: Update interrupt support
+Message-ID: <179326945279.872181.7368976629277935202.b4-ty@b4>
+References: <20260828164445.3907839-1-alexander.sverdlin@siemens.com>
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -79,37 +68,31 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260930-rtc_s35390a_int1-v10-0-e7b1cbc50a7b@posteo.de>
+In-Reply-To: <20260828164445.3907839-1-alexander.sverdlin@siemens.com>
 X-Last-TLS-Session-Version: TLSv1.3
 
-On Wed, 30 Sep 2026 15:31:45 +0000, Markus Probst wrote:
-> Add pinctrl to allow the use of output pin for interrupt signal 1
-> for wakealarm. This is needed for wakealarms to work on Synology NAS
-> devices.
+On Fri, 28 Aug 2026 18:44:38 +0200, A. Sverdlin wrote:
+> From: Alexander Sverdlin <alexander.sverdlin@siemens.com>
 > 
-> I could only partially test the pinctrl patch. My testing system runs
-> ACPI, which makes it impossible for me to configure pinctrl there. I did
-> however verify that with missing pinctrl configuration in the devicetree,
-> the register were correctly set. So there should be no regressions.
-> Every other function than ignore, disable and wakeup should also be
-> considered untested.
+> Add hardware-backed UIE (1 Hz update interrupt) support to the pcf85063
+> driver. The PCF85063A/RV8263 have no dedicated update-interrupt source,
+> so chrony and similar tools that rely on RTC_UIE_ON fall back to the
+> kernel's software polling emulation. This series repurposes the chip's
+> countdown timer (TCF = 1 Hz, T = 1) to generate a periodic interrupt on
+> the INT pin, serving UIE entirely in hardware.
 > 
 > [...]
 
 Applied, thanks!
 
-[1/6] dt-bindings: rtc: Add pinctrl for S35390A
-      https://git.kernel.org/abelloni/c/2166aaa173cd
-[2/6] rtc: s35390a: Add missing newline to dev_err
-      https://git.kernel.org/abelloni/c/a27b25bb9b42
-[3/6] rtc: s35390a: Fix alarm not disabling
-      https://git.kernel.org/abelloni/c/d93f29e41089
-[4/6] rtc: s35390a: Read 24-hour mode on access
-      https://git.kernel.org/abelloni/c/6199051016cd
-[5/6] rtc: s35390a: Add pinctrl
-      https://git.kernel.org/abelloni/c/cb4e92b15114
-[6/6] rtc: s35390a: Add synology quirk
-      https://git.kernel.org/abelloni/c/f6550426f21e
+[1/4] rtc: pcf85063: use devm_of_clk_add_hw_provider() for clkout
+      https://git.kernel.org/abelloni/c/a451b6bb922e
+[2/4] rtc: pcf85063: do not clear AIE in the interrupt handler
+      https://git.kernel.org/abelloni/c/75ba9f3a6a0b
+[3/4] rtc: pcf85063: preserve the alarm flag in clkout register updates
+      https://git.kernel.org/abelloni/c/09f5d9b8caaf
+[4/4] rtc: pcf85063: add 1 Hz update interrupt (UIE) support
+      https://git.kernel.org/abelloni/c/45efb584a1c0
 
 Best regards,
 
