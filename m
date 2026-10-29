@@ -1,62 +1,62 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.246.85.4
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793280907;
-	b=gBRYUrbk09PDy+WOMdD0Tl/m4h8DB5ggyxnM0ug4HsFiA325mNcsJgcavVgT5/nLeu/A
-	 jSLPcBAbeQvqV5oANPi4G4+tJ1/lEDQvsj7CK23ZupR4/uC+ZJpv/Zod3wcFyu+9GTANy
-	 X7NhbKeIvVCWhyDH9Z/pdQ007sJNn9IHfGfXxEzObtGdfJ3Q+4lCPpGntKlCoP/YFMXGN
-	 jX18QUArHxu+WLccU8Bm3MZmUHTrZgX6zKS4Pu12pRo4XuKaVUU3x0xpt7h1/Rgi2F2+3
-	 DXLAAWvA8TgcPK/AOLdO3GRJV9wLmot0ENwca1/S3L7bZq7/ncNx1AIRvmZk7nVpo+Q==
+	t=1793280908;
+	b=5U9s2MMOjWc8u7CoZjyXgtqYzfmkYS1ruFS9sV1j11RCnoVawPcgUEtwiDWaG0sc+n7N
+	 7c1BD4cBNFpORRCNFNinrxdbXQxbZhFh22Z5pySoniMe6YA/x9ORIZzavbKqS5/5Xn/wl
+	 aiQyYSLyh1Y3uPF1ZIus1WtKgPi0zcHalfVH7UWxD2Kq6YG63G5zs0EIXzalxNWjegT9o
+	 aY2lgL0T86MGtfwDC5bVOufH65FsHNCoAF5GepMrzZgxROE9DXVuFXXxdskQHzaNVt0zB
+	 8+GaRc+jP53WoNY+GLbaoSK5ZXcI1r2lNqFanEMbNbghhNyb5DBXtcxiPqL6Un5x3Cw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793280907;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793280908;
 	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:From:To:Cc:
 	 Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding:X-Last-TLS-Session-Version;
-	bh=YIpbjuCDlSaLii5+zsY/iuh0QshEzbN/gZRLj19F/s0=;
-	b=4+bKNCWQMwe8VZUCtv3AQ38hw6AHueOi7/qR08fbttX489hnGRZI7KuKQeWkV8/0/h0i
-	 55hc20ybbg8Zp7D0tTsfHUzTD0gsz08iP2mFehCcBojitwtZ68+Uk9HO4lv+AflzHqBpN
-	 HtcjDOHYFx+kLZ2n2A9M9mKsKza/sxxvANaBeu1sr2t01TeANq6kMKb4B8JdThVyll9TV
-	 OTuu5ZvwwZVnKjmYunNlhgcwyhh86KMNsIcBTbu7uJlchZEa91BmVbm3fRvpy3wBkWMd9
-	 /dAlmRPIQvSu8qb+tdahuqBYnhAUUdxh81+O4xGvkn+78ZNvX60lsG/q7wNoU282i0Q==
+	bh=BfyENGR7lkZ0yvb4xndUvOYLF5GB3gvkTIBj7aLyG80=;
+	b=Vh0Rc4H0W8VgHV1rFD9fpsf2/plBmtdM12pd53pwCPOQgUoBe6z3dgbzh1r382PChX39
+	 AYyr51iwhvW+rCZuED6TpBPJ7kiuK/JmUgxj6t9Z0qGXdqPBHIgh/J0uguMEDmo9drHxZ
+	 TguY0DD2Fbeb6ZsH9u2LJtE16XBgx4pomE2jPKkE2pIf2WLiVmeBTs/eR9fx8s66mVdgG
+	 cZ/BxsYNlbzU565zg4sopdM2wtb1LOT4IydKtq56tDBO9gJVAiYfkpNS0iIRb471+LzSs
+	 1L+KXoIJCUqZ5MKxmqcGTt74JB9bh5EYveTpZJK63D/zFNRv4bOB2+ziVQkDMqsJ9UA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=bootlin.com;
 	spf=pass smtp.mailfrom=bootlin.com;
-	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=cit2OSyz;
+	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b="cXG7jqN/";
 	arc=none smtp.remote-ip=185.246.85.4
 Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41AA7606A31A;
-	Thu, 29 Oct 2026 13:35:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 41AA7606A31A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EC19606A324
+	for <linux-rtc@vger.kernel.org>; Thu, 29 Oct 2026 13:35:08 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5EC19606A324
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=cit2OSyz
+	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=cXG7jqN/
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id E03AE4E4138B;
-	Thu, 29 Oct 2026 13:35:05 +0000 (UTC)
+	by smtpout-03.galae.net (Postfix) with ESMTPS id 3551C4E4138E
+	for <linux-rtc@vger.kernel.org>; Thu, 29 Oct 2026 13:35:07 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id AC32060360;
-	Thu, 29 Oct 2026 13:35:05 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id A56071032900F;
-	Thu, 29 Oct 2026 14:35:00 +0100 (CET)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 0C1ED60360;
+	Thu, 29 Oct 2026 13:35:07 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id DF2B61032900F;
+	Thu, 29 Oct 2026 14:35:05 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1793280901; h=from:subject:date:message-id:to:cc:mime-version:
+	t=1793280906; h=from:subject:date:message-id:to:cc:mime-version:
 	 content-transfer-encoding:in-reply-to:references;
-	bh=YIpbjuCDlSaLii5+zsY/iuh0QshEzbN/gZRLj19F/s0=;
-	b=cit2OSyzI7jNR9FucFhZ6o1utcnYbgre+dCFtObbneS+5PPPbnfKxBhTij/xriKwHyEIuE
-	smo0xZ7bGOVHkMHISXDUHq30XG3Yt76xfg7gtgQEuMco29IRaPEPUZM2pV4aPm2Y4RvjJ3
-	Czf8mbYrgD426MgcZ8YsfbLYQ2GNLUQGf7/m7NzZ0wHFinEqbAeg5l1cnFJy3IVl1cHgcm
-	9kAH0OL7A67J3+4889U6mzsvLnKp8ELxzDqqurK6rhQu1MfQ68FcUbFPbVBAEQEEh89QSP
-	m4Qx+ihgCbr1uXJ1C1KtGrELdj99bIPGcb1aHAR5sOyEHQT3vv5JHgMrtoDSkg==
+	bh=BfyENGR7lkZ0yvb4xndUvOYLF5GB3gvkTIBj7aLyG80=;
+	b=cXG7jqN/P2X+KX+f4T2iF1qiUKwtPfHXdNJg1ocYPnUmUSwcvo/fYqIkAIPvB7f7/F5tBc
+	b0fJWGYim/JZ0+DvrBZkTKplyO6UC0kRtzbvxQFG1jbuSgSA6X6/Am1waRRIAbg2whwRQ5
+	cjzY1F/tq52/DPXhKV8lDKXVLnAi4G1gGjgHB53GOKW2m1ZO0RCaC3FJQ0qOHCqnpoe28r
+	Qihb9y0ciO8FZmAJSNjFnYWKbDtCizwyoZOchTipES5HRgikv3FitPLlyJM8hRYLRd97w2
+	hBp2cGiIyw5egtN0DKXF0NdAp+Ok1SfTG78st7a+fYpTNeiF265y7aVzPjGx7w==
 From: alexandre.belloni@bootlin.com
 To: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc: linux-rtc@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH 10/12] rtc: isl1208: use sysfs_emit() instead of sprintf()
-Date: Thu, 29 Oct 2026 14:23:33 +0100
-Message-ID: <20261029132339.925021-10-alexandre.belloni@bootlin.com>
+Subject: [PATCH 11/12] rtc: ds1307: use sysfs_emit() instead of sprintf()
+Date: Thu, 29 Oct 2026 14:23:34 +0100
+Message-ID: <20261029132339.925021-11-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.56.0
 In-Reply-To: <20261029132339.925021-1-alexandre.belloni@bootlin.com>
 References: <20261029132339.925021-1-alexandre.belloni@bootlin.com>
@@ -74,59 +74,28 @@ X-Last-TLS-Session-Version: TLSv1.3
 
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-Use sysfs_emit() instead of sprintf() in sysfs show callbacks
-(timestamp0_show, isl1208_sysfs_show_atrim, isl1208_sysfs_show_dtrim
-and isl1208_sysfs_show_usr) to conform to the recommended sysfs
-attribute formatting guidelines in
-Documentation/filesystems/sysfs.rst.
+Use sysfs_emit() instead of sprintf() in the sysfs show callback
+(ds3231_hwmon_show_temp) to conform to the recommended sysfs attribute
+formatting guidelines in Documentation/filesystems/sysfs.rst.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-isl1208.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/rtc/rtc-ds1307.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
-index 9bdd5d121571..ee2eb8c475ea 100644
---- a/drivers/rtc/rtc-isl1208.c
-+++ b/drivers/rtc/rtc-isl1208.c
-@@ -615,8 +615,8 @@ static ssize_t timestamp0_show(struct device *dev,
- 	if (sr)
- 		return sr;
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 8627f84232ce..206a79d28568 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -1380,7 +1380,7 @@ static ssize_t ds3231_hwmon_show_temp(struct device *dev,
+ 	if (ret)
+ 		return ret;
  
--	return sprintf(buf, "%llu\n",
--				(unsigned long long)rtc_tm_to_time64(&tm));
-+	return sysfs_emit(buf, "%llu\n",
-+			  (unsigned long long)rtc_tm_to_time64(&tm));
- };
- 
- static DEVICE_ATTR_RW(timestamp0);
-@@ -709,7 +709,7 @@ isl1208_sysfs_show_atrim(struct device *dev,
- 	if (atr < 0)
- 		return atr;
- 
--	return sprintf(buf, "%d.%.2d pF\n", atr >> 2, (atr & 0x3) * 25);
-+	return sysfs_emit(buf, "%d.%.2d pF\n", atr >> 2, (atr & 0x3) * 25);
+-	return sprintf(buf, "%d\n", temp);
++	return sysfs_emit(buf, "%d\n", temp);
  }
- 
- static DEVICE_ATTR(atrim, S_IRUGO, isl1208_sysfs_show_atrim, NULL);
-@@ -722,7 +722,7 @@ isl1208_sysfs_show_dtrim(struct device *dev,
- 	if (dtr < 0)
- 		return dtr;
- 
--	return sprintf(buf, "%d ppm\n", dtr - 100);
-+	return sysfs_emit(buf, "%d ppm\n", dtr - 100);
- }
- 
- static DEVICE_ATTR(dtrim, S_IRUGO, isl1208_sysfs_show_dtrim, NULL);
-@@ -735,7 +735,7 @@ isl1208_sysfs_show_usr(struct device *dev,
- 	if (usr < 0)
- 		return usr;
- 
--	return sprintf(buf, "0x%.4x\n", usr);
-+	return sysfs_emit(buf, "0x%.4x\n", usr);
- }
- 
- static ssize_t
+ static SENSOR_DEVICE_ATTR(temp1_input, 0444, ds3231_hwmon_show_temp,
+ 			  NULL, 0);
 -- 
 2.56.0
 
