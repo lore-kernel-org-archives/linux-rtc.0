@@ -1,94 +1,81 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.41
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793378459;
-	b=0HJMA14LnF/wFLPO/V9NnrL16w+g5ln7ZQWVD0Syy6gJt6ZLwl0VKRQvBg7VvUz17IUN
-	 OLbPaRNmOG8UyTMSm2gOJHwWVWPeFRAtWYcG8VVeOs9aov9fcaou/QwwdQEMAQjuCj1gx
-	 h761R9DHk/ChWzKQdB5O4UheMI0nMjLDOSH575mv2sS1sujmWw2rAiry5XA3+ORWTh7CM
-	 RXPICJ0tn9A1rf5y14QCUJ5Qy6HxrBh5aMCEUZ2Ndj2j+bQ4J0b4YobNmt8ngBgoGPNFQ
-	 LpMnR23Ip13Eq7vFciZGyVwTlF3OkaJws9jZ6Os0DwYwZF42ZxLwVnEiEQjwDaVcOEg==
+	t=1793495270;
+	b=sV+nKmmp4mfUUU9VheKr89SkE1FlZhZSw2ACT3S4jXUblh4XX32LKLnxOZ3XvglC17GH
+	 gQ4ZL+oXAVT84ZAlvL63DpXzPE8vtpVQB+7LmBqM7+uAbrM2p5yG9nPxsgxxe99kgpCMb
+	 WkMmUyT3aSLPyncoudO0PayJD/wna7GM6JC/bWopzKqLWs10L0MQnHBUrS4B0XagnCy2p
+	 wWSbFWUWDmx2fYp0ABS4i1kD/VcSqU8gFmWfukTqTw599kLjiogcobhuBPXbQ06Ml1bzA
+	 TyAixXulQ4dVdvO9ynKFvh5LBZoV9M938wSkPnLCdpFt+Wtfhv7wlA6d9ApsqR9YKcg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793378459;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Date:From:To:Cc:
-	 Subject:Message-ID:In-Reply-To:References:X-Mailer:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=5m+I6rYXBG7EhF+vMUUKhGoNrZYiSUxlZhibKxKxcZ4=;
-	b=178eJp+CFFkdN2/0azCBJ99Hn/ztNQyt1A8X8sYD3agBUVpu02n+bFKJvFip0DhOZ82Y
-	 E5/axFCRYMcPm6tvv71XNC4nnVAtlAQIGOwkKuFVWOkGxhTdpUw+mYu9qHWFMMMUUYZrA
-	 /EGI52ulsC6+cNU88U8vSZ9HifLhHA8EWK3suHwU2QiUV43iRzIyMa/ZfZjtvlz+QWM/g
-	 D4sqnnz4YUVg3rGNPEQg5fCvsfmblX+8VSSM+GOg1+N2q9iLXz3FyZpD9fvKi1l+MIpkF
-	 pnkteEISYfNIdpQtI82AD9Cz0sDPCXZkDePYk1B00Xf91HDSrywI7WJZ1cCcU5gx6lA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793495270;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 In-Reply-To:References:X-Mailer:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=o0dKNKFP2TnkjHjwq1OngqcbhclebE6bDgXM6dq7QKU=;
+	b=GRz/w0aoy0qF0RZFUBYZeUqAQZoMuOA9Vl8Uaj3osM+d+s3VOu+H9ryamds43U1rhq2C
+	 1Bi5WBvmTOXRxDohD+QMNQJ5TlkaswkbE2P8S8BPjJl6uru19Z15uWAUdBodTtVbpI+dR
+	 4ivIz+yxKVQ/D8+5MUAuNa8GQk0pDYdDKxb/N6wxFD2QmBLNKqtuQl3Q//ktm5iuSPEx1
+	 8OG5rFpmkyt8EJ3hqexEJxGJUH+VLIP6ZwCOXiATSzydR4nqBQgkBDE3k1fj9uV99QP1/
+	 Z0AKFjoInj7cwvAbIQKRoEa9vkTjZRAzCHF1OQv2MN7+qmF1NwnHA689xtIb3pn+MOQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=W9X0lQw4;
-	arc=none smtp.remote-ip=209.85.128.41
-Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=a1eb1dRO;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E66FA606A31A
-	for <linux-rtc@vger.kernel.org>; Fri, 30 Oct 2026 16:40:58 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E66FA606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF086606A31A;
+	Sun,  1 Nov 2026 01:07:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=W9X0lQw4
-Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-4a2d6d01ecbso6184435e9.0
-        for <linux-rtc@vger.kernel.org>; Fri, 30 Oct 2026 09:40:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793378457; x=1793983257; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=5m+I6rYXBG7EhF+vMUUKhGoNrZYiSUxlZhibKxKxcZ4=;
-        b=W9X0lQw4SZf4yT54C8AYi8FwKxsLcslJtoO1txlZUg42yAT4Gs81viAZNw45ENsrJP
-         1AvSfjHM16AS0fXeBjrTmrSN86oPyYo8Uo7qAz0NW0vDo9Y0+3KyH/aCkaRngScHtrXT
-         G6Eg3gPIyckVYZUaw5osNAVY5U30HoHYjgEKV175wA/M3ZeA44e+CkYYu/B6UG1ZHu5m
-         mF7HN6vWlxRhH93u5imxWx+K/ClGWlm4l7gK9meXFXvdHBcXbcJAWhR1u9mBY9fe5byW
-         kPHp+6D6fQuywAlaTYmOsd0jbr5MdEBf0hyEqe0MDeVI5YjLZIdM7eOGsRbpMmZsPPxT
-         ox4g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793378457; x=1793983257;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=5m+I6rYXBG7EhF+vMUUKhGoNrZYiSUxlZhibKxKxcZ4=;
-        b=ZSbx1oBOlmHWLehSdwGN+U9uruqCJyru1E5LOoWNpJF7NazleMBQ6BkP6GowtXITfc
-         I3a1nRPhuDrJue3R6Syfni0cJvItYrys4G2QmRDZ4xhsrvfa88zBD8HgJc0n+lh8w3j4
-         YVbWxYE16BXIy5v/ntTWFCOqpat1SY634TM+jwkLmGDOMXMwp94AoRew7CAcQCMQRolu
-         e4TWkPBKgSf7aIHG7Pr1O2BMiQhBO4uYhLriPRfRFzeHbbw6bsPWWy2D037gZa0ZSiop
-         KFQdynu4FridPkYA01N+jinueyDbcZ+/+5iVQgD/w4DatP3A7ff9XiorOEQ3gMBqVI8U
-         0CLA==
-X-Gm-Message-State: AFq9FYIIMhM5L38RxjNzIpAfPf5EK90AWnXxJf/LOZWhcxdCrObhETPz
-	AqvraBOYcsfCKipfSwSujrcTzSluY9BPmV6wIA6VfMv90bojE+2yPnLB
-X-Gm-Gg: AYBFou03rPdajn2upYQBKBFL7KKjIEdWMGspp65079wUH79r0e8B/r2+A9bjYOFu9Pn
-	bHTK1q3vshbfJRCVQFzxygdrbVhp8Rjc/uL+kjT9F9jYnPwF94+CSDZ2VLEQNEbr971Y7l/vtsa
-	eyoZaJ/ZU78NaqtTpj2p+26keKsnKlVloG6TJpgR8Ap6Y2ySp+5ZyAr5DG3/IsfP8SrAv8QvlYG
-	UTVz0UhB5Uul3bHbqiuOqlArYO3Tc943NILTlYidn5eMZRtv2ca3IiWcV6i25cnxBlM80AJpQJl
-	z2xGyo+rwGwpvIFu6JG3xbi+TfTt16ejakW3UoXCPHSlvrbmt5QpgN1RZmlllHSh9hwp41y24Gs
-	54oGg8rQJm+JTwUD/mknxhsXrRMj70ZnO2c9fXOgNYGMetK2HeeFwJVmOzkJ9vmmMufRuODBzgz
-	I4vaAjsB11kMgXKC1zlFSvEGWivT8C0uARcT7vEDb3Jqy2E8nf+e0q0yUP89kYZQ6Bqla1n4fSf
-	yNH8YrclDe3spWtgQvEY1oP3Rtay+UDfoe6k6TKLfLyMV6v8TUtguzUsHbO/qCE0ZmXyMm/yYfy
-	DP89leHBHf3slDHtQDFgKBuXHyzyFbjC3RoukQoboihB01UbtMFexc+alSGd0PCTZA==
-X-Received: by 2002:a05:600c:8b66:b0:4a3:5a91:5f61 with SMTP id 5b1f17b1804b1-4ac1793f8ddmr66810645e9.14.1793378457283;
-        Fri, 30 Oct 2026 09:40:57 -0700 (PDT)
-Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4abf6c76507sm74032325e9.10.2026.10.30.09.40.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 30 Oct 2026 09:40:57 -0700 (PDT)
-Date: Fri, 30 Oct 2026 16:40:56 +0000
-From: David Laight <david.laight.linux@gmail.com>
-To: alexandre.belloni@bootlin.com
-Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 06/12] rtc: abx80x: use sysfs_emit() instead of
- sprintf()
-Message-ID: <20261030164056.395340bf@pumpkin>
-In-Reply-To: <20261029132339.925021-6-alexandre.belloni@bootlin.com>
-References: <20261029132339.925021-1-alexandre.belloni@bootlin.com>
-	<20261029132339.925021-6-alexandre.belloni@bootlin.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=a1eb1dRO
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADE9E1F000C1;
+	Sun,  1 Nov 2026 01:07:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793495269;
+	bh=o0dKNKFP2TnkjHjwq1OngqcbhclebE6bDgXM6dq7QKU=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=a1eb1dROmAhVQ61MQlal6Ap7Wbtl+Ngz2TIMIAwEsgCwttIY4YtbfkeB4YLLcsjlZ
+	 nz2xZEH1C/YJ9YaO/y6ogOD0fTzo/Me7AaL8H1e6qmsGqtN10cu2zlIWrgi/kBM+wB
+	 MLMQ5Nu7I9HGgwHt0MM4z7x8pDENFn2pbc5+hHJXjTo72OrLTLBFDOSBdGX3dhDSSR
+	 bBHJNI+ivrnkPZM/X8KAU/N3tBO5EDmY8B4PfVrayskaUDgvp1GxwKuytbBEbHXGe0
+	 YH8p3wDfYo7OWUEof1MPQcH304m2+9ot0CEYIxjGL8lrPtQDY3oiB2v6/T7dtKSTT+
+	 AiBAUdcvR+i4g==
+Date: Sun, 1 Nov 2026 01:07:37 +0000
+From: Jonathan Cameron <jic23@kernel.org>
+To: Atharva Tiwari <atharvatiwarilinuxdev@gmail.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>, Thomas Gleixner <tglx@kernel.org>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen
+ <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin"
+ <hpa@zytor.com>, "Rafael J. Wysocki" <rafael@kernel.org>, Len Brown
+ <lenb@kernel.org>, Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski
+ <brgl@kernel.org>, Sven Peter <sven@kernel.org>, Janne Grunau
+ <j@jannau.net>, Neal Gompa <neal@gompa.dev>, Guenter Roeck
+ <linux@roeck-us.net>, David Lechner <dlechner@baylibre.com>, Nuno
+ =?UTF-8?B?U8Oh?= <nuno.sa@analog.com>, Andy Shevchenko <andy@kernel.org>,
+ Lee Jones <lee@kernel.org>, Pavel Machek <pavel@kernel.org>, Griffin
+ Kroah-Hartman <griffin@kroah.com>, Hans de Goede <hansg@kernel.org>, Ilpo
+ =?UTF-8?B?SsOkcnZpbmVu?= <ilpo.jarvinen@linux.intel.com>, Sebastian Reichel
+ <sre@kernel.org>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Wim
+ Van Sebroeck <wim@linux-watchdog.org>, Jarkko Sakkinen <jarkko@kernel.org>,
+ Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>,
+ Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, Eric Snowberg
+ <eric.snowberg@oracle.com>, Paul Moore <paul@paul-moore.com>, James Morris
+ <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>,
+ linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org,
+ linux-acpi@vger.kernel.org, linux-gpio@vger.kernel.org,
+ asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+ linux-hwmon@vger.kernel.org, linux-iio@vger.kernel.org,
+ linux-leds@vger.kernel.org, mfd@lists.linux.dev,
+ platform-driver-x86@vger.kernel.org, linux-pm@vger.kernel.org,
+ linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+ linux-integrity@vger.kernel.org, keyrings@vger.kernel.org,
+ linux-security-module@vger.kernel.org
+Subject: Re: [RFC PATCH 00/14] Add macsmc support for Intel Macs, replacing
+ applesmc
+Message-ID: <20261101010737.203951cd@jic23-hlaptop>
+In-Reply-To: <20261029085504.3547-1-atharvatiwarilinuxdev@gmail.com>
+References: <20261029085504.3547-1-atharvatiwarilinuxdev@gmail.com>
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -101,63 +88,133 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On Thu, 29 Oct 2026 14:23:29 +0100
-alexandre.belloni@bootlin.com wrote:
+On Thu, 29 Oct 2026 04:51:57 -0400
+Atharva Tiwari <atharvatiwarilinuxdev@gmail.com> wrote:
 
-> From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> applesmc is very old, and all of its code is lumped into one
+> driver. Fan control, sensors, the light sensor, the motion
+> sensor and the keyboard backlight in a single file
+> with its own way of talking to the SMC. It is hard to extend
+> and to support new machines.
 > 
-> Use sysfs_emit() instead of sprintf() in sysfs show callbacks
-> (autocalibration_show and oscillator_show) to conform to the
-> recommended sysfs attribute formatting guidelines in
-> Documentation/filesystems/sysfs.rst.
+> This series adds Intel Mac support to the macsmc drivers that
+> were written for Apple Silicon (the Asahi implementation).
+> The SMC works the same way on both platforms, so we share a
+> lot of code with Asahi. Only the way of talking to the SMC
+> differs.
 > 
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-> ---
->  drivers/rtc/rtc-abx80x.c | 10 +++++-----
->  1 file changed, 5 insertions(+), 5 deletions(-)
+> To make that work, patch 1 splits the macsmc driver into a
+> common core and a backend. The existing RTKit code moves into
+> its own backend. Patch 2 adds an ACPI backend for Intel Macs
+> with I/O port, MMIO and interrupt support. After that, each
+> function gets its own small driver using the standard kernel
+> interfaces (hwmon, IIO, LEDs, power supply, RTC, watchdog),
+> instead of one large driver doing everything.
+
+Are we looking at ABI changes as a result of this? That
+tends to happen with split ups of unified drivers and mapping
+them to more standard kernel subsystems.
+
+What is the plan to handle them if so?
+
+Thanks,
+
+Jonathan
+
 > 
-> diff --git a/drivers/rtc/rtc-abx80x.c b/drivers/rtc/rtc-abx80x.c
-> index 1c69d0e2f940..a0d67818eb58 100644
-> --- a/drivers/rtc/rtc-abx80x.c
-> +++ b/drivers/rtc/rtc-abx80x.c
-> @@ -442,11 +442,11 @@ static ssize_t autocalibration_show(struct device *dev,
->  	autocalibration = abx80x_rtc_get_autocalibration(dev->parent);
->  	if (autocalibration < 0) {
->  		dev_err(dev, "Failed to read RTC autocalibration\n");
-> -		sprintf(buf, "0\n");
-> +		sysfs_emit(buf, "0\n");
->  		return autocalibration;
-
-That doesn't make sense.
-The return value is the length of data in the buffer.
-So there is no point calling sprintf/sysfs_emit and then returning
-an error.
-
-David
-
->  	}
->  
-> -	return sprintf(buf, "%d\n", autocalibration);
-> +	return sysfs_emit(buf, "%d\n", autocalibration);
->  }
->  
->  static DEVICE_ATTR_RW(autocalibration);
-> @@ -490,14 +490,14 @@ static ssize_t oscillator_show(struct device *dev,
->  
->  	if (rc_mode < 0) {
->  		dev_err(dev, "Failed to read RTC oscillator selection\n");
-> -		sprintf(buf, "\n");
-> +		sysfs_emit(buf, "\n");
->  		return rc_mode;
->  	}
->  
->  	if (rc_mode)
-> -		return sprintf(buf, "rc\n");
-> +		return sysfs_emit(buf, "rc\n");
->  	else
-> -		return sprintf(buf, "xtal\n");
-> +		return sysfs_emit(buf, "xtal\n");
->  }
->  
->  static DEVICE_ATTR_RW(oscillator);
+> On Intel Macs these drivers replace applesmc (hwmon, light
+> sensor, motion sensor and keyboard backlight) and acpi-sbs
+> (battery and adapter). They are mutually exclusive with the
+> drivers they replace, so only one is used at a time.
+> 
+> This is an RFC to get early feedback on the design. The macsmc
+> split and the Intel Mac backend touch fundamental parts, so I
+> would rather change them now if maintainers ask. After that I
+> will test the series on more macsand send it upstream as a
+> proper series.
+> 
+> The series is organised as follows:
+> 
+>   1      Split macsmc into a core and backends
+>   2      ACPI backend for Intel Macs
+>   3-6    New drivers: watchdog, IIO light and accelerometer,
+>          keyboard backlight LED
+>   7-9    RTC support for T2 Macs, a T2 detection flag, and
+>          disabling the broken ACPI RTCs
+>   10-11  Power supply support, replacing acpi-sbs
+>   12-13  hwmon support for Intel Macs
+>   14     ioctl for userspace access to SMC keys
+> 
+> 
+> Tested-on: MacBookPro16,1 , iMac20,1 , MacBookAir4,2 , MacBookPro12,1 ,
+> MacBookPro15,1
+> 
+> NOTE: Almost all drivers have been tested except the motion sensor
+> driver as i was not able to find any device that had one.
+> 
+> Atharva Tiwari (14):
+>   treewide: Add backend for macsmc
+>   platform/x86: add backend for macsmc in intel macs
+>   watchdog: add driver for apple smc
+>   iio/light: add new driver for macsmc
+>   iio/accel: add driver for apple SMS
+>   leds: add support for macsmc kbl
+>   rtc: add support for x86 macs in macsmc-rtc
+>   treewide: Add a flag to detect the Apple T2 chip
+>   treewide: disable other rtc's in t2 macs
+>   power/supply: add support for x86 macs in macsmc-power
+>   acpi: disable battery and adapter for x86 apple machines
+>   hwmon/macsmc: add more types
+>   hwmon: add support for x86 macs in macsmc-hwmon
+>   mfd/macsmc: add ioctl to access smc keys
+> 
+>  MAINTAINERS                                   |    2 +-
+>  arch/x86/kernel/quirks.c                      |   37 +
+>  drivers/acpi/acpi_tad.c                       |    4 +
+>  drivers/acpi/sbs.c                            |   17 +-
+>  drivers/acpi/x86/utils.c                      |    4 +
+>  drivers/gpio/Kconfig                          |    2 +-
+>  drivers/gpio/gpio-macsmc.c                    |   13 +-
+>  drivers/hwmon/Kconfig                         |    7 +-
+>  drivers/hwmon/macsmc-hwmon.c                  | 1126 ++++++++++++++++-
+>  drivers/iio/accel/Kconfig                     |   10 +
+>  drivers/iio/accel/Makefile                    |    1 +
+>  drivers/iio/accel/macsmc-accel.c              |  248 ++++
+>  drivers/iio/light/Kconfig                     |   11 +
+>  drivers/iio/light/Makefile                    |    1 +
+>  drivers/iio/light/macsmc-light.c              |  189 +++
+>  drivers/leds/Kconfig                          |   11 +
+>  drivers/leds/Makefile                         |    1 +
+>  drivers/leds/leds-macsmc.c                    |   69 +
+>  drivers/mfd/Kconfig                           |   15 +-
+>  drivers/mfd/Makefile                          |    2 +-
+>  drivers/mfd/macsmc-core.c                     |  362 ++++++
+>  drivers/platform/x86/Kconfig                  |   10 +
+>  drivers/platform/x86/Makefile                 |    1 +
+>  drivers/platform/x86/macsmc-acpi.c            |  642 ++++++++++
+>  drivers/power/reset/Kconfig                   |    2 +-
+>  drivers/power/supply/Kconfig                  |    2 +-
+>  drivers/power/supply/macsmc-power.c           |  751 ++++++++---
+>  drivers/rtc/Kconfig                           |    2 +-
+>  drivers/rtc/rtc-cmos.c                        |    4 +
+>  drivers/rtc/rtc-macsmc.c                      |  126 +-
+>  drivers/soc/apple/Kconfig                     |   14 +
+>  drivers/soc/apple/Makefile                    |    2 +
+>  .../macsmc.c => soc/apple/macsmc-rtkit.c}     |  185 ++-
+>  drivers/watchdog/Kconfig                      |   11 +
+>  drivers/watchdog/Makefile                     |    2 +-
+>  drivers/watchdog/macsmc_wdt.c                 |  140 ++
+>  include/linux/mfd/macsmc.h                    |  104 +-
+>  include/linux/platform_data/x86/apple.h       |    5 +
+>  .../platform_certs/keyring_handler.h          |    8 -
+>  security/integrity/platform_certs/load_uefi.c |   38 +-
+>  40 files changed, 3786 insertions(+), 395 deletions(-)
+>  create mode 100644 drivers/iio/accel/macsmc-accel.c
+>  create mode 100644 drivers/iio/light/macsmc-light.c
+>  create mode 100644 drivers/leds/leds-macsmc.c
+>  create mode 100644 drivers/mfd/macsmc-core.c
+>  create mode 100644 drivers/platform/x86/macsmc-acpi.c
+>  rename drivers/{mfd/macsmc.c => soc/apple/macsmc-rtkit.c} (70%)
+>  create mode 100644 drivers/watchdog/macsmc_wdt.c
+> 
 
