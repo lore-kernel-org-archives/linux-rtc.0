@@ -1,57 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793598291;
-	b=4gGG+bzZYZJ4R/6GQ3LC73mPLNEVyMxFUmqsyfuN/cXGpTianNaJ68q1kmSFuPBMFqo+
-	 rj0ksJaywO/Kyi5fyJJyuuGwlMLTvOYczP8AJRGJ54FFfzRJnZxq5igyTRP/3rgT+acLt
-	 xbuii8ldvbGdYC6CR8HhFy7ywmj0FDxptq+AF9HrPG70bUccMjfGRVu7Z1zvaWaVIdYJS
-	 0nToz6PiQQ4r4PuvW06f0rHeMql4Ty4aFuMqbP83eemfEvDzQAolQOeDMvQp56cY5g/gE
-	 aCW4b0Q37ix/OEgIW9Dkxt1VuRzpUVSh6XQxrT5GeLFhCm1BKCvwhozB1TidnhikOHg==
+	t=1793605679;
+	b=KoYAAo8YbCLIwHvZgVL9BYc+Zx0fpYhR3qRH08pOfaxnuxeatHosANodJlPtaQY6sluq
+	 h7vZcok8OqkTjxscj/rFJqiyR5G+6w8+vZ3uaFFCBn9U5aJYJqw0G47p+2BkADk64RJ6R
+	 LACqKKbDNfoxOiog9RvaSVj80uzaHstuPD4eINVjR7l4HhzDbgfLKBlkKXzj5x3Oye4eB
+	 nxXUyaK/COTfyme9Bk55vBJkcFiRPIRoeViBC4jgalN3FCor2WRzZOkWgQbKKlydLt+bf
+	 l2rwo8hAfhMXU1dUqkF/YJDCGF6dqOFt/7wzc/2lZL7tkaDGP81JKFwI4vqLAAJvK4g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793598291;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=mFp7tohhPZAqLgfV25DlFazRnjrErluUbALeGPYkzSI=;
-	b=wCXwm8zZDtFe+QDKHc4kOIuz3svUxd0NdW1CVIaQr81BphcpD6kBwtDt1P/umZNU7acv
-	 h5A5yinwluRfoa5KkAUvv2niCrnu3WsOZPRBEQR4neQQ9HHhykCnBUqj76fvhZ3NBVXDu
-	 fxoCcuk6c+yZvW80RgXRkOSFrYKOcwG3XHFkILKiF6bHkWusEaiLhCX+jGkfkmpX4JDWa
-	 Nwvsvl94PDLUB2/K6OKF5Bl6/n0kaofs4Or5cPlZOdfLO+Gv0o0zGyBTnG4S4hZoyTx9f
-	 jncRIlTRz8FnADRzir2EjXtOsBPEJl85oy0KPx3w9o7gkQewyGyv/9fLp08CQQ1SOpQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793605679;
+	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
+	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=/5I86CZ+slqkRJTosNHUxkAL8uURBN5dDpgqbLr07wU=;
+	b=X9x8U4l8UtI2eNh/qaIR57+w0SqZ7OyIh1myN85YFBMj+YxCa66Pw7PBDDqGZU3EbjgO
+	 U9FmKhpInuqnAolplukFq4D6wn1uDXW5TATzyfTT9WaSQVENKvZ2m4wUcSYCZF5Yei/cV
+	 TRWbZ3OmROTYPhCQoPc+hCqfK9NM25ImDOaDR6hxWSaE7VRY3GFvxLygNc0Cs9H5pLC+Y
+	 3SsWuekdtFMGVl1UWipAeB5nyTSPdBRaQ1aVUd4yVnRVOnP4jHZBghVnEEmvbzom0A7Ia
+	 N9c4O3e2exujaR/6bmVEMQGYAzgmEaNyrtHwKXJQzYLnHNar0wM128M5xPc0svZKs8g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Vn5hJCtf;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="Yt/7r3JE";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A444606A324;
-	Mon,  2 Nov 2026 05:44:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7924D60A260E;
+	Mon,  2 Nov 2026 07:47:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Vn5hJCtf
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 845071F00A16;
-	Mon,  2 Nov 2026 05:44:50 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Yt/7r3JE
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20DB91F00919;
+	Mon,  2 Nov 2026 07:47:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793598291;
-	bh=mFp7tohhPZAqLgfV25DlFazRnjrErluUbALeGPYkzSI=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Vn5hJCtfSWM1keBPjzEf4kyndK73P/ON+YvSE79YvuJn++nrG6bxC8GeuW7xmpH5D
-	 p3KnyKe+Vcw27aWnYEODslZrOJR3RhT9+WZmu5SPzc0nCNvL4ilyZkSKWpdw29A8I+
-	 6csnVZGA+f3egLLSgz07Bho6CZx8Yaib7BZZ6KmBtKWysmiAzvLfZJfj4qaVGbMSKo
-	 J/fuAYowOz4kKUn9CXwQzg5VcCzE+XxLmzmnhlIBzsfH7ZRc6Y+Qbzcny3NabxBD4J
-	 hJU+k5ANt1W6O156ntyvfIUyfaZ/0UpusFvwOk6HWyhdSue0PFi5mQ8HOm8U6LZgpZ
-	 qs69qe4oZFCAQ==
-Message-ID: <sashiko-outbox-192928@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/2] rtc: mt6397: provide the 32 kHz output as a clock
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Ryan Brue" <ryanbrue.dev@gmail.com>
-Cc: mfd@lists.linux.dev, devicetree@vger.kernel.org, linux-rtc@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, "Alexandre
- Belloni" <alexandre.belloni@bootlin.com>, lee@kernel.org
-In-Reply-To: <20261101-rbrue-suez-upstreaming-mt6397-rtc-32k-v1-2-9758f38d7053@gmail.com>
-References: <20261101-rbrue-suez-upstreaming-mt6397-rtc-32k-v1-0-9758f38d7053@gmail.com>
- <20261101-rbrue-suez-upstreaming-mt6397-rtc-32k-v1-2-9758f38d7053@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 02 Nov 2026 05:44:50 +0000
+	s=k20260515; t=1793605676;
+	bh=/5I86CZ+slqkRJTosNHUxkAL8uURBN5dDpgqbLr07wU=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=Yt/7r3JEtzHG6GYJFiSgbdV4xZv1CP1WOEwveRYgMAoVmlr1ssFwCP3cji8JybOvP
+	 5pFdBlfjfYYpmPkLhRoaFM716IP8ckfK7/mpd6AbncfvqPt67Mlag7w25Tcel3PH+y
+	 fAzcYndBtlAVHCwlgyj4LYIpuny562C1vEhC4hqUFZ2UOKTd6kMjC7SnyVm+6765Hp
+	 snsim7fvwgSqAtSmB4ATTR51c9pbLaNiJA7T/pXaXBQ8ZaKOvHYUJ4GVSN2cZH3EwQ
+	 E4wu2/tajaDVYQruUjC5aZOWIHVkNWq0ituIE0wMlu4lpRoG7zL/7AAdMjHYmQmN93
+	 Rvd7Gyh1FFS4g==
+Message-ID: <f63bf987-aaf7-45d5-89da-24c16b1a848b@kernel.org>
+Date: Mon, 2 Nov 2026 08:47:47 +0100
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -60,84 +50,86 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/2] dt-bindings: mfd: mediatek: mt6397: describe the
+ RTC's 32 kHz output
+To: Ryan Brue <ryanbrue.dev@gmail.com>, Sen Chu <sen.chu@mediatek.com>,
+ Sean Wang <sean.wang@mediatek.com>, Macpaul Lin <macpaul.lin@mediatek.com>,
+ Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+ Eddie Huang <eddie.huang@mediatek.com>,
+ Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: linux-pm@vger.kernel.org, mfd@lists.linux.dev,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org,
+ linux-rtc@vger.kernel.org
+References: <20261101-rbrue-suez-upstreaming-mt6397-rtc-32k-v1-0-9758f38d7053@gmail.com>
+ <20261101-rbrue-suez-upstreaming-mt6397-rtc-32k-v1-1-9758f38d7053@gmail.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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
+In-Reply-To: <20261101-rbrue-suez-upstreaming-mt6397-rtc-32k-v1-1-9758f38d7053@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] rtc: mt6397: NULL dereference of rtc->data in mtk_rtc_register_clk=
-out()
---
+On 02/11/2026 06:33, Ryan Brue wrote:
+> The MT6397 RTC drives its 32 kHz clock out of the PMIC, where boards
+> use it as the sleep clock of a Wi-Fi/Bluetooth combo chip. The output
+> is off unless something turns it on.
+> 
+> Let the RTC node provide it as a clock.
+> 
+> Signed-off-by: Ryan Brue <ryanbrue.dev@gmail.com>
+> ---
+>  Documentation/devicetree/bindings/mfd/mediatek,mt6397.yaml | 6 ++++++
+>  1 file changed, 6 insertions(+)
 
-commit 7a674b1fa23c59043354cce078b81b55651fd9c2
-Author: Ryan Brue <ryanbrue.dev@gmail.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 
-rtc: mt6397: provide the 32 kHz output as a clock
-
-This commit registers the MT6397 RTC's 32 kHz output gated by RTC_CON.F32KOB
-as a clock provider when the RTC node specifies #clock-cells, allowing clie=
-nt
-devices such as Wi-Fi/Bluetooth combo chips to enable their sleep clock.
-
-> diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-> index d6e156516aa6c..5130fecffa7b4 100644
-> --- a/drivers/rtc/rtc-mt6397.c
-> +++ b/drivers/rtc/rtc-mt6397.c
-[ ... ]
-> @@ -317,6 +318,84 @@ static int mtk_rtc_nvram_write(void *priv, unsigned =
-int offset, void *val,
-[ ... ]
-> +/* The 32 kHz output the PMIC drives to other chips, such as a combo chi=
-p */
-> +static int mtk_rtc_register_clkout(struct device *dev, struct mt6397_rtc=
- *rtc)
-> +{
-> +	struct clk_init_data init =3D {
-> +		.name =3D "mt6397-rtc-32k",
-> +		.ops =3D &mtk_rtc_clkout_ops,
-> +	};
-> +	int ret;
-> +
-> +	if (!rtc->data->con || !of_property_present(dev->of_node, "#clock-cells=
-"))
-> +		return 0;
-
-[Severity: High]
-Can this dereference a NULL rtc->data pointer during mtk_rtc_probe()?
-
-In drivers/mfd/mt6397-core.c, mt6397_devs[] unconditionally registers the
-mt6397-rtc MFD cell:
-
-    {
-        .name =3D "mt6397-rtc",
-        .num_resources =3D ARRAY_SIZE(mt6397_rtc_resources),
-        .resources =3D mt6397_rtc_resources,
-        .of_compatible =3D "mediatek,mt6397-rtc",
-    }
-
-On MT6397 boards whose Device Tree omits the optional mediatek,mt6397-rtc
-child node under the PMIC node (such as mt8173-evb.dts and mt8135-evbp1.dts=
-),
-mfd_add_device() registers the mt6397-rtc platform device with
-pdev->dev.of_node set to NULL. Because mtk_rtc_driver has .driver.name set =
-to
-"mt6397-rtc" and no id_table, platform_match() binds the device via the
-driver-name fallback and invokes mtk_rtc_probe():
-
-drivers/rtc/rtc-mt6397.c:mtk_rtc_probe() {
-    ...
-    rtc->data =3D of_device_get_match_data(&pdev->dev);
-    ...
-    ret =3D mtk_rtc_register_clkout(&pdev->dev, rtc);
-}
-
-When pdev->dev.of_node is NULL, of_device_get_match_data() returns NULL.
-Previously, mtk_rtc_probe() never dereferenced rtc->data during probe,
-whereas mtk_rtc_register_clkout() now evaluates !rtc->data->con before
-checking dev->of_node or whether rtc->data is NULL.
-
-Should mtk_rtc_register_clkout() check !rtc->data (or check
-of_property_present() first), or should mtk_rtc_probe() handle a NULL
-rtc->data?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261101-rbrue-suez=
--upstreaming-mt6397-rtc-32k-v1-0-9758f38d7053@gmail.com?part=3D2
+Best regards,
+Krzysztof
