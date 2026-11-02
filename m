@@ -1,70 +1,88 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.171.202.116
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.231.136
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793627409;
-	b=3OVXfqQBVOR7a/JCKWwnjE+nlvgQxxFoHEXnYWChihIpzxyW3xfT3cYJtwJ3PKLjEiwo
-	 1AFmW1Ui/OzJuFBkbHGqROu/zgWmVi9sVxqYqFFJ3xT0GvuZ6VTfb6nyEflVpMWJKzPww
-	 g5Tcu4/3HKJUtn7kRu9AZW3YqetVCRC7iRt+0+dDjSqtEukggdy0GyYaEt/t5u5KGB/cM
-	 nG7ve8VQizhylqRpmxtDQ8LTeN65BVMqYaaYNFJkKuT7gzPcExKezHHUA4YxKqQqQIm2e
-	 +oE/GER7xTYEn8+325aAOgCQUcTjcGacOkN1GrugIgRAdb8aNsvJB5hatnyHzJW2MLA==
+	t=1793630193;
+	b=eDv0Z0prdFLpbYvwQqSU2orHHAfsmFwuiNCjUeIMYEAFmxjkdIPomekxTmO5FFxiCyBU
+	 15sS+e9MJ+KjOYCrbqexhkQz/6vYpisW2mh6M5xB+34tV6CWMUmNB3MP+uwRyTzrcbbta
+	 9JUUgS4ldF/an8fMooafd1YVDfWzl4JKHePKpXqfJ4ADqoTklqALrDbaibsM7lwWhtcbs
+	 3a/UaPFhq2yGv8U9bj4NDfUyxlHE7eKK8iBp673ws7meKm38pOsbnGkB97YQk+ZR3uovO
+	 eBhrgjqhYhwTYxTYdRrxTmSUCm8n+cK7NjiHBxLCFOMuTcVeDmz5PP7WFZiarFEp0yQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793627409;
-	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:Date:From:To:
-	 Cc:Subject:Message-ID:In-Reply-To:References:Organization:X-Mailer:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding:
-	 X-Last-TLS-Session-Version;
-	bh=wNStSjwISQyGeb1rd2HXoOipT3Bs+NI6BZQo3NWUbxo=;
-	b=dQeX+vgwYD7ht5+p1JTiHbN3Vf3PB25LgkxsGbTGQTZpJS5GJ9GzjyfJYfv7iWx+KRdl
-	 U4qN2mzVsBzHlEmr/q3IjgnN4Nkie3rvAdTAxHqlo49YS+e2zJHO59Hzpj9fjyPZjfYac
-	 zI7or8zocWyAiZhUNx/qAkx+0KLC3HTBoepNSSpD/2eVC/IJ1VzgYmUdymrvxVwMAShpm
-	 8h732sd8DpSsJlcZ6PcSAJF332LyyEyVHckkUEgrWGQjtw5JfPMPpK92pdOy6B9rl7rwY
-	 g+EyOgpqZavgpD1V8mCjmXBupLXv2+dFGt58RWqUWsJq/ZAjK/+HMToVv9ZQAfH4s/w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793630193;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:References:
+	 Content-Language:From:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=O/U/gtv+fmTdKgkNES2DeDqnFxJ1hQs20tgERiKWY4Y=;
+	b=P14g2Cx9RvwPDe9c7wu4Rylu3fTbPBsBfioFat843JEDqDymnu4KJb46ngTIsBL/ZrHM
+	 fFxSciuH1UFXWH0PPV42lS6ysp8UvjHF8btQMPkAiBIqSo9I5W27stA3PoFhMpTsEkQ+U
+	 72xbPdof8kJLWLDR5XS1EmzzdxnDASMKqJmkqRRMB1C8RU65Titrk8jNnyA5XK2hYv6Zm
+	 NcQ1Qh656ADmwx9RAYgzosy68fLQMJEZQR8qYQL0ovaRAeyFEsBwBrXG9V81REpgSB8sk
+	 uqruWQdIxnPcC6wpQt1JL8qJVh7tphJEzwFqeMzVk3OweGVctx47Q7P+l1Gg9Lvo5Qg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=bootlin.com;
-	spf=pass smtp.mailfrom=bootlin.com;
-	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b="03/TbKoA";
-	arc=none smtp.remote-ip=185.171.202.116
-Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=yGvuWvXA;
+	arc=none smtp.remote-ip=74.125.231.136
+Received: from mail-oo2-f8.google.com (mail-oo2-f8.google.com [74.125.231.136])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A6B4606A324;
-	Mon,  2 Nov 2026 13:50:06 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1A6B4606A324
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCD22607824B
+	for <linux-rtc@vger.kernel.org>; Mon,  2 Nov 2026 14:36:32 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CCD22607824B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=03/TbKoA
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-04.galae.net (Postfix) with ESMTPS id 6F9F8C4FECD;
-	Mon,  2 Nov 2026 13:51:09 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 4319760750;
-	Mon,  2 Nov 2026 13:50:05 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 3D9A0103290ED;
-	Mon,  2 Nov 2026 14:49:58 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1793627400; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding:in-reply-to:references;
-	bh=wNStSjwISQyGeb1rd2HXoOipT3Bs+NI6BZQo3NWUbxo=;
-	b=03/TbKoAdRJAMXmDAbJgqxpKq26zsvDoSauRdA/MM0boV8Lnu+vLOlVk+nxkQNzOzpFYgg
-	UH7auEhvJ4laorPtdSdRLHMbavT5t3DtO0zwDWFdPJdWQfFu7lRpfOJAB4hXz0cbhmV8+8
-	QvZYewdNe7L/tL/4lTxUJDZXtt0u0WE3ioft4SC9XtE2dFyrNJviGgPY57ntkB5c0mqoYG
-	QBCiq4Q1D+mwjK+usYsFnqYKaZw7FlZKM4W7j0Jr3FkOQJ7pGtMGhTOVTiDLna/yd+uhIF
-	qJBQmzaOFq2bPHTziQamNA6vfghBhAn5KTI9fbSaXIFI+TW0EzQiHa5PE774yA==
-Date: Mon, 2 Nov 2026 14:49:56 +0100
-From: Herve Codina <herve.codina@bootlin.com>
-To: sashiko-bot@kernel.org
-Cc: sashiko-reviews@lists.linux.dev, linux-rtc@vger.kernel.org,
- devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org,
- "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-Subject: Re: [PATCH 2/3] rtc: pcf2127: Add support for the clkout clock
-Message-ID: <20261102144956.57f9bbf3@bootlin.com>
-In-Reply-To: <sashiko-outbox-193475@kernel.org>
-References: <20261102130712.25104-1-herve.codina@bootlin.com>
-	<20261102130712.25104-3-herve.codina@bootlin.com>
-	<sashiko-outbox-193475@kernel.org>
-Organization: Bootlin
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=yGvuWvXA
+Received: by mail-oo2-f8.google.com with SMTP id 46e09a7af769-843c8bbfbc4so1374916a34.1
+        for <linux-rtc@vger.kernel.org>; Mon, 02 Nov 2026 06:36:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793630191; x=1794234991; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=O/U/gtv+fmTdKgkNES2DeDqnFxJ1hQs20tgERiKWY4Y=;
+        b=yGvuWvXAnv/ALgw/ng7DiKt3/v4Bc9Py6IomOc07OmxQNEgtiT4A+vgouwG4lOZ6Cy
+         LcKm5jMK2iGs8gkNO6KkLjoe4VTlGr1VLROmHSArFpPnekaAhNjMnfl8O49jixZvc8uh
+         Xcz3Ki4nVuRdlvI19+/kn03r/WzAw2tueHb6hz12ExZK71YLMGaXZPyn8mJu0Nk+vdaQ
+         yxDUnxVqJVHc7w33XlZcEdmxNXf8gl5sWb5MDUkIFUoiCNDq8saj59W4kdlC5E5FTxJn
+         U5rwYsh03vOWfF7u8c3TxcgQzoWhkH36cOn2dJJ1sWe/e3ldKpsapOeQ8XDsC7m/CbmS
+         H6gA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793630191; x=1794234991;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=O/U/gtv+fmTdKgkNES2DeDqnFxJ1hQs20tgERiKWY4Y=;
+        b=me29as5nV1n6qlBlKDo89h7EFAjutY4qcUq94rAgwwl17y9OdGWxc5dDBwlEdxZf80
+         PYj1R48TC8ZvyCLfyNtBZCjQAOjPtkJAdMHUTI6dbl13MvRC7Ws7sMBdz9wdeduLrFLa
+         P7+VKysfgQ/NbkcYw7NiaZ43nrUnajJe1mcwjOftMg+4H/QMeuRmbHlerIeq3HNs6RlI
+         SM16+g4Yq1112dxniSSNMykzRRIxRYg+Yx5vWP/GgZmXRK+SRtN5pUx6qM9jpVMoJY3u
+         PRtWzSQy4X2MIWv+EFvQQOwW28RlTYQHbV7fk46OAgmX5qLY+xaOR3cHb8y1PJj827zh
+         v7sA==
+X-Forwarded-Encrypted: i=1; AKwUvBxGR4u5ibuJDESJnPxOpxbukM306ja/Lc32zq8tT55yJIc1rsPqLGbJvfWyOk54rVv07sKukczkPqw=@vger.kernel.org
+X-Gm-Message-State: AFq9FYJNUBnGXei8mF/xxLzHmot8IodnNrU/KN9f31axZHfWQmVW1W33
+	CVgAXtsTTD/ubtDRwX88MsIoobrkun2xYtaqEXSzb24a2tzLYGuroBHo
+X-Gm-Gg: AYBFou2tCojP4uvVIDg8y1t4T0mDJcB2bz4axd7iPIW/zSPWbVvPTr1BywLb8cPdmu4
+	6wRc4IGtcEpZyMTcpqlSweX67NoI8BHT6MTVXOe+Ns3nspLPyRsi+uWrhmbsam9oKUES1FNepoY
+	sQVw+QyuQPEvcFW9wKiQ7T5SDewQPtSu1v7YlrVgxr3X1mAby2StETzywt95qqIGvx9Ps0+RM9P
+	2jd+fEowzJY/4pGWEZ15qKs3Tec6v8ztMBTB7KXbtSHKIjQswlMU8L1N7E0Qxny7djl+pAu2HDM
+	Jat81q5QZ3wnpd6Pe/6zpcclBi8JGbIlNgXtSRiMUiD6F7wUcdR3nOHXwmR3M3D7sz8Njpqp8fg
+	0iUbxub7ZjcUvlnwDnqENUFB07Bi1DTggM0nCc8A2VsjGJqPRgBJ+s820doINMNJo68O6ySBhKG
+	M0D+scX9BQq3dF/LGnRAUia1A1g1Fgzy8k4UKwjDkWD1ibogNvEFRbJH63MOhrfzhwYP9KmcO59
+	SEKFi7Nr4E4IcxezBFIyrBA6Fi97QN+Sgu6sdSiZOYlEjg7dH3HAqc1Btzm0tcm5anSnVvAkQ3+
+	tru77J+IjprTRG2tghiZnMKlxaTN64EKuFrSfNhGzjEX
+X-Received: by 2002:a05:6830:82f4:b0:81b:ac5b:ea17 with SMTP id 46e09a7af769-85d364871femr7316643a34.16.1793630191638;
+        Mon, 02 Nov 2026 06:36:31 -0800 (PST)
+Received: from ?IPV6:2600:8804:5716:d800::f01a? ([2600:8804:5716:d800::f01a])
+        by smtp.gmail.com with ESMTPSA id 46e09a7af769-85d354985b2sm9189411a34.11.2026.11.02.06.36.29
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 02 Nov 2026 06:36:31 -0800 (PST)
+Message-ID: <eb5b989c-0308-4721-b55e-4f179b8f13eb@gmail.com>
+Date: Mon, 2 Nov 2026 08:36:29 -0600
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -74,151 +92,33 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Last-TLS-Session-Version: TLSv1.3
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/2] rtc: mt6397: provide the 32 kHz output as a clock
+To: sashiko-reviews@lists.linux.dev
+Cc: mfd@lists.linux.dev, devicetree@vger.kernel.org,
+ linux-rtc@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org,
+ Alexandre Belloni <alexandre.belloni@bootlin.com>, lee@kernel.org
+References: <20261101-rbrue-suez-upstreaming-mt6397-rtc-32k-v1-0-9758f38d7053@gmail.com>
+ <20261101-rbrue-suez-upstreaming-mt6397-rtc-32k-v1-2-9758f38d7053@gmail.com>
+ <sashiko-outbox-192928@kernel.org>
+Content-Language: en-US
+From: Ryan Brue <ryanbrue.dev@gmail.com>
+In-Reply-To: <sashiko-outbox-192928@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Mon, 02 Nov 2026 13:13:46 +0000
-sashiko-bot@kernel.org wrote:
+On 11/1/26 11:44 PM, sashiko-bot@kernel.org wrote:
+> When pdev->dev.of_node is NULL, of_device_get_match_data() returns NULL.
+> Previously, mtk_rtc_probe() never dereferenced rtc->data during probe,
+> whereas mtk_rtc_register_clkout() now evaluates !rtc->data->con before
+> checking dev->of_node or whether rtc->data is NULL.
+>
+> Should mtk_rtc_register_clkout() check !rtc->data (or check
+> of_property_present() first), or should mtk_rtc_probe() handle a NULL
+> rtc->data?
+>
 
-> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
-> - [Medium] rtc: pcf2127: rate 0 in pcf2127_clkout_rate2cof() sets COF to HiZ
-> --
-> 
-> commit fd3d38a37715a1ab67448b3adb80c6b0ee46a7e2
-> Author: Herve Codina <herve.codina@bootlin.com>
-> 
-> rtc: pcf2127: Add support for the clkout clock
-> 
-> This commit adds common clock framework support for the CLKOUT output clock
-> on PCF2127, PCF2129, PCA2129, and PCF2131 RTC devices, allowing configuration
-> of frequencies from 1 Hz to 32768 Hz and disabling the output into HiZ.
-> 
-> > diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-> > index ff2023908f5a3..2c442770ebc52 100644
-> > --- a/drivers/rtc/rtc-pcf2127.c
-> > +++ b/drivers/rtc/rtc-pcf2127.c  
-> 
-> [ ... ]
-> 
-> > @@ -626,6 +634,180 @@ static int pcf2127_watchdog_init(struct device *dev, struct pcf2127 *pcf2127)
-> >  	return devm_watchdog_register_device(dev, &pcf2127->wdd);
-> >  }
-> >  
-> > +#ifdef CONFIG_COMMON_CLK
-> > +#define clkout_hw_to_pcf2127(_hw) container_of(_hw, struct pcf2127, clkout_hw)
-> > +
-> > +/* Rates indexed by COF values */
-> > +static int pcf2127_clkout_rates[] = {
-> > +	32768,
-> > +	16384,
-> > +	8192,
-> > +	4096,
-> > +	2048,
-> > +	1024,
-> > +	1,
-> > +	0, /* 0Hz (COF 0b111) will put the clockout signal to HiZ */
-> > +};
-> > +
-> > +static u32 pcf2127_clkout_rate2cof(unsigned long rate)
-> > +{
-> > +	unsigned int i;
-> > +
-> > +	for (i = 0; i < ARRAY_SIZE(pcf2127_clkout_rates); i++) {
-> > +		if (pcf2127_clkout_rates[i] <= rate)
-> > +			return i;
-> > +	}
-> > +
-> > +	return 0; /* Maximum output clock rate */
-> > +}
-> > +
-> > +static int pcf2127_clkout_cof2rate(u32 cof)
-> > +{
-> > +	return pcf2127_clkout_rates[cof];
-> > +}
-> > +
-> > +static unsigned long pcf2127_clkout_recalc_rate(struct clk_hw *hw,
-> > +						unsigned long parent_rate)
-> > +{
-> > +	struct pcf2127 *pcf2127 = clkout_hw_to_pcf2127(hw);
-> > +
-> > +	return pcf2127_clkout_cof2rate(pcf2127->clkout_cof);
-> > +}
-> > +
-> > +static int pcf2127_clkout_determine_rate(struct clk_hw *hw,
-> > +					 struct clk_rate_request *req)
-> > +{
-> > +	u32 cof;
-> > +
-> > +	cof = pcf2127_clkout_rate2cof(req->rate);
-> > +	req->rate = pcf2127_clkout_cof2rate(cof);
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +static int pcf2127_clkout_set_rate(struct clk_hw *hw, unsigned long rate,
-> > +				   unsigned long parent_rate)
-> > +{
-> > +	struct pcf2127 *pcf2127 = clkout_hw_to_pcf2127(hw);
-> > +	u32 cof;
-> > +	int ret;
-> > +
-> > +	cof = pcf2127_clkout_rate2cof(rate);
-> > +
-> > +	/*
-> > +	 * Setting COF will enable the clock (i.e. output not in HiZ anymore)
-> > +	 * Perform the operation only if already enabled.
-> > +	 * Otherwise, do nothing. The expected COF will be set on prepare()
-> > +	 */
-> > +	if (pcf2127->clkout_enabled) {
-> > +		ret = regmap_update_bits(pcf2127->regmap, pcf2127->cfg->reg_clkout,
-> > +					 PCF2127_CLKOUT_COF,
-> > +					 FIELD_PREP(PCF2127_CLKOUT_COF, cof));
-> > +		if (ret)
-> > +			return ret;
-> > +	}
-> > +
-> > +	pcf2127->clkout_cof = cof;
-> > +	return 0;
-> > +}  
-> 
-> [Severity: Medium]
-> Since rate is an unsigned long and pcf2127_clkout_rates[7] is 0, the condition
-> pcf2127_clkout_rates[i] <= rate in pcf2127_clkout_rate2cof() will always match
-> at index 7 (PCF2127_CLKOUT_COF_HIZ) when rate is 0, making the fallback
-> return 0 unreachable.
-> 
-> If a consumer passes rate == 0 to pcf2127_clkout_determine_rate() or
-> pcf2127_clkout_set_rate(), pcf2127_clkout_rate2cof(0) returns 7
-> (PCF2127_CLKOUT_COF_HIZ). In pcf2127_clkout_set_rate(), this writes
-> PCF2127_CLKOUT_COF_HIZ to reg_clkout if pcf2127->clkout_enabled is true
-> (putting the CLKOUT pin into HiZ while pcf2127->clkout_enabled remains true),
-> and caches PCF2127_CLKOUT_COF_HIZ in pcf2127->clkout_cof so subsequent calls
-> to pcf2127_clkout_prepare() -> pcf2127_clkout_control(hw, true) will also
-> leave the pin in HiZ.
+Yes, good find, my bad. I'll send out a v2 fixing this.
 
-This is exactly what it is expected.
-
-return 0 is unreachable but pcf2127_clkout_rate2cof() returns a u32.
-
-Without the last return 0 (even if unreachable) or any other u32 returned value,
-GCC obviously complied
-   error: control reaches end of non-void function
-
-> 
-> Should the 0 entry be removed from pcf2127_clkout_rates[] (or skipped in
-> pcf2127_clkout_rate2cof()) so that pcf2127->clkout_cof only ever holds active
-> clock divider values (0..6)?
-> 
-
-No.
-
-All rates should be present in pcf2127_clkout_rates[]. The 0Hz rate value is
-a valid rate even if the pin will be set in HiZ in that case.
-
-pcf2127->clkout_cof should hold the value related to OHz rate.
-
-A user can ask a 0Hz rate and call clk_prepare(). This is a valid use case.
-
-Best regards,
-Hervé
+--
+Ryan Brue
