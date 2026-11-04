@@ -1,58 +1,111 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=205.220.180.131
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793776942;
-	b=Uud7tnMW8HgMfQCQ8i4fGxl4sxDsk97LH/6j8HpGONL86tVheSzSu+A0c6TRoJO4643G
-	 AM5O1RY3udX3TghpgIz/qQM6e05U+0/YsT7h2p+12kCk0i/BtaXGdoQEmzJw/l/SZ+jGw
-	 moPMzC2nZawpvcul7HHlwO81RTomghxrE35pYWkAT2pb5XnohauTtOyoyIXNwKC1Gz0mI
-	 FKXUYDmL515gZtMxbdfc9enRwiMVNmCSzjs4CtC48jjECAnikgi5ViAc/3VDT4eGMMCm1
-	 gRn9v9eXwz0YdUObbX8cm+1/4W3JZe1NXXf+VsZku+RnYIJWdKVWqLhd6oXkTc6zfrw==
+	t=1793781397;
+	b=3RlCsVLDxvvpK0evysYMo1PDplTQJjapW04JiopAGVveiHEEneQEzMfSaR3xJlSa3l+f
+	 AeFzcyDc5sCjcMjNPnAIntMKLYAXu6XzaSItqgZf5pjQc9ogv1Y85KbQPrSwPBoM9UV+f
+	 RALK8IRktg4z9Na6q5VaxIb//IlL3OZW4AdxamBgnM9TTEPV4hIdUs0CHxtpwgEk6fQwB
+	 7mHEumc79lc3NISEft6xf6u0SXbV5xSXzy5SbWKL3JZGWuW4cdIXoM4xSvyvHa6vjU0x6
+	 7nhcoYj/jZNdRy77YLkENNxvU9B7+CC/bgHDmrE8w9dzg/9b/gcgReUPugylYaY78VQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793776942;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=Z/+9leIVb/2PzxEAQcuH4PKWNspk64wC1k5hc509Agg=;
-	b=znZXgXvfacZNGDFKKoaP4HmowOy6uWtJvUAt1uPUnpY8J2qmYzaDQLZo3SUetWtYX28B
-	 39V/HCTrmmLGmKEsnQ+kUMY/qQl/pK4JppvRlV5ecmPjNQIST0YKcGu/25BS8G7GnVBMT
-	 3NhLQZO9Rku55zznscfyTQUEVhVA62XQkDYpaIUj0AhdRV18r3201JP8ubG4FHcRkOp29
-	 Ww7BBMgTBeLszg6pWWNPgpZa0MB9NJ4piPKdG6pSh/nHAUwT0oA8EYI9XBb5zXRh5ZLhm
-	 TrMcq3enLLmkFc5YoxdzHNC8Df6N3I0zHze/E1MfsgRwoMoi+xJy2+Fj/pw3JrYzovg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793781397;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:
+	 DKIM-Signature:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:X-Received:Received:Message-ID:
+	 Date:MIME-Version:User-Agent:Subject:To:Cc:References:
+	 Content-Language:From:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding:X-Proofpoint-Spam-Info:
+	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Details-Enc:
+	 X-Proofpoint-GUID:X-Authority-Analysis:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Details;
+	bh=PQ4LinK6QHDjKioOmPQ+jXCD4vkH5b3yBrfQAIAIVJg=;
+	b=I1GsEHkdw0T6bKGDpvt2SskoETHYIgilKT8oiGTdkVpsOmK8R5nElh6QuOzrfYjPDJM2
+	 3AVHriN/93Pe7VEmpI43Otnn9n9R13jW4S6USduYXKvO6zPLobJ8hvvUL6oEErXpzYBOk
+	 6KzYahzXsUGHrr9AJ/hIqTUTZPJFcpP1QECoy6Ief5xJ/nA2UC0U61tda0X7Yi/TUBTlB
+	 jCeljHlqGU44Ml2J6E8MBzhC7/yqJhyTj25WHJhsEyJqfhamnQJkUdavXLUD7mMmLoPpr
+	 K00kBjwgDLDHcMjgKPWqk+fyauPOkqFs9JMNj2ijls1SPsMk8AKU4dmR4JOgBoobFTQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="BXO5e8T/";
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=oss.qualcomm.com;
+	spf=pass smtp.mailfrom=oss.qualcomm.com;
+	dkim=pass header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=gbhK8BM8;
+	dkim=pass header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=P1yVSKWu;
+	arc=none smtp.remote-ip=205.220.180.131
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E04A6606EE9D;
-	Wed,  4 Nov 2026 07:22:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E56CF606A326
+	for <linux-rtc@vger.kernel.org>; Wed,  4 Nov 2026 08:36:36 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E56CF606A326
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BXO5e8T/
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 389231F00A23;
-	Wed,  4 Nov 2026 07:22:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793776941;
-	bh=Z/+9leIVb/2PzxEAQcuH4PKWNspk64wC1k5hc509Agg=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=BXO5e8T/TksIg99y1eM7yic50K7T0wITT1L4pXAMHkI2uVzghOgPZEfsOFI5IudT6
-	 I4J1zNbxQ7sq9a5BWfa4aa/eq4b2j9JZJf1F5PgAWj/P71Mgl8yXVwUlcwuk4ya+GU
-	 bMkKjcnCjZ1Zfu8r4ON4VNeIFg8t2fPGEPv78sw78CNuVH10r6/YEUe0GW6Kuew41L
-	 lfAfV6qegpcgE0QrYFE/T4iZNhDwCV+ZQDZTmZ+scVZCXVRAowngfNwdfngnNyPaA1
-	 8Xyqhi9HXmlmkror8q7fcA+CAoJ8STk+F/9ixI8FjP3sR69/QH+AWVXk56yl1gqekE
-	 lA1AcwmDxD8ig==
-Message-ID: <sashiko-outbox-196783@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/5] arm64: dts: qcom: sc8180x: Add Microsoft Surface
- Pro X
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Val Packett" <val@packett.cool>
-Cc: devicetree@vger.kernel.org, linux-rtc@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, "Alexandre
- Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20261104070441.74127-3-val@packett.cool>
-References: <20261104070441.74127-1-val@packett.cool>
- <20261104070441.74127-3-val@packett.cool>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 04 Nov 2026 07:22:20 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=gbhK8BM8;
+	dkim=pass (2048-bit key, unprotected) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=P1yVSKWu
+Received: from pps.filterd (m0279870.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A48L0Aa1274969
+	for <linux-rtc@vger.kernel.org>; Wed, 4 Nov 2026 08:36:36 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	PQ4LinK6QHDjKioOmPQ+jXCD4vkH5b3yBrfQAIAIVJg=; b=gbhK8BM8tMhhuj7k
+	+5bSBMqQ3ZjaVWUje2lOUX0TsYEi9w/9QqWznoKL3Xkn3WkmMHiERtpA5mZUTvF1
+	d2qksPWt6NNW9wQgQp5W59THeO9ULGUn7pZhP6+2CsX1GmpwMj52S3EhotynXLYp
+	u6lDjkHiqcTW8Ha4RdJGaUi2rMQZVSGrEMUwbagcleLdiRwxS4TUuMigzje0cnc2
+	ZgZAGt8G/Sg+e8TiDYMwGq3kBpLjW91MUFmi1dMdbeTAXNsCYcp6VztA3Q3icOyp
+	6EALMXfDWHbzk/pLTYEtQrk/BILC+3GnlcqKLjFZ65FFeeHJsCqBW6cPmSePVun2
+	K2UQhA==
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com [209.85.160.197])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4hqhypm1kr-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-rtc@vger.kernel.org>; Wed, 04 Nov 2026 08:36:35 +0000 (GMT)
+Received: by mail-qt1-f197.google.com with SMTP id d75a77b69052e-536708d1a3eso1380341cf.1
+        for <linux-rtc@vger.kernel.org>; Wed, 04 Nov 2026 00:36:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1793781395; x=1794386195; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=PQ4LinK6QHDjKioOmPQ+jXCD4vkH5b3yBrfQAIAIVJg=;
+        b=P1yVSKWuHPn0I9HTe/wdzcKBD8CUwMCUAl57+2hUBxkFfMK6x76WWAh8AcrEmuusDM
+         l7ER5iOb56Cb1mWOLllxFuAermXM70+FaCC3D8P06W9hS72yn+pkpqaJB8es+XXUa/kj
+         qN1oLxM0zCd3ktcFjGVPZQQJisR04C9GVPaBKd+G/v3xjH36SHsiSScKQAkQMTh+LkWy
+         MI5TDnut3RTn/n0lMa0brE0d2sPgKkHeE2AC85v0b2Eg72M0W37rZkTRlpO4UttTZqEy
+         koqx7mXgdOXqVylKeipBKchZwCfIp9lDoLUuU17ZYu/Tv7L4CyZmselQ7fDvS2YMdU0+
+         up4w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793781395; x=1794386195;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=PQ4LinK6QHDjKioOmPQ+jXCD4vkH5b3yBrfQAIAIVJg=;
+        b=x03QlvbuSpKlbC8QRjhbghGeo8qu37B4EM19vGElPINjgoJaOpQrtdJkinCGRs39T8
+         qSfG4ggrm3EM0I9KFx6dOd2qGb60kLJkg2p4iYKmlaajr8NGqWGmjmRBq1SRv78ky6Qu
+         NSWg4PIXSPE/W9PuigZHXAk8oXvVPGP5xm1Yv35hAVDbQWb4/u+sKkh0U06T2GWgEN3X
+         4cSe/U2HCqonT2bqNjjb3SOFLf/GBPdFZqSlcMmhNdyCFzgryS3VCD3gpG7VcJAa/2sW
+         L+DHYjHjVRaPuAnaJkDKUDpCM2KKnXqH4Nz/xPhCavGOBOUjnZ7KltoOLbP/HUEj7jUL
+         6fLw==
+X-Forwarded-Encrypted: i=1; AKwUvBwFeD6JsZwk0qgT+AxzDf1bVhUaT+5hV2UGP2nh8cxbWJDHhhcnEz0oyPk2NfY26uvOW+PMNqlxGlc=@vger.kernel.org
+X-Gm-Message-State: APuU4Z8sabp3AAQ5u3rVFAnKFNl7Xi/nmACgqCBRR+R8xWYzBK9W/gCi
+	kn4jyHAhupy6GUbzbmIzKEB1vg40FKWjI/+6zu/5PAW3q+tARjR7sVDXrNTRauYJ1RjxB8zwZAb
+	DMyHp2yd1hIxSizw6dzpZuat6izQ6mNEC1t7WKq8h2/QLzUeZaPbuXHgSO5ILHWg=
+X-Gm-Gg: AYBFou1QOyQll5IaR7Fyxc6eF2cB+qaXmCnZwgamo7zIQR1hX9wsh72PWzGSLpmosg9
+	pH5IRZkhdJlCnwBx15eRl+U4L3e6gECI9t1zAIZzjOWkv7xCwkzDwXlY+tvYHEyEeAtEQ53u3mY
+	siKgTny5MUH+GPRgxDbNobVn8XDiFxycKJ0NRzoDgR5sIKvebIl9jeJF5h+WtmVaNQMrlpiAu7T
+	4RDZPoZkrDQPH271D8o6dgKx/qy8LTxVU/QuZw17S1m10RLeNISbCpC/1nacP5hL1uA7rnM4P/N
+	HgdNIGTd56ljYsd5n4Cwy1s0zjbtEXRdrixdgTTdzEypuzufV9RWFJcDmgZjd7fvgyWg0H4PLyP
+	2qInurEXZPGuAgjC6gxaXiDgoSgKQNgd60BvvNt1ZMJ0O4c/HHyw9z9owOo49Ge/8Ke0g
+X-Received: by 2002:a05:620a:2319:20b0:945:c5b3:6356 with SMTP id af79cd13be357-945c5b36c93mr785273385a.2.1793781395204;
+        Wed, 04 Nov 2026 00:36:35 -0800 (PST)
+X-Received: by 2002:a05:620a:2319:20b0:945:c5b3:6356 with SMTP id af79cd13be357-945c5b36c93mr785269385a.2.1793781394523;
+        Wed, 04 Nov 2026 00:36:34 -0800 (PST)
+Received: from [192.168.226.1] ([178.235.128.140])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c4d0e424c34sm46273066b.13.2026.11.04.00.36.32
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 04 Nov 2026 00:36:33 -0800 (PST)
+Message-ID: <ea308aa2-8a2d-468a-ae5d-ec9a8ccdb2d2@oss.qualcomm.com>
+Date: Wed, 4 Nov 2026 09:36:31 +0100
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -61,276 +114,108 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/5] arm64: dts: qcom: sc8180x: Add Microsoft Surface Pro
+ X
+To: Val Packett <val@packett.cool>, Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konradybcio@kernel.org>,
+        Abel Vesa <abelvesa@kernel.org>, Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley <conor+dt@kernel.org>
+Cc: Maximilian Luz <luzmaximilian@gmail.com>,
+        Hans de Goede
+ <hansg@kernel.org>,
+        =?UTF-8?Q?Ilpo_J=C3=A4rvinen?=
+ <ilpo.jarvinen@linux.intel.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
+References: <20261104070441.74127-1-val@packett.cool>
+ <20261104070441.74127-3-val@packett.cool>
+Content-Language: en-US
+From: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+In-Reply-To: <20261104070441.74127-3-val@packett.cool>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTA0MDAzNCBTYWx0ZWRfX7IkBld1cef8s
+ V8qXuq1Ig1GDiE48UAeFtezbNOKkj+xfXJIThyqfEu5BOgxvoqh27n2QBQBIduwWqXN9PRx9TF0
+ +lOhyabmp6vrhinmo2aUu4CzrsIO1Bo=
+X-Proofpoint-ORIG-GUID: atOYKf39ATGmMkt-uXpoPCfH5jfwhM_Q
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTA0MDAzNCBTYWx0ZWRfXwO+0y/JRuezr
+ 5FUhyMQ9M1OixjDkdqv5BjHmBpEY1sM/JVap4vwz/TXQEQP6Nj1sLFe7Ze6TUNhdAR2DEYPdvod
+ 2wpyVDXTxEBgpAheOWPXL9uk8hYD0djFMuBdIZ98HVEkknoxtU0m+14dNTh04LoOQEy3LFzesv5
+ 9mk+bNRyRNQgki2/W84DDS31eLyuNgBwHKEAQbu7EhljYR+RO4wTVYU6kd2dPp7YONuajQMt6YL
+ g2yPVrmDbYcMlGnK8Da4hsN9nq/BbivfZC2v67nvCNol4EHAG0cmxPN2HHuj9zPvjmKrI+NomVd
+ QXDAYMDkMqXUERv0/XXHJVDgonQqjOxxcz4XXJSxOGRgyw/+s+xgA+YgWlPAuCnXKFvgU/oz4sB
+ VSlWsAWWjK2OrChiLTZqqZiEdU/4OYXm2I7A2iQwLe8ycXcP8Sg3YgptbKq9YIYOcT6p+NvP8Vt
+ ykruW1jUDOwcMqFBOEg==
+X-Proofpoint-GUID: atOYKf39ATGmMkt-uXpoPCfH5jfwhM_Q
+X-Authority-Analysis: v=2.4 cv=T94Z3PKQ c=1 sm=1 tr=0 ts=6aeaee93 cx=c_pps
+ a=EVbN6Ke/fEF3bsl7X48z0g==:117 a=PRfkaYvzSr8QmIIGAkY2Sg==:17
+ a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=gowsoOTTUOVcmtlkKump:22
+ a=pGLkceISAAAA:8 a=S4lLRux2dGMH_Q5bArEA:9 a=QEXdDO2ut3YA:10
+ a=a_PwQJl-kcHnX1M80qC6:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-11-04_02,2026-11-03_04,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 lowpriorityscore=0 impostorscore=0 phishscore=0 clxscore=1011
+ adultscore=0 suspectscore=0 priorityscore=1501 malwarescore=0 bulkscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2610300000 definitions=main-2611040034
 
-Thank you for your contribution! Sashiko AI review found 7 potential issue(=
-s) to consider:
-- [High] arm64: dts: qcom: disabled qupv3_id_2 prevents uart13 and uart15 f=
-rom probing
-- [Medium] arm64: dts: qcom: build failure from undefined smb2351_2 and smb=
-2351_a labels
-- [Medium] arm64: dts: qcom: build failure from undefined remoteproc_slpi l=
-abel
-- [Medium] arm64: dts: qcom: vdda-phy-supply and vdda-pll-supply swapped on=
- USB QMP PHYs
-- [Medium] arm64: dts: qcom: missing power-supply and broken power sequenci=
-ng on edp-panel
-- [Low] arm64: dts: qcom: duplicate pmc8180a-thermal zone for pmc8180_temp =
-sensor
-- [Low] arm64: dts: qcom: child node names violate RSC, TLMM, PMIC GPIO, an=
-d ADC schemas
---
+On 11/4/26 8:04 AM, Val Packett wrote:
+> From: Maximilian Luz <luzmaximilian@gmail.com>
+> 
+> Introduce a device tree for the Surface Pro X tablet in all 3 variants
+> (SQ1 with cellular, SQ1 Wi-Fi only, SQ2 with cellular).
+> 
+> Currently working:
+> 
+> * Display, backlight (eDP panel)
+> * USB 2.0
+> * Wi-Fi and Bluetooth (WCN3998)
+> * NVMe on PCIe2
+> * Embedded controller (Surface SAM over UART)
+> * All remoteprocs (ADSP, CDSP, MPSS, SLPI)
+> * Volume and power buttons
 
-commit 5309d200eb0928bd90998981b5c8364f2e0ed95e
-Author: Maximilian Luz <luzmaximilian@gmail.com>
+[...]
 
-arm64: dts: qcom: sc8180x: Add Microsoft Surface Pro X
+This needs some sorting etc., but let's tackle the bigger prob first
 
-This commit adds a common device tree include and three board device trees
-for the Microsoft Surface Pro X tablet variants (Cambria, Carina, and
-Caspar) based on the Qualcomm SC8180X platform.
-
-> diff --git a/arch/arm64/boot/dts/qcom/sc8180x-microsoft-surface-pro-x.dts=
-i b/arch/arm64/boot/dts/qcom/sc8180x-microsoft-surface-pro-x.dtsi
-> new file mode 100644
-> index 0000000000000..17fb01c6b164f
-> --- /dev/null
-> +++ b/arch/arm64/boot/dts/qcom/sc8180x-microsoft-surface-pro-x.dtsi
-> @@ -0,0 +1,853 @@
-
-[ ... ]
-
-> +	thermal-zones {
-> +		pmc8180a-thermal {
-> +			polling-delay-passive =3D <100>;
-> +			polling-delay =3D <0>;
-> +
-> +			thermal-sensors =3D <&pmc8180_temp>;
-
-[Severity: Low]
-Should this node be named pmc8180-thermal instead of pmc8180a-thermal?
-
-Because sc8180x-pmics.dtsi already defines /thermal-zones/pmc8180-thermal
-with thermal-sensors =3D <&pmc8180_temp>, using the name pmc8180a-thermal
-creates a second thermal zone node in the DTB for the same 0-cell sensor
-rather than overriding the existing pmc8180-thermal node. When
-qpnp_tm_probe() registers pmc8180_temp via devm_thermal_of_zone_register(),
-thermal_of_zone_register() only binds the first matching zone
-(pmc8180-thermal) and leaves pmc8180a-thermal unused.
-
-[ ... ]
-
-> +&apps_rsc {
-> +	pmc8180-a-rpmh-regulators {
-> +		compatible =3D "qcom,pmc8180-rpmh-regulators";
-> +		qcom,pmic-id =3D "a";
-
-[Severity: Low]
-This isn't a runtime bug, but several child node names in this file do not
-match the patternProperties required by their respective DT bindings
-(which set additionalProperties: false) and will cause dtbs_check
-validation failures:
-
-1. Under &apps_rsc, pmc8180-a-rpmh-regulators, pmc8180-e-rpmh-regulators,
-   and pmc8180c-rpmh-regulators do not match ^regulators(-[0-9])?$ in
-   Documentation/devicetree/bindings/soc/qcom/qcom,rpmh-rsc.yaml.
-
-2. Under &tlmm, the subnodes of uart13-state, uart15-state, and ssam-state
-   (cts, rts-tx, rx, and wake-int) do not end with -pins as required by
-   Documentation/devicetree/bindings/pinctrl/qcom,sc8180x-tlmm.yaml.
-
-3. Under &pmc8180_1_gpios, pmc8180a_gpio1 and pmc8180a_gpio6 do not end
-   with -state as required by
-   Documentation/devicetree/bindings/pinctrl/qcom,pmic-gpio.yaml.
-
-4. Under pmc8180e_adc and &pmc8180_adc, the channel child nodes
-   (ref-gnd@0, vref-1p25@1, die-temp@6, xo-therm@4c, vph-pwr@83, and
-   vcoin@85) do not match ^channel@[0-9a-f]+$ as required by
-   Documentation/devicetree/bindings/iio/adc/qcom,spmi-vadc.yaml.
-
-Could these node names be updated to match the binding schemas?
-
-[ ... ]
-
-> +&smb2351_2 {
-> +	status =3D "disabled";
-> +};
-> +
-> +&smb2351_a {
-> +	status =3D "disabled";
-> +};
-
-[Severity: Medium]
-Does this compile cleanly with dtc?
-
-In arch/arm64/boot/dts/qcom/sc8180x-pmics.dtsi, the two qcom,smb2351 PMIC
-nodes under &spmi_bus are defined without labels:
-
-	pmic@2 {
-		compatible =3D "qcom,smb2351", "qcom,spmi-pmic";
-		reg =3D <0x2 SPMI_USID>;
-		...
-	};
-	...
-	pmic@a {
-		compatible =3D "qcom,smb2351", "qcom,spmi-pmic";
-		reg =3D <0xa SPMI_USID>;
-		...
-	};
-
-Because neither smb2351_2 nor smb2351_a is defined anywhere in the tree,
-building the new Surface Pro X DTB targets under CONFIG_ARCH_QCOM fails
-with unresolved label errors.
-
-[ ... ]
 
 > +&mdss_edp {
-> +	pinctrl-0 =3D <&edp_hpd_active>;
-> +	pinctrl-names =3D "default";
+> +	pinctrl-0 = <&edp_hpd_active>;
+> +	pinctrl-names = "default";
 > +
-> +	status =3D "okay";
+> +	status = "okay";
 > +
 > +	aux-bus {
 > +		panel {
-> +			compatible =3D "edp-panel";
-> +			enable-gpios =3D <&tlmm 130 GPIO_ACTIVE_HIGH>;
+> +			compatible = "edp-panel";
+> +			enable-gpios = <&tlmm 130 GPIO_ACTIVE_HIGH>;
 > +			no-hpd;
-> +
-> +			pinctrl-0 =3D <&panel_vdd_en_default_state>;
-> +			pinctrl-names =3D "default";
 
-[Severity: Medium]
-Should GPIO 130 be modeled as a fixed regulator connected to power-supply
-on the panel node rather than enable-gpios?
+Is there really no HPD? The pinctrl above suggests otherwise
 
-Documentation/devicetree/bindings/display/panel/panel-edp.yaml requires
-power-supply on compatible =3D "edp-panel" nodes. In addition, GPIO 130 is
-the panel VDD regulator enable pin (panel-vdd-en-default-state). In
-drivers/gpu/drm/panel/panel-edp.c, panel_edp_probe() requests enable-gpios
-with GPIOD_OUT_LOW, which drives GPIO 130 low and cuts panel power, and
-generic_edp_panel_probe() -> panel_edp_prepare_once() then re-asserts
-enable_gpio and immediately attempts DP AUX EDID reads with zero delay
-because no-hpd is set without hpd-absent-delay-ms.
+[...]
 
-[ ... ]
+> +&pcie2 {
+> +	// XXX: pcie1 and pcie2 are multi'd together, for now use just one
+> +	num-lanes = <2>;
 
-> +&usb_prim_qmpphy {
-> +	vdda-phy-supply =3D <&vreg_l3c_1p2>;
-> +	vdda-pll-supply =3D <&vreg_l9e_0p88>;
-> +
-> +	orientation-switch;
-> +
-> +	status =3D "okay";
-> +};
-
-[ ... ]
-
-> +&usb_sec_qmpphy {
-> +	vdda-phy-supply =3D <&vreg_l3c_1p2>;
-> +	vdda-pll-supply =3D <&vreg_l9e_0p88>;
-> +
-> +	orientation-switch;
-> +
-> +	status =3D "okay";
-> +};
-
-[ ... ]
-
-> +&usb_mp_qmpphy0 {
-> +	vdda-phy-supply =3D <&vreg_l3c_1p2>;
-> +	vdda-pll-supply =3D <&vreg_l9e_0p88>;
-> +
-> +	status =3D "okay";
-> +};
-> +
-> +&usb_mp_qmpphy1 {
-> +	vdda-phy-supply =3D <&vreg_l3c_1p2>;
-> +	vdda-pll-supply =3D <&vreg_l9e_0p88>;
-> +
-> +	status =3D "okay";
-> +};
-
-[Severity: Medium]
-Are vdda-phy-supply and vdda-pll-supply swapped on usb_prim_qmpphy,
-usb_sec_qmpphy, usb_mp_qmpphy0, and usb_mp_qmpphy1?
-
-On SC8180X QMP PHYs (including pcie1_phy and pcie2_phy below, as well as
-sc8180x-primus.dts and sc8180x-lenovo-flex-5g.dts), vdda-phy-supply is the
-0.88V rail and vdda-pll-supply is the 1.2V rail (&vreg_l3c_1p2). In
-drivers/phy/qualcomm/phy-qcom-qmp-combo.c and
-drivers/phy/qualcomm/phy-qcom-qmp-usb.c, qmp_phy_vreg_l sets a 21800 uA
-load on vdda-phy and a 36000 uA load on vdda-pll, so swapping them applies
-the wrong current load votes to the two LDOs.
-
-[ ... ]
-
-> +&remoteproc_slpi {
-> +	memory-region =3D <&slpi_mem>;
-> +};
-
-[Severity: Medium]
-Where is the remoteproc_slpi label defined?
-
-Both sc8180x-microsoft-surface-pro-x.dtsi and the three board DTS files
-(sc8180x-microsoft-cambria.dts, sc8180x-microsoft-carina.dts, and
-sc8180x-microsoft-caspar.dts) reference &remoteproc_slpi, but
-arch/arm64/boot/dts/qcom/sc8180x.dtsi only defines remoteproc_mpss,
-remoteproc_cdsp, and remoteproc_adsp. Because remoteproc_slpi does not
-exist in sc8180x.dtsi, dtc fails to build all three DTB targets.
+We should be using the new phy-qcom-qmp-pcie-multiphy.c driver I think,
+I'll try chasing down the right magic values
 
 > +
-> +&uart13 {
-> +	pinctrl-0 =3D <&uart13_state>;
-> +	pinctrl-names =3D "default";
+> +	pinctrl-0 = <&pcie1_default_state>;
+> +	pinctrl-names = "default";
 > +
-> +	status =3D "okay";
-> +
-> +	bluetooth {
-> +		compatible =3D "qcom,wcn3998-bt";
-> +
-> +		vddio-supply =3D <&vreg_s4a_1p8>;
-> +		vddxo-supply =3D <&vreg_l7a_1p8>;
-> +		vddrf-supply =3D <&vreg_l9a_1p3>;
-> +		vddch0-supply =3D <&vreg_l11c_3p3>;
-> +
-> +		max-speed =3D <3200000>;
-> +	};
-> +};
-> +
-> +&uart15 {
-> +	pinctrl-0 =3D <&uart15_state>;
-> +	pinctrl-names =3D "default";
-> +
-> +	status =3D "okay";
-> +
-> +	embedded-controller {
-> +		compatible =3D "microsoft,surface-sam";
-> +
-> +		interrupts-extended =3D <&tlmm 180 IRQ_TYPE_EDGE_RISING>;
-> +
-> +		current-speed =3D <4000000>;
-> +
-> +		pinctrl-0 =3D <&ssam_state>;
-> +		pinctrl-names =3D "default";
-> +	};
-> +};
+> +	// HACK: Remove "global" interrupt
 
-[Severity: High]
-Don't we also need to enable &qupv3_id_2 for uart13 and uart15 to probe?
+Why?
 
-In arch/arm64/boot/dts/qcom/sc8180x.dtsi, uart13 and uart15 are children
-of qupv3_id_2 (geniqup@cc0000), which defaults to status =3D "disabled":
-
-		qupv3_id_2: geniqup@cc0000 {
-			compatible =3D "qcom,geni-se-qup";
-			...
-			status =3D "disabled";
-
-Child serial engines under qcom,geni-se-qup are populated when
-geni_se_probe() calls devm_of_platform_populate(). Without setting
-status =3D "okay" on &qupv3_id_2, the parent QUPv3 wrapper never probes and
-neither uart13 (Bluetooth) nor uart15 (the Surface SAM embedded
-controller) is instantiated.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104070441.7412=
-7-1-val@packett.cool?part=3D2
+Konrad
