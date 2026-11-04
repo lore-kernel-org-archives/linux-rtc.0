@@ -1,57 +1,48 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=78.133.224.34
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793746849;
-	b=T2ohxEDbuKhFhuxyVy+IFc+G8n60KXdV4s6bfU9WZTKi3N7R/DuPUMfUMbKd/VLHBgQZ
-	 Fxv4iC9mwgzqZoo+N+d2higMi/uU3/wWf+z/FmPcioxe53k2F84WRvoGGnXX+NjovViob
-	 nI2Y1PBy79+l27XTOQAJqhln8fz2x+M/hIVVBn9xDNl7xq9sC4rAciILoAMvf4Y50Pzdu
-	 UokksMLfe5Q2nWHQhEb/xnr7Z9/wrHQ1VoHD3UK9xuRRHojjD3a3nfGzT6+QbZmURk16u
-	 Ms1kTSRytS8sTsDtEJ2+3rrNx9LF2z3C4Jtof7ahqSWV4vcSQA60CotbQvqevVpZwwA==
+	t=1793758388;
+	b=WolNJjpBcUrI0yourpum0qFFcqF0FPApkGIQsk3htlZ1OrB2wBFF7biI49UtIkEK+1MH
+	 tTg6irt/dS7PtPnrD/JNzX4R1HY+agY1S1HsKWOn19ifSK9gBIQtYVV/xi5BDhL2cJHk0
+	 F/SciKAm7Ndx6Nj33Y3vaEc40zhbqXTBr1ddOoFFznNoX4vB/cjCLgrHazFhUoFJ5kPkf
+	 T5rzN0bLz78TmCQkYCA85y6IugEs/o4AUPYsDmXS9OnYHM3CNqAO8UYbL1d7yX0E90Slq
+	 6650K8YSG/YHXzl4+/MXRFc9iPEI7WC0uttP7H7g8uUFVaJFQZfK0yXEu8UBrafPGpQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793746849;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=+lwcmsvdBfLxxdrKvsUZFS79Op+BgiCcJ2w7KVc8dVk=;
-	b=WvFIga0G8Tlwi118yFtmpmwHQuzI1NnbmNVCn3xGlfZcGWe/WSEoMT0YRYyDO2LPpEk6
-	 nyn/Y0p/YDUGbNffq2ASnPsy6yTl+vBYcWR4pd7XpAVZxJnyIFr/WM42C/kEIa1TlHzMq
-	 7kgIooqyEvMbK5TI7ondjq8WaWF2knHTGwpHYhMkxXfUcr/9X9smRbjvrN5PlvT071Zrb
-	 07huzPhcvUYxeRiXjSRZBV+/4xYjCq1RDP1EuPhCjBjRYBUxeeigQR6dAEYzUz3ARdFWz
-	 0qI++mNBXA2k77NxmUPEs5Cd18+O7IB7PMTAKKsIhFTsHCw9vAOGaMdwL8JlV+2FUEg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793758388;
+	h=DMARC-Filter:Received:Received:Date:From:To:cc:Subject:In-Reply-To:
+	 Message-ID:References:User-Agent:MIME-Version:Content-Type;
+	bh=7udu1ytKGKK0p5KHbtLgE14Fb4wSySMnCYPqFkPlqeI=;
+	b=rKY/cKQNR8/XQuMwyL4cibaef/J0EbZtd0RqEZu/aLpfJa1AkhV01wSkfbeX61hhoX+I
+	 majwWIGZUaJhN+bCeTVh0zRjRRr3NDGbjjvzKD2QGWB6I2z8Uv37tCFA8bY9mB222vE8v
+	 3LxeyWg79cks/fWzd0r8Rz/BuTLwf/o7GkzXP4jd6ZTfWG2z9nsPinHIHhm+siiWeLSzx
+	 hHSS/6ykmDY/fHHA3apCjFNKZqYa7glTEu1ClPc4kufbYMiZWFLBZtXJjOgS5rkF1gKB/
+	 TySsF3oMOJ+FqnGMN8VpEPhYBFkUc9UpuBsAPk4UG1Ajslo1nBHAh7G1XaqqTqnbSlw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=L0yqj9kt;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 482F9606A31B
-	for <linux-rtc@vger.kernel.org>; Tue,  3 Nov 2026 23:00:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=L0yqj9kt
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79DB41F000C1;
-	Tue,  3 Nov 2026 23:00:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793746848;
-	bh=+lwcmsvdBfLxxdrKvsUZFS79Op+BgiCcJ2w7KVc8dVk=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=L0yqj9kt+XMMrG1nTtEBm2PWIcWuByUWXW+bnoFbPeKm97G+b6VFC2fl4mgjem3mL
-	 /623SsPctDW+vYYXqOP04O8QXjstXPkmEdBnQelw1Vca4OGBRjCCI4v6lioCxxaESw
-	 wh4zhpPY1of4Np6qm0ANCASZoOqialROz6fWFbfy7rMx1Ma6/oiigPNrQg1Iq+llCl
-	 mI8xb5BBP9WTlCCnke2OeC1VD89IB10QRfUlXiAvtGlIe0mjr2kyJf5h0uVPL3+O+7
-	 D2amqoWBlbm9KKIhTXDne1AceSYPg4TLfoZtAcwDFyfVRopDVwDq4KaxtLodX6LNGj
-	 GPj2UUKxoAYpQ==
-Message-ID: <sashiko-outbox-196169@kernel.org>
-From: sashiko-bot@kernel.org
+	dmarc=none header.from=orcam.me.uk;
+	spf=none smtp.mailfrom=orcam.me.uk;
+	arc=none smtp.remote-ip=78.133.224.34
+Received: from angie.orcam.me.uk (angie.orcam.me.uk [78.133.224.34])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id F318D606A326;
+	Wed,  4 Nov 2026 02:13:05 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org F318D606A326
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=orcam.me.uk
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=orcam.me.uk
+Received: by angie.orcam.me.uk (Postfix, from userid 500)
+	id 8936F92009E; Wed,  4 Nov 2026 03:13:04 +0100 (CET)
+Received: from localhost (localhost [127.0.0.1])
+	by angie.orcam.me.uk (Postfix) with ESMTP id 8344E92009C;
+	Wed,  4 Nov 2026 02:13:04 +0000 (GMT)
+Date: Wed, 4 Nov 2026 02:13:04 +0000 (GMT)
+From: "Maciej W. Rozycki" <macro@orcam.me.uk>
+To: Florian Fainelli <f.fainelli@gmail.com>
+cc: linux-kernel@vger.kernel.org, 
+    Alexandre Belloni <alexandre.belloni@bootlin.com>, 
+    "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" <linux-rtc@vger.kernel.org>
 Subject: Re: [PATCH RFC] rtc: m41t80: Support SMBus adapters without I2C
  block transfers
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Florian Fainelli" <f.fainelli@gmail.com>
-Cc: =?utf-8?b?b3BlbiBsaXN0OlJFQUwgVElNRSBDTE9DSyAoUlRDKSBTVUJTWVNURU0=?= <linux-rtc@vger.kernel.org>, "Alexandre
- Belloni" <alexandre.belloni@bootlin.com>
 In-Reply-To: <20261103225027.1248035-1-f.fainelli@gmail.com>
+Message-ID: <alpine.DEB.2.21.2611040202550.15685@angie.orcam.me.uk>
 References: <20261103225027.1248035-1-f.fainelli@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 03 Nov 2026 23:00:48 +0000
+User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -60,98 +51,32 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Medium] rtc: m41t80: raw i2c_transfer() in wdt_ping() and wdt_disable() =
-fails on SMBus
---
+On Tue, 3 Nov 2026, Florian Fainelli wrote:
 
-commit b3f3c10491b061e74e177e35683431f79685d1f4
-Author: Florian Fainelli <f.fainelli@gmail.com>
+> Maciej W. Rozycki proposed SMBus-only support for this RTC family in
+> 2008. The same SiByte limitation was discussed again in 2018, including
+> register latching, seconds rechecks and a possible regmap conversion.
+> This change revisits that approach using the current I2C helpers.
 
-rtc: m41t80: Support SMBus adapters without I2C block transfers
+ Thank you for following up on this.  I've always meant to get back to 
+this stuff sometime, but given so many other outstanding matters to deal 
+with I am really glad to get a helpful hand.
 
-This commit allows rtc-m41t80 to probe on SMBus adapters that only support
-SMBus byte and word transactions (such as the SiByte SMBus controller with =
-an
-M41T81) by falling back to byte writes and emulated block reads, with a
-seconds recheck loop when block reads are unavailable.
+ Later I'll have a deeper look at and do some further verification of your 
+proposal, however meanwhile here are corresponding lore.kernel.org links 
+for the messages referred:
 
-Link: https://lkml.rescloud.iu.edu/hypermail/linux/kernel/0805.1/1778.html
-Link: https://lkml.rescloud.iu.edu/1811.1/07408.html
+> Link: https://lkml.rescloud.iu.edu/hypermail/linux/kernel/0805.1/1778.html
 
-> diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
-> index 1385cb43864ba..23d02b95a606b 100644
-> --- a/drivers/rtc/rtc-m41t80.c
-> +++ b/drivers/rtc/rtc-m41t80.c
+Link: https://lore.kernel.org/r/Pine.LNX.4.55.0805130254420.535@cliff.in.clinika.pl/
 
-[ ... ]
+> Link: https://lkml.rescloud.iu.edu/1811.1/07408.html
 
-> @@ -906,9 +949,9 @@ static int m41t80_probe(struct i2c_client *client)
->  	struct m41t80_data *m41t80_data =3D NULL;
->  	bool wakeup_source =3D false;
-> =20
-> -	if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_I2C_BLOCK |
-> +	if (!i2c_check_functionality(client->adapter,
->  				     I2C_FUNC_SMBUS_BYTE_DATA)) {
-> -		dev_err(&adapter->dev, "doesn't support I2C_FUNC_SMBUS_BYTE_DATA | I2C=
-_FUNC_SMBUS_I2C_BLOCK\n");
-> +		dev_err(&adapter->dev, "doesn't support I2C_FUNC_SMBUS_BYTE_DATA\n");
->  		return -ENODEV;
->  	}
+Link: https://lore.kernel.org/r/alpine.LFD.2.21.1811141234140.21654@eddie.linux-mips.org/
 
-[Severity: Medium]
-With m41t80_probe() now accepting SMBus-only adapters that only support
-I2C_FUNC_SMBUS_BYTE_DATA and lack master_xfer (such as i2c-sibyte), what
-happens when CONFIG_RTC_DRV_M41T80_WDT is enabled on an M41T80_FEATURE_HT
-chip like the M41T81?
+-- which I believe are preferable, since under our supervision.
 
-Later in m41t80_probe(), the watchdog miscdevice and reboot notifier are
-still registered unconditionally for M41T80_FEATURE_HT devices:
-
-drivers/rtc/rtc-m41t80.c:m41t80_probe() {
-	...
-#ifdef CONFIG_RTC_DRV_M41T80_WDT
-	if (m41t80_data->features & M41T80_FEATURE_HT) {
-		save_client =3D client;
-		rc =3D misc_register(&wdt_dev);
-		if (rc)
-			return rc;
-		rc =3D register_reboot_notifier(&wdt_notifier);
-	...
-}
-
-However, wdt_ping() and wdt_disable() in drivers/rtc/rtc-m41t80.c still use
-raw i2c_transfer() messages to access register 0x09 and ignore the return
-value:
-
-drivers/rtc/rtc-m41t80.c:wdt_ping() {
-	...
-	i2c_data[0] =3D 0x09;		/* watchdog register */
-	...
-	i2c_transfer(save_client->adapter, msgs1, 1);
-}
-
-drivers/rtc/rtc-m41t80.c:wdt_disable() {
-	...
-	i2c_data[0] =3D 0x09;
-	i2c_transfer(save_client->adapter, msgs0, 2);
-
-	i2c_data[0] =3D 0x09;
-	i2c_data[1] =3D 0x00;
-	i2c_transfer(save_client->adapter, msgs1, 1);
-}
-
-On an SMBus-only adapter where adapter->algo->master_xfer is NULL,
-i2c_transfer() fails with -EOPNOTSUPP, so watchdog keepalives, ioctl
-operations, and reboot/shutdown disable notifications via wdt_notify_sys() =
-->
-wdt_disable() will silently fail to reach the hardware.
-
-Should wdt_ping() and wdt_disable() be converted to use
-i2c_smbus_write_byte_data() and i2c_smbus_read_byte_data() as well?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261103225027.1248=
-035-1-f.fainelli@gmail.com?part=3D1
+  Maciej
