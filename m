@@ -1,56 +1,69 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793804448;
-	b=2TvnQqEYVLRGUAgcfguioTQl2VNQo8xcrJVr1hCm+EflrLIhYwvJiXlXkYOi1CIO2M59
-	 d8AvyFudwRWcuJjDcX+IBbviLHsQqhrBhRWS0gADRpEVnD3GgWNv0Ym4xaa5sU/QQRIxl
-	 yq7GOr/nOQuQss2nY2DH8vQXqFWYVyQrPYs3XiMsFjjhKZK5cPXoqDstqGz4x0LYvvHhs
-	 KcO/P1NFZoUCMGHTuKwIjxVDERo6ZkrW1vkdnVFwanu4sP6N8M3bqqIrWcDbpus+8gSJ/
-	 3CWJ+pGAkYypP/FN9zQaXr6lA7awwspKDH/ANqYmOKbS4SYWa0I15eSHrVhlgPimYpA==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793804448;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=eWNoEDiaLAO68SfSCI3CdT382Huqwo3H76ITjasd3LM=;
-	b=YtfKefDJpDw3poGh3ltXfhqbhOui4iXCWoDM94XC56n2DBODcxK2ec3lRYFcmdMXuiX+
-	 XGQF7/GoN6B0fYNtw22WTeoH1GX5SweBEiCvRiDhEdekSIDgWPwWCg3bnwef7yK+Rw5bu
-	 87ARAnLzzDLp29t25DhQixSO2b0oE835A39ENFprxvkmfYebKQwFhjms7HXKwKuZVteC0
-	 KC3UuyWpLY++QyS3q7O71PjSWujrQ0U2A+vD9HJX7fXrqx1qgADijUTna1qhZKFajkE/z
-	 /43y4OIGQbM/23byIF8loO8n658MMM4Zl5ryu12F2/aNzVCB89fX7q5wx6/2F8i/PCA==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mN4QOE6L;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=136.143.169.15
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1793817523;
+	b=inYqIrcUHLnQwUoSWHWpTRqQ0aQM2lZ8dL7g9QRsz5tHG2pOLd4b4cp4IBCq0tEgPXGd
+	 hnvkvSGXECFewolY70Z88f3hT+EGVnX2Dgy0X7UzvyemWi3cyClqjA1lVf/lZwJ2FKqGN
+	 NUjEV6hCQQs8vMsAsoeGj7DoGxyhLMzH28eTHOHGkClLRvqQKvICuVQ9Pv+4BosByZRZa
+	 PGJM8fAfCbFkhKg+bREhj0jSaK4wO8nGzRTxO6zlFbD8FDXuwh8prpG6C9jHZ+k3pZHRy
+	 OuxzRr1LLkHHl8uyC0ayrHEigP7lehEVhkYu9GfgsmvD0oUKjOjLO5lFdcDCz32gJWw==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793817523;
+	h=DMARC-Filter:DKIM-Signature:Received:Date:From:To:Cc:Subject:
+	 Message-ID:In-Reply-To:References:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=+G4rf1hzJmKdD7EoOaWqne7TUKWl699YR7p6ZHK04Pg=;
+	b=aQY4ti/YQeBHc4KC+rb9kgOilJ2ibBGQ/B7B3grDLj2vL3m2ZmwWddpVQ8bYGp1QW4xs
+	 vnEXZE6HBOXHBpZxMfzOE5kf7CEQH56rJEgmuv4R4HF+jKsSmmaAyZ9feKPXWJodb4zaS
+	 NAHXqFZ6ZA/MpdSLlOz+wMhvdldKhARmApIZuSO3ovf1tjW3jfzxS3BA19EdHrYLgmPXE
+	 iG3ZwwhS4NWjyzxL1PV98l69QK6NDg4CGamjPh7+E3rYyWKE6oLufIXa4WZ22hTPrsDk2
+	 ellTsokNZ/stJ8na/eyK6i0y9puj2z+PAw9hkhHXzwmZf572ToDymmz236a1gOhLRZw==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=none header.from=iav.lv;
+	spf=pass smtp.mailfrom=iav.lv;
+	dkim=pass header.d=iav.lv header.i=@iav.lv header.a=rsa-sha256 header.s=zoho header.b="XwsE/OKh";
+	arc=pass header.oldest-pass=0 smtp.remote-ip=136.143.169.15
+Received: from sender-op-o15.zoho.eu (sender-op-o15.zoho.eu [136.143.169.15])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0393E606A326
-	for <linux-rtc@vger.kernel.org>; Wed,  4 Nov 2026 15:00:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA22C606D813;
+	Wed,  4 Nov 2026 18:38:41 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BA22C606D813
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iav.lv
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iav.lv
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mN4QOE6L
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 669061F000C1;
-	Wed,  4 Nov 2026 15:00:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793804447;
-	bh=eWNoEDiaLAO68SfSCI3CdT382Huqwo3H76ITjasd3LM=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=mN4QOE6Lm29kp0Eb4sidtzjIDZsE+1cubmFJTryLwGR5zGGiozBn3B9pGCXEFA3Kx
-	 qGWcyL+VAvhEKLX7iQUAkhHY/e+tFuX6nH+rS8BEJ1x3h51WEtfklt0seSCR/NjIBp
-	 NOFRN11FGWFLzu/tDbvaXyIMvJzN0nqxhd5p7OnFPlFLj9mV8EwRTdriAbPvSPsD2R
-	 Xc4ZFuEN7o6NPqHuZ1B1aM/uLjisnpXrrxAugsMupBdHU7YgmgT60m8r+Lalifr326
-	 IwrJF62WMcqdfcAmFS7at2fg9Ullbk++eZHGX12xMXYcPc+YlZC3eUdxwd+nSi98hD
-	 FN2YggVAP9cHA==
-Message-ID: <sashiko-outbox-197475@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] rtc: raspberrypi: do not mark the file comment as
- kernel-doc
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Aryan Sinha" <sinha.aryan03@gmail.com>
-Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20261104145844.32361-1-sinha.aryan03@gmail.com>
-References: <20261104145844.32361-1-sinha.aryan03@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 04 Nov 2026 15:00:46 +0000
+	dkim=pass (1024-bit key, unprotected) header.d=iav.lv header.i=@iav.lv header.a=rsa-sha256 header.s=zoho header.b=XwsE/OKh
+ARC-Seal: i=1; a=rsa-sha256; t=1793817483; cv=none; 
+	d=zohomail.eu; s=zohoarc; 
+	b=jOiOl+0CE+ACVKVx2qnxTLmr810zE/CRa3KOwEr2zNkoJc25NbMCCdee3UXcgi4SvHxIB9BtXeTa0IVCXrN70PWks0O6lrv3nUDrmsbs7zmRhW0uVtNFMd0VTFsWtSr8+/uuFcaXlBFobGvMea9hXuGXpJvGRq1hcefv3O2S7cE=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.eu; s=zohoarc; 
+	t=1793817483; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=+G4rf1hzJmKdD7EoOaWqne7TUKWl699YR7p6ZHK04Pg=; 
+	b=KMm2Qa0cQcm1Y27OQJWy4TNMM30UFPAzO1jo5bniPHxWFY0Eda/ucpPhYTde4l6Pg2NFIbfnvQFVZX1Ll+NpPo+lgbZt1jPYyQdzP1mocMFucUS2ZDb6+KaOPLwNzr7Ds4lccHlD684uAul0XSMWEoK4teQbqi8DSwUGyg4TaIs=
+ARC-Authentication-Results: i=1; mx.zohomail.eu;
+	dkim=pass  header.i=iav.lv;
+	spf=pass  smtp.mailfrom=iav@iav.lv;
+	dmarc=pass header.from=<iav@iav.lv>
+DKIM-Signature: a=rsa-sha256; b=XwsE/OKhgSV8BT27J+m5RtLTpGlmD2r5OAJQBoml3G3mJAKrH4UlhmUacSyvaKRjiVf6jv2WIYpVW3Zf1hnYQuMIP8iVKsbm/g6dLhyYNPkj9JoZW4z3McwqHJCweLV6luJLFyFNmNcj9d8s1sIjsmdVL0IaFCIvnJVaF1p0uAk=; c=relaxed/relaxed; s=zoho; d=iav.lv; v=1; bh=+G4rf1hzJmKdD7EoOaWqne7TUKWl699YR7p6ZHK04Pg=; h=Content-Description:Content-ID:Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:List-Subscribe:List-Post:List-Owner:List-Id:List-Archive:List-Help:List-Unsubscribe:MIME-Version:Message-ID:Resent-Sender:Resent-Cc:Resent-Date:Resent-To:Reply-To:Resent-Message-ID:Resent-From:Sender:Subject:To:Date:From:Message-Id:Reply-To:Subject:To:Cc;
+Received: by smtp.zoho.eu with SMTPS id 1793817481738396.6696032790776;
+	Wed, 4 Nov 2026 19:38:01 +0100 (CET)
+Date: Wed, 04 Nov 2026 20:38:00 +0200
+From: Igor Velkov <iav@iav.lv>
+To: Neil Armstrong <neil.armstrong@linaro.org>
+Cc: iav@iav.lv, John Stultz <jstultz@google.com>, Thomas Gleixner <tglx@kernel.org>,
+ Alexandre Belloni <alexandre.belloni@bootlin.com>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>,
+ Kevin Hilman <khilman@baylibre.com>, Stephen Boyd <sboyd@kernel.org>,
+ Miroslav Lichvar <mlichvar@redhat.com>, Jerome Brunet <jbrunet@baylibre.com>,
+ Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+ linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-amlogic@lists.infradead.org,
+ linux-kernel@vger.kernel.org
+Subject: Re: [PATCH RFC 0/3] alarmtimer: Choose the wakeup RTC per sleep state from the device tree
+Message-ID: <20261104-alarmtimer-rtc-neil-reply-1@iav.lv>
+In-Reply-To: <399668f0-e97a-438e-b761-1ea6c18d904b@linaro.org>
+References: <20261104-b4-alarmtimer-rtc-priority-v1-0-e996681b8086@iav.lv>
+ <399668f0-e97a-438e-b761-1ea6c18d904b@linaro.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -59,16 +72,28 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 
-> The file header opens with /** but is not kernel-doc, so kernel-doc tries
-> to attach it to the RTC_TIME define below and warns about it. Instead use=
- a plain comment.
->=20
-> Signed-off-by: Aryan Sinha <sinha.aryan03@gmail.com>
+On 11/4/26, Neil Armstrong wrote:
+> This sounds bulky, perhaps it would be much simpler if we just added
+> all the available RTCs which has RTC_FEATURE_ALARM and can wakeup ?
+>
+> Just switch from 1 single to multiple RTCs in a linked list and you're
+> done, no DT & bindings changes.
 
-Sashiko has reviewed this patch and found no issues.
+A list it is, and v2 drops linux,alarmtimer-priority.
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104145844.3236=
-1-1-sinha.aryan03@gmail.com?part=3D1
+Arming every RTC makes the coarsest one fire first: pcf8563 has no
+alarm seconds, so its alarm comes up to 59 s early, and an RTC with
+alarm_offset_max wakes earlier still. The board wakes before the timer
+expires, and the next alarm may come seconds later: while it is still
+resuming, which takes seconds with disks and PCIe, or right after it
+is suspended again. Drivers then go through suspend and resume at
+short intervals. Arming one RTC per sleep state avoids that, and which
+RTC wakes from which state is board knowledge, so v2 keeps
+linux,wakeup-states.
 
+--
+Igor Velkov
