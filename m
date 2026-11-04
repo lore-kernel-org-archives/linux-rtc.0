@@ -1,56 +1,96 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=91.218.175.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.214.169
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793783138;
-	b=DvSFvqB9u120Xbihju+dP3DnUL7ahzMl8pdc5zwhrZDE0HJ6L4KotlND0PXHvs/lMixW
-	 P0tdDL0yxs4sNnP8wLgUhhh7zab+nFl/nNQvghYoEjR6I5kKXod4/7M9nOYMncclnq3gu
-	 Hntf4YbfOqO2saIzFM+W/jYEn9aj99LEWxeKfOMRGIl1I9z6TZUgR4OUxvptwSsE2Xahu
-	 QFu9sHqp/7O+bgkFe1497ZhyQ7OaFDi6thZA+AIctiHObslVx0YlZlGEAWx3vfOYZtNzm
-	 DwohuAQLirfj/cW5TXrTXcdLz1gtBXfc+Bv8kdIoAAq65kodZawEP0sU7+af9WXW0eA==
+	t=1793804337;
+	b=Bw2GxF12ScRkO0aR3qsmhW5IwIpOgUN+j2NN9jamTlhYe7bJ/a6lbdzwJEVSDGwtESvJ
+	 6LrZ1jYxhWlXzY9bbhNZzchE+G99QjwmReeBKiJWH77wtn+OE/LTTicotUipphATknQmn
+	 cziqZSmJm/ycwKes/cIKY9Kv9eBlr6v4x7P/6XT1drefobVO9wjsAmX0GurUOTVrf53q4
+	 tZl6uOvM2tkggFW8I4xjIlit+G+PcQqr8c6bfzyhkrJ/4C4i+X3BqbAmfjj927i2prZ2Q
+	 oOV0Fa4i5dAaVjlXRgu/OlbvEyUVah/WAFT+hgHRrjLvmmWVFZ9fsHn4IYOMowwgNWw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793783138;
-	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
-	 X-Mizu-Trace-ID:X-Migadu-Flow:Message-ID:Date:MIME-Version:User-Agent:
-	 Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=QXo6rTrM1au9q5KLVv52jI2Mrttkr1Jcc6AQvREIgP0=;
-	b=fNIw4BNL3C6Wk6LYDSAxWmwpJnYwemaIktN2SpTGFxRNTlNZjMyv7vnsxuu26kNPaRQ3
-	 9DQI4MumwXaiIxSmbKT4k1JI7O25nLEvm5dIUGVOug1iqJcSU8T2GFfZPfuOGYl8hw6SW
-	 f5FEK4SaQyptBhSI6SxlYssiMGhsMF3Mx4yFgToRH69DGuUFkr7w0Rpsbc7wKA7Mmo+te
-	 B5T4hxI5QBz6Ll7S5crdSZwVxcHIe9CdRUahvu1Jk5FQiDIWTLJ7kkN+ghITN6NOM6j8Q
-	 y41b8Hd6uUZkrPXEYUGgVcw/XsUJDpwPwZuHq+Dca7j+mQ8xWCNe796rYyoMDfM26lw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793804337;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=ZlCHGoRtMbV0sOxoCDUMJOhQ5x4ULZVSAr4XX4def2o=;
+	b=kkGlj0UI/eHVtnnVH7CSiiqgP8rAVJqb7uJEi8nxvvAdJvzsHi/IVQ5WH7/reNgxy4eQ
+	 hjcwu03Ud4vCw+q8A4fomQneoAn+VNvtEvlVoXM4/yMH8eJFxf4oHa99rqh9Q1SGMGrlQ
+	 DRbK1ZsVplU2/+i3H9haty/NuurBQAx4dz2h28JHFLPZzI+/hUtVtaXJ3nBiIoyxNPMdd
+	 gCxAGDp3/yyUHQ2UvlJmsgugqGQdJ+hBJfZuFZ4B8TaouvYpDjlOtWMFyV5Lqp8/3F1Pr
+	 cX0kY6BZLy2Nq77Z/vHsi97/zC/zNinU0Fj8w2dMnUMiwQJm2hxB6SoBcj7nMC+5XbQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=packett.cool;
-	spf=pass smtp.mailfrom=packett.cool;
-	dkim=pass header.d=packett.cool header.i=@packett.cool header.a=rsa-sha256 header.s=key1 header.b=Q9s4KaR9;
-	arc=none smtp.remote-ip=91.218.175.124
-Received: from mta0.migadu.com (out-124.mta0.migadu.com [91.218.175.124])
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=RTBZu8tc;
+	arc=none smtp.remote-ip=209.85.214.169
+Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC67E606A328
-	for <linux-rtc@vger.kernel.org>; Wed,  4 Nov 2026 09:05:36 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AC67E606A328
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=packett.cool
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=packett.cool
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E01FB606A31B
+	for <linux-rtc@vger.kernel.org>; Wed,  4 Nov 2026 14:58:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E01FB606A31B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=packett.cool header.i=@packett.cool header.a=rsa-sha256 header.s=key1 header.b=Q9s4KaR9
-X-Envelope-To: linux-rtc@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=3N4pCaJ+co792MUr95p2MPmPG0+0WYBnyKQV28tJvMU=;
- c=simple/simple; d=packett.cool;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1793783134; v=1; x=1794387934;
- b=Q9s4KaR9a4C1wOZ3Eu6EJwytbpQjUU2+eaJaNhTqIYsC0ZKKZNR12kLc/gIflUsDb+Is8iwn
- lp9jkFroFo5T3Vs3enc5MEjLfSQ/RTvcGOvXMo3OgSOdicmwMJncH8q+p1rZSKTEgxoq4kIVHyK
- XtJ9Zb8WIBMRd61ORMAVCTCNbS9Zra/tQocRJPs8OReJnibWygbXDiik+8JwOwSV1Y8GdmSEMhp
- e9lL7LkdjS2z89aq/fHYrKLvfA9iLLNHYeGJl4gS5wG6MHB4imhfgYnjdMl9HLNiXBlvCiBKV1C
- yD70qlRttoRV4l8MC0qIgZT9btsD2IIOzfBqIFr2JWjPQ==
-X-Envelope-To: linux-rtc@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id 08ec60f0a43faeb3;
-	Wed, 04 Nov 2026 09:05:25 +0000
-X-Mizu-Trace-ID: 08ec60f0a43faeb3
-X-Migadu-Flow: FLOW_OUT
-Message-ID: <c9cb67ec-376d-475d-8d31-a3e0bbe20cb7@packett.cool>
-Date: Wed, 4 Nov 2026 06:05:14 -0300
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=RTBZu8tc
+Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-2e9e53d011eso5577285ad.1
+        for <linux-rtc@vger.kernel.org>; Wed, 04 Nov 2026 06:58:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793804336; x=1794409136; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=ZlCHGoRtMbV0sOxoCDUMJOhQ5x4ULZVSAr4XX4def2o=;
+        b=RTBZu8tc9ZTv6AtCaet4trrXcWvfn1A+8EG4XmeivJYuWzW3XEQjCw8R1vBs/cRUjT
+         Nxudl+1aCdsh49Hzj9MzoiTIXZCBpXQXxQDncIY62iCBpuRTra91eTSRBQ4G2c4Ymu0x
+         kxoj9k4VfGCbHMscGnF14gPILbFhYNw5cTek1KnnD6bSCkagg30ey+rJrHeaw8X+ap4C
+         x7jBBZqxkVmKfxIEiLemu/uvnS6Szid7oPCyAoNBCbpPurjBkEwExk345aHTYZZYFAiI
+         tKnmKFBdTkLTTn5+VDS4ClAIDADuYuXtwPOfco2D8S1P8vsqrPOigtVs50PQ1DR58xAt
+         evsA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793804336; x=1794409136;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=ZlCHGoRtMbV0sOxoCDUMJOhQ5x4ULZVSAr4XX4def2o=;
+        b=sLj8aS4pRT8c5f5bmuT3ZqkvJYiOK9RCU4ZVNShBOgSyB47YBPKCjBMZu6C5PJ6P6r
+         8yFRd/GhOO9Fs+E+a+V8ePRST7iN9l1vkUH7f3S+nQEbUq4gmH98zpStC3JPSMdm7h/N
+         rYWBDiSxmmYO0bKPBqlrTJa2/68e9EETAhkzUoFiCPRmPwRWY25LpBGqAVkhrvykoS/n
+         B0bT1TgiyZoDUhYEhO53164xDRhHbs2g/wASVHnUn3+x9TfgAkI6S/7GQP0Oq3B+q+rJ
+         QEyhWkcnaj/M6vsNXxyT341vmWVy9rbzSjFSzcvJ5fQTSfVmjvN0vfnsOOsLdbDwXaOn
+         9ZbQ==
+X-Forwarded-Encrypted: i=1; AKwUvBxNIGupt1i0pwph2pFD5+U5CLSdTV/Nr5bXcD9u+u52TNxpxzcF3kvYFIjdc9VKF7zIRmgDwLRLkFA=@vger.kernel.org
+X-Gm-Message-State: APuU4Z/SA9UwcM2UDkeZxvH+awfKNcKPLCxBFySduSMryR733+0dT+l9
+	Qses1WlV9IoUjdCFbv1oFMip5Fz6/wGfqiBSQSwUvckwrUqpPUP1MsuP
+X-Gm-Gg: AYBFou2kiegL4Ajk/oRbbKGAx2AfpIs0HTk4II2RKERXsGP7ZWsBA3FqKmYaNXw26QQ
+	7PNd8fDGj7HC6cW7b+lPuAF2TW4l2xM0F+TaQUy6Yr+IuMyePKE2DrR+OwbNAkYX4jGiU0GUEG1
+	qyK+n/HhNzsI/EJDASzgveM28AbeYpKVuI9ts/utd3K+A8JU+a9R8j8kYFkfj6xKUMecMqwmIbC
+	8PkylQvlynYCs6NDqFoEYGFhNqT8Z8mB2x/h/3jF+X7OgYWXURCyJA8E71pDju/wLuYknI6yHLr
+	ViaiXSba6pmw74pZLe/VsJBHWLdC/8BjcSJM1d1s7Y4nTjzlWTFZlrqinNEjjiM0AWScPpJrmpW
+	pc/fPC1YeiIR2InFwwHDKYe2k56dnb99LZz69PEmC6K9Y8dIeCdsf7ompApSP0Km6xzB7a/nk51
+	zmVNn8AXI8jKbojeR3vZt+9Tnq3sp/GvZFW3EaOxMCzGMyXgIw3vL2lm4o47BF/CCEIbj9gDy33
+	YTFn7o8Av8Xico7/mLVBYGB9ltinDi8QkTLvdEBT7BR6aOpJ1VqH30auAb6Ok6VIJKj0DXnrWNZ
+	Arxt7bZ+1KiXt2SHhJ2dibNCG1p8tHqD8FncYAiugdLhYKwZp8vcLV/EitzJ13Tqgm9With03Vq
+	BtjGfbyxh1lj3XxTQ84JL3nYuTpOI
+X-Received: by 2002:a17:902:cf0b:b0:2e9:4175:3077 with SMTP id d9443c01a7336-2eb364962bamr175279525ad.15.1793804336225;
+        Wed, 04 Nov 2026 06:58:56 -0800 (PST)
+Received: from localhost.localdomain ([2405:201:301c:f8cd:5040:8550:f5e4:709a])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2ed08bd596asm9269185ad.1.2026.11.04.06.58.51
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Wed, 04 Nov 2026 06:58:54 -0800 (PST)
+From: Aryan Sinha <sinha.aryan03@gmail.com>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Florian Fainelli <florian.fainelli@broadcom.com>,
+	bcm-kernel-feedback-list@broadcom.com,
+	linux-rtc@vger.kernel.org,
+	linux-rpi-kernel@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	Aryan Sinha <sinha.aryan03@gmail.com>
+Subject: [PATCH] rtc: raspberrypi: do not mark the file comment as kernel-doc
+Date: Wed,  4 Nov 2026 20:28:30 +0530
+Message-ID: <20261104145844.32361-1-sinha.aryan03@gmail.com>
+X-Mailer: git-send-email 2.46.0
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -60,96 +100,27 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/5] arm64: dts: qcom: sc8180x: Add Microsoft Surface Pro
- X
-To: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>,
- Bjorn Andersson <andersson@kernel.org>,
- Konrad Dybcio <konradybcio@kernel.org>, Abel Vesa <abelvesa@kernel.org>,
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>
-Cc: Maximilian Luz <luzmaximilian@gmail.com>, Hans de Goede
- <hansg@kernel.org>, =?UTF-8?Q?Ilpo_J=C3=A4rvinen?=
- <ilpo.jarvinen@linux.intel.com>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>,
- linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
-References: <20261104070441.74127-1-val@packett.cool>
- <20261104070441.74127-3-val@packett.cool>
- <ea308aa2-8a2d-468a-ae5d-ec9a8ccdb2d2@oss.qualcomm.com>
-Content-Language: en-US
-From: Val Packett <val@packett.cool>
-In-Reply-To: <ea308aa2-8a2d-468a-ae5d-ec9a8ccdb2d2@oss.qualcomm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
+The file header opens with /** but is not kernel-doc, so kernel-doc tries
+to attach it to the RTC_TIME define below and warns about it. Instead use a plain comment.
 
-On 11/4/26 5:36 AM, Konrad Dybcio wrote:
-> On 11/4/26 8:04 AM, Val Packett wrote:
->> From: Maximilian Luz <luzmaximilian@gmail.com>
->>
->> Introduce a device tree for the Surface Pro X tablet in all 3 variants
->> (SQ1 with cellular, SQ1 Wi-Fi only, SQ2 with cellular).
->>
->> Currently working:
->>
->> * Display, backlight (eDP panel)
->> * USB 2.0
->> * Wi-Fi and Bluetooth (WCN3998)
->> * NVMe on PCIe2
->> * Embedded controller (Surface SAM over UART)
->> * All remoteprocs (ADSP, CDSP, MPSS, SLPI)
->> * Volume and power buttons
-> [...]
->
-> This needs some sorting etc., but let's tackle the bigger prob first
->
->
->> +&mdss_edp {
->> +	pinctrl-0 = <&edp_hpd_active>;
->> +	pinctrl-names = "default";
->> +
->> +	status = "okay";
->> +
->> +	aux-bus {
->> +		panel {
->> +			compatible = "edp-panel";
->> +			enable-gpios = <&tlmm 130 GPIO_ACTIVE_HIGH>;
->> +			no-hpd;
-> Is there really no HPD? The pinctrl above suggests otherwise
+Signed-off-by: Aryan Sinha <sinha.aryan03@gmail.com>
+---
+ drivers/rtc/rtc-raspberrypi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Looks like that's been pretty much copy-pasted from lenovo-flex-5g where 
-it's also set with no explanation, with the same pinctrl also existing.
-
-I'm suspecting that might've been an attempt at working around the 
-inconsistent display initialization, pre clk_rcg2_shared_ops etc.?
-
-I'll try removing it. (Also will convert gpio130 to a power supply like 
-flex-5g has it)
-
-> [...]
->
->> +&pcie2 {
->> +	// XXX: pcie1 and pcie2 are multi'd together, for now use just one
->> +	num-lanes = <2>;
-> We should be using the new phy-qcom-qmp-pcie-multiphy.c driver I think,
-> I'll try chasing down the right magic values
-Thanks!!
->> +
->> +	pinctrl-0 = <&pcie1_default_state>;
->> +	pinctrl-names = "default";
->> +
->> +	// HACK: Remove "global" interrupt
-> Why?
-
-Related to not having the proper multiphy driver support,
-
-"it seems like that interrupt is expected to signal when the device is 
-ready for use after initial setup. Unfortunately that doesn't seem to 
-work for the NVME, potentially due to the composite PHYs. Likely it's 
-just waiting forever and the IRQ doesn't get triggered. As it's 
-optional, we can just drop it for now."
-
-
-~val
+diff --git a/drivers/rtc/rtc-raspberrypi.c b/drivers/rtc/rtc-raspberrypi.c
+index 0547a96c6..657734b96 100644
+--- a/drivers/rtc/rtc-raspberrypi.c
++++ b/drivers/rtc/rtc-raspberrypi.c
+@@ -1,5 +1,5 @@
+ // SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
+-/**
++/*
+  * rtc-raspberrypi.c
+  *
+  * RTC driver using firmware mailbox
+-- 
+2.46.0
 
