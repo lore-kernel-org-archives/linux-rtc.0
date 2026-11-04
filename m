@@ -1,83 +1,83 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.47
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.52
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793821554;
-	b=cVk1IMDyd5rzUGyWCoWEuj5W3ZRh+RxljtyYaudCLeNkHrDj0XZhzlmTnad+0EF0fzzu
-	 FTWo5vbJCSD2fv0mvuEGrxs7OjXsPdm7sDPrUVszzwHm2egir7mHpZ3O0tjz7Yp3MxaJO
-	 JE1+O6lhibKhPxkjDdS2GC022ScXh2Haz/YH8op/yAJSSrsLnrCCQUwOYKikrHqAR4fBN
-	 x7c8VIfibB3BsmEqYqUw7q5QBtHgHFd1n1koQNzvbz/Wa65+JZjMnozNbn9FVeogNwSRt
-	 82b57HmCi4zMQ7gVIGPsCGcNLEuInUqeJHAicgFqLEXbfvzNYOtPhk3EINlivPPiU8Q==
+	t=1793822018;
+	b=e/KziYV1L1dr5UnnI6zIRY+8P8PA1ZKTLYDaO1DRtfzYf+uBHWgSPTCxSYuOnw9Hjuiu
+	 BtJRu69+yEkPXkDAJXpLmucXUwetTsG8WyO/b6YStTTn6NHr/M+Fw8g93XvuZXGzaA7Y8
+	 4UUncPtXJ2obIFi6u+22mijfDzVIIwgYkLPzY6R7LeRZiim4d+B5bF2tnlA0MezEnIIiD
+	 /rvYH/5bj4rbEk2QKtKBsBVwF8Z0L+AbTumZcUAAXUx1r7Rxx83cc/n+HX8uUaa1Wyt/x
+	 gvkcwlSxSSCIVtmy6PH/ta1joCVApW6CRIzcO38VDosAPA6yFz9YBGrQqUye5tObGbQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793821554;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793822018;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
 	 MIME-Version:Content-Transfer-Encoding;
-	bh=EhMlWPoz5IUKIlQ1/wDPKCmLchJf0GRtbn42lO+mbmw=;
-	b=hZLvkNkfNUrQnS3/7OuSNrnm7d7iQbkhVvgBFK/BXWPBC4OAcI6tK/66/DaDbHiXB+wk
-	 apT9zs96Fgn6YKU0z5OiBH40CkRReAkaStBx2HnWWTaHLSNGryVe0FXte5YLFj5FSoBkd
-	 n/L8mZnROoF9jcodKh+hhp7055GMCA2Apc8xkmBh4GmsQUbyYmN+aJDI3KRVK/eRuzWrc
-	 y7N5u1IpMfW+swFUXv7JbxU8BHJvefhJMqGNisBj/+9RQGYVgDL/09Sp9tBZEdJ9KqXLw
-	 /ukl7g6V9SRA7LDPwXeKtMxTSmSjTdaOHFRGCoLhZ5rw0hl8p3PFinMMFdsS/IRhmrA==
+	bh=j77TQJheY9BNkuAUNT0wTTk7+HF7XEvTQj5keMW7u/I=;
+	b=S0N/l2ykSQ/PCsF/UizvQ/qiALug9JOfr0XT60Nznc0xGfNglDEjnkI89tGmG2GpIK8o
+	 CDSsOl2ZjMrrOzFnobaLp3fpVjABps1AIkTTGWEKdZfqPLNnHIW8/uUakMtqWN4JCGQDo
+	 2GQgtIMK0lPwB3+eS78yxaA5zLp59kHNocVKKHnzoT63iC6R2KVndFDgQvhe1K9F3HW8+
+	 rCk1t4r3MtY2jMou1402TKxdMXy3ihmYzTWZ3+4a2FoweccaecXw1i3aUjYQi3sCNeDhB
+	 l8AUNh33FW1/yFp/xIpSsN7v+fIxlrqlvo+TqV8ZNdkZgeY8JOVR7+VySXiXGp4AhLA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=PhgChsRR;
-	arc=none smtp.remote-ip=74.125.82.47
-Received: from mail-dl1-f47.google.com (mail-dl1-f47.google.com [74.125.82.47])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=snwKVTUy;
+	arc=none smtp.remote-ip=74.125.82.52
+Received: from mail-dl1-f52.google.com (mail-dl1-f52.google.com [74.125.82.52])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14A9B608337B
-	for <linux-rtc@vger.kernel.org>; Wed,  4 Nov 2026 19:45:53 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 14A9B608337B
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8445609609D
+	for <linux-rtc@vger.kernel.org>; Wed,  4 Nov 2026 19:53:37 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B8445609609D
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=PhgChsRR
-Received: by mail-dl1-f47.google.com with SMTP id a92af1059eb24-1adbf62dd31so1554465c88.0
-        for <linux-rtc@vger.kernel.org>; Wed, 04 Nov 2026 11:45:53 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=snwKVTUy
+Received: by mail-dl1-f52.google.com with SMTP id a92af1059eb24-19305bcb72cso1062200c88.1
+        for <linux-rtc@vger.kernel.org>; Wed, 04 Nov 2026 11:53:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793821553; x=1794426353; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1793822017; x=1794426817; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=EhMlWPoz5IUKIlQ1/wDPKCmLchJf0GRtbn42lO+mbmw=;
-        b=PhgChsRRxoaFlSlkRP6+eJT4KYEi14DqTMP0leDLu81FxLUk2LAC65QwDPBooqvAsn
-         iH6XkP8S1MK/SwZxO3AJkItw8VOGPpqeDmiiYKv7myO0lnlZgnop7KC9K2NAgM6ukplu
-         Gjsdpkx1k0Dhr49FqliSxtq+PV7zOW1rF8RqXf/q22186XabS9LOxL3XW958WfiYw+PV
-         JBjD6srBvq+hK2XBFDtCmpOIf+gS9iJ5nhxA+IIgHZhp3x3Dcb+TLxzecX64kH4ggJZ8
-         fI8gag+0WQBADwjfb6rFBnw2H4YR37v7+5aiBzykie/3yy5MmRaIYgT31jdFJ3lzFtA6
-         N3Mg==
+        bh=j77TQJheY9BNkuAUNT0wTTk7+HF7XEvTQj5keMW7u/I=;
+        b=snwKVTUy9LvBIeZYEhCXzEnRQp2wodIFGKY4wUJ7ztWzLVbTd1bI4nr3mGXqrQXFPO
+         83/HtfEisb8NH+6TKxRanc+LHldo4EqJ43kuJQJyWdqbEb2qaKJ6REpFD/Jt5EslTB+S
+         zscnal0Mvh+NX91kiP+siOH9v7tqEITC6j8TarPFAWvrj5zWcfX48CLTn8neQnUjk0aG
+         DdWT6beozrR7hgNmLfQYYUBVHi+K7i2h0gb1c9TLmiQO015gt7sDVMBLhaHB5Rgu8J3E
+         vDvOsMZkyxTj1DF9F5rnA3mHVh2Jx0j8rAylzbJGVo40aem9854GCIhJgMsA/lSZgxl8
+         K73A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793821553; x=1794426353;
+        d=1e100.net; s=20260707; t=1793822017; x=1794426817;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=EhMlWPoz5IUKIlQ1/wDPKCmLchJf0GRtbn42lO+mbmw=;
-        b=sQwwBGKg+scwN8RJJGRFTnQ2zL7ZrnAIhQlVziDmBigIUiPM3ftVeaorukrHIMri9z
-         hwzawV/u2Z7avenhElFULAMfc8wQdVROrGSHvYnDch9UhJFEt/BmQxNEUbnqp9TKlVNa
-         /dzDSQxPtUZ+zZKoNyWnCdSCggrcomV7PeRB3PBeSgfW+tfO3veRZNFKFJzichSUSkj9
-         4TbIcIHb8Q4nHjfIusu+qiMkL3XGdypMXJ/9ETwCdNt5WkZkDbLU6pEGLnCiBdmEfbcO
-         wXC4BZ47YYh3UjbuNgXqtACJ0wOHemOqAy/P7ct3lyKb561jY7TrjQBK3fVUtPYFqV7A
-         SzwA==
-X-Forwarded-Encrypted: i=1; AKwUvBzUxBsSaoU63jAOP3SDxk8y+68cwzPGL9k2AcbyDoBkA0TTi3aMJfIazWVoc+muYOlXITHrAOrpBds=@vger.kernel.org
-X-Gm-Message-State: APuU4Z9grNibZxaq1+ZXAHpfXK7eQRSPBl5Fx/OKRZiJWD5wH2tiUUTS
-	1o8G4cEJ9XI/WtXB+gjOqtgLd8fOZRxDPhK9wgWQ7GRgaVkEHsj7soI=
-X-Gm-Gg: AYBFou1WAZX4SGUg/VsVrdch9mD1pR3DdfTcDqZYzfkHkEwWLHV3FdHAIKLs3udR99g
-	52eUbehwhBbkdV3kThfjUyzQ2AtkGOIWHM2JWjn1dZFxb+HWyot/i2zhd2Y0GL0w8621Exxr4vR
-	L6D3DJRp4ro5ypv3M55344pb3QzOGjoHJO9Q/XfqLKb3EShLXqlq/h4Gv7atsJtwC36PiGa2cVd
-	dy2DS/wzWzLh+NfqRJBqCUbvnokdnMq/l+cIqUQriIT5MzdjCPM1COeF5cppIKBpvH0v14iHAas
-	bYgsmh9XnYxSVtFP6h17Z9hxhGEBzeWPJThlGkhVlSOhKig1Uj1rRNQncIEDyGTVHqEXy3+HbI8
-	XJurHBOLFPIqa1kM6sO+Ez49zpbJcezz1rVCPbdiyeisrjRt/2Q45sYujpc2RcqFxJHOXaUxtYb
-	L6OPiPE+3Ch23bXzkLDE6GriDKuChYQIH2Kf5XZ5GEHlAT1R1h+0v3Av8BQ2mNj5mYjUiGI/lA/
-	lOWCygEBMXBtNbdYPKheKBvhsK5ta7dWbeegTAFWYvJblscEKeIrC0HkzUNP6qeg/Y6u/1EsC/K
-	912Dz9vqMvT5InRpKj8gSBfa747SM2js4qwFmxyqgkTq+qPnPJ27327AKUhw2N1++w==
-X-Received: by 2002:a05:7022:3a02:b0:1ad:e740:e51e with SMTP id a92af1059eb24-1ade740e699mr23857533c88.42.1793821552953;
-        Wed, 04 Nov 2026 11:45:52 -0800 (PST)
+        bh=j77TQJheY9BNkuAUNT0wTTk7+HF7XEvTQj5keMW7u/I=;
+        b=wUBSPwBGihrGI5uN9NQPriFtUqsSKwKYzoKMWQq0wbhPnPMFvM/VPeb7mItl8cbxyO
+         1C5mJGD1/PDW9Fhbbocpgpb2AZfliWZSIEVTKBm9WvSYVKHtWhTdqVzK0JZCGBwWx9ha
+         6mpixLBYxz4W3A4Yms5iiGZ6afBAPDQSac8A5v9svRAmZeL3VtFP9MpC90U6ySpGjMWk
+         Yn/EWFs5oL8qt1EoKbdqW2JbJMhrZ7UTBuW2hb06zl2yAWo5DjVoNA7cYzrc9cmY04ii
+         r/U8mc957612PN2LMuNqnviVpJlnP9/ch4aeKuPtSATPUnx+YaMAKsVsGG22/FX3BwkS
+         ZQZw==
+X-Forwarded-Encrypted: i=1; AKwUvBwUgZ2nk8e7/InJiGlx8HBtgvfc1VzGdZ7Vi/S3NRkjhJ8Y4BzYo2YYv+z7I7z8BlfbIo+eAfspbPE=@vger.kernel.org
+X-Gm-Message-State: APuU4Z8RWwBPC6Vx3yMlMTQ/pLfTnGl8UOCPqFSAPg6eJQcWjQF3Q/Dc
+	SgraZB/Tn6onCjtFJHrS/vrV9HyD3/lqMXV3xQHOign+dK5AhzLFBqs=
+X-Gm-Gg: AYBFou3qKmm+nblkYYy11smYkuLmxaIbk2yOnJ0HIFRRefI4RM8uZmPdISl/fVYCQyN
+	kYXZVbsnDqJMps90di5EEvUzXK61BUs7Nt2O7bQwKxK3awBOb1i3D0G1HsMcfgusvugYf++m9NQ
+	g1kDFrtlXhVC8Ebvt/QR1N5P8liOTX9YSxCuLZbDXXLgl1UTblMFql21uw+4jWa8Jyu5bwPrByd
+	Wy66uRDXHyKC8ccMupLDpxK0T5z3c+92hkvcwAE/zJj5amYkDBeAWHRHRBeIcXdkQSCKM6G+tKK
+	xrNeqZ0JMdqcYJGSI8cYy3+LwvqV+amxkn98EXSgOvm0MXmy260RUUj2gVn3pa66Szy4WSubQ1i
+	YUCsGWwMdfcaRhyvu+wJnMvfpvfN0LY9kbxPWMA0+6cTRu98frF10EE+dGqzfsXlP/aO4pPZCiN
+	OvAUvhuF7+qUqrkiQ4094x2TArLSwyGhiCYCrFvTZCnr21kHFYNLmuWy4Wks7BmtW4Gw2CYMItB
+	dGKgoDBUmP3ihbNwl36VWnc4CooSsyyuVvd3mCIf5ucjidn/9EkRCqkxJ3q5/21j8I40YAkuBhL
+	uCKCitPAiZYeUP072MUB2DOXJR5P0Fn5MC7HLsj/Tg1Z2YXOGB0SCGYYlTawPpol
+X-Received: by 2002:a05:701b:4241:20b0:143:2968:564c with SMTP id a92af1059eb24-1ac5b9cb040mr26455364c88.26.1793822016817;
+        Wed, 04 Nov 2026 11:53:36 -0800 (PST)
 Received: from at-Standard-PC-Q35-ICH9-2009 ([106.194.66.249])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-36ca38a6160sm8652168eec.9.2026.11.04.11.45.35
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b245c2d69asm9239684c88.11.2026.11.04.11.53.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 Nov 2026 11:45:52 -0800 (PST)
+        Wed, 04 Nov 2026 11:53:36 -0800 (PST)
 From: Atharva Tiwari <atharvatiwarilinuxdev@gmail.com>
 To: jic23@kernel.org
 Cc: alexandre.belloni@bootlin.com,
@@ -132,12 +132,12 @@ Cc: alexandre.belloni@bootlin.com,
 	wim@linux-watchdog.org,
 	x86@kernel.org,
 	zohar@linux.ibm.com
-Subject: [RFC PATCH 00/14] Add macsmc support for Intel Macs, replacing applesmc
-Date: Wed,  4 Nov 2026 14:45:32 -0500
-Message-ID: <20261104194532.8259-1-atharvatiwarilinuxdev@gmail.com>
+Subject: [RFC PATCH 14/14] mfd/macsmc: add ioctl to access smc keys
+Date: Wed,  4 Nov 2026 14:53:17 -0500
+Message-ID: <20261104195317.8284-1-atharvatiwarilinuxdev@gmail.com>
 X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20261101010737.203951cd@jic23-hlaptop>
-References: <20261101010737.203951cd@jic23-hlaptop>
+In-Reply-To: <20261101013817.22d67ea7@jic23-hlaptop>
+References: <20261101013817.22d67ea7@jic23-hlaptop>
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -149,20 +149,19 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-> Are we looking at ABI changes as a result of this? That
-> tends to happen with split ups of unified drivers and mapping
-> them to more standard kernel subsystems.
+> If this isn't matching some legacy interface, then we need more
+> on what these do.  Maybe they are suited to some other kernel
+> interface? In particular they might need the various controls
+> on how destructive they are that something like fwctl brings.
 > 
-> What is the plan to handle them if so?
-> 
-> Thanks,
+> Generally an arbitrary opaque path to firmware isn't a good idea...
 > 
 > Jonathan
 
-Most of these changes now expose the stats using standard api's, so this
-should not be that big of a problem.
+Here its required, if we write CPU/GPU Pstates and PPT to
+some keys (MSTS MSPC HE0N), we can reduce the temp by 10C
+And We can fix the dreaded PROCHOT signals on macs, Giving
+Same temps as macOS.
 
-The worst possible thing that can happen is that, the user will have to
-change their fan daemon (macfand/t2fanrd to any other standard fan daemon).
-
-And also, sorry for the late reply.
+But you and Sasha are right, that exposing all keys is a
+bad idea, so i have restricted writing to some keys only.
