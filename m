@@ -1,69 +1,72 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=136.143.169.15
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793817523;
-	b=inYqIrcUHLnQwUoSWHWpTRqQ0aQM2lZ8dL7g9QRsz5tHG2pOLd4b4cp4IBCq0tEgPXGd
-	 hnvkvSGXECFewolY70Z88f3hT+EGVnX2Dgy0X7UzvyemWi3cyClqjA1lVf/lZwJ2FKqGN
-	 NUjEV6hCQQs8vMsAsoeGj7DoGxyhLMzH28eTHOHGkClLRvqQKvICuVQ9Pv+4BosByZRZa
-	 PGJM8fAfCbFkhKg+bREhj0jSaK4wO8nGzRTxO6zlFbD8FDXuwh8prpG6C9jHZ+k3pZHRy
-	 OuxzRr1LLkHHl8uyC0ayrHEigP7lehEVhkYu9GfgsmvD0oUKjOjLO5lFdcDCz32gJWw==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793817523;
-	h=DMARC-Filter:DKIM-Signature:Received:Date:From:To:Cc:Subject:
-	 Message-ID:In-Reply-To:References:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=+G4rf1hzJmKdD7EoOaWqne7TUKWl699YR7p6ZHK04Pg=;
-	b=aQY4ti/YQeBHc4KC+rb9kgOilJ2ibBGQ/B7B3grDLj2vL3m2ZmwWddpVQ8bYGp1QW4xs
-	 vnEXZE6HBOXHBpZxMfzOE5kf7CEQH56rJEgmuv4R4HF+jKsSmmaAyZ9feKPXWJodb4zaS
-	 NAHXqFZ6ZA/MpdSLlOz+wMhvdldKhARmApIZuSO3ovf1tjW3jfzxS3BA19EdHrYLgmPXE
-	 iG3ZwwhS4NWjyzxL1PV98l69QK6NDg4CGamjPh7+E3rYyWKE6oLufIXa4WZ22hTPrsDk2
-	 ellTsokNZ/stJ8na/eyK6i0y9puj2z+PAw9hkhHXzwmZf572ToDymmz236a1gOhLRZw==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=none header.from=iav.lv;
-	spf=pass smtp.mailfrom=iav.lv;
-	dkim=pass header.d=iav.lv header.i=@iav.lv header.a=rsa-sha256 header.s=zoho header.b="XwsE/OKh";
-	arc=pass header.oldest-pass=0 smtp.remote-ip=136.143.169.15
-Received: from sender-op-o15.zoho.eu (sender-op-o15.zoho.eu [136.143.169.15])
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.246.85.4
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793817900;
+	b=zcLnnbVVlW87jhLRiYwqO6qINJx0ZQ329FN3EB2FpaT9TGrKhux2/BGEAcQ7P/Y5hkEG
+	 EAlY9HvBYIpMpEUUAPN81x71IBHRCbxKw66S93moeLVg8xsdek8JUBXgx4niFB8WlGM3l
+	 FIDfrt2GOLYz9BY0jl95yUbJsfGSksKh9QNbOFYJ4vTlceTSbSQxXU2Mq3LphIhqVfd2C
+	 +ybEEHlc3z07K0nvGJDYLngGZ8+/IqV2ZtuR3ueAg76d15AXU5aJawCHabNfJ1DcBJybc
+	 wymSrOT5lqXDu5LfmbGrROTDrMA5qU6C0llXDp4zsXnK1tYNclJyC+acNt4sIOr0e2w==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793817900;
+	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:Date:From:To:
+	 Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To:X-Last-TLS-Session-Version;
+	bh=iYiNfVlDefu7QyzgN/zmHCKOcgLtwtgGp2yoyp3offg=;
+	b=qmCpbTNY/HeH5wt+/SMflBIbALmORO00v10EjEG0RxFRNUCGS5nbbCj+cexj3x2SC+D0
+	 Uw/breLWt08Rtkn/lhiTGFtCnHvyyY5+cl1nnuumWjjeWx85qHfPczTC8DLbYeW93Exi+
+	 sewqRIBy7/NYwCAKbZ+ps9KWTPHqRa0ovhyrVlAO2JyG2QMv6aSPV4UdlWEgfqajXbxsk
+	 TS+taoHoNarluNcPAOZ39AJBnxRJN8ctx2K1+FpeAYchnWhbVZZ1QjfPb/H60Nx9YGxEs
+	 9xFtia0K6mdL20Oxw1M4+qsPwJ+yA9Lo+odMJjP6a4GFiIGCroRUntydI69+ZtwxoBg==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=bootlin.com;
+	spf=pass smtp.mailfrom=bootlin.com;
+	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=cEKYfC+6;
+	arc=none smtp.remote-ip=185.246.85.4
+Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA22C606D813;
-	Wed,  4 Nov 2026 18:38:41 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BA22C606D813
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iav.lv
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iav.lv
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7880A606A329;
+	Wed,  4 Nov 2026 18:44:52 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7880A606A329
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=iav.lv header.i=@iav.lv header.a=rsa-sha256 header.s=zoho header.b=XwsE/OKh
-ARC-Seal: i=1; a=rsa-sha256; t=1793817483; cv=none; 
-	d=zohomail.eu; s=zohoarc; 
-	b=jOiOl+0CE+ACVKVx2qnxTLmr810zE/CRa3KOwEr2zNkoJc25NbMCCdee3UXcgi4SvHxIB9BtXeTa0IVCXrN70PWks0O6lrv3nUDrmsbs7zmRhW0uVtNFMd0VTFsWtSr8+/uuFcaXlBFobGvMea9hXuGXpJvGRq1hcefv3O2S7cE=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.eu; s=zohoarc; 
-	t=1793817483; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=+G4rf1hzJmKdD7EoOaWqne7TUKWl699YR7p6ZHK04Pg=; 
-	b=KMm2Qa0cQcm1Y27OQJWy4TNMM30UFPAzO1jo5bniPHxWFY0Eda/ucpPhYTde4l6Pg2NFIbfnvQFVZX1Ll+NpPo+lgbZt1jPYyQdzP1mocMFucUS2ZDb6+KaOPLwNzr7Ds4lccHlD684uAul0XSMWEoK4teQbqi8DSwUGyg4TaIs=
-ARC-Authentication-Results: i=1; mx.zohomail.eu;
-	dkim=pass  header.i=iav.lv;
-	spf=pass  smtp.mailfrom=iav@iav.lv;
-	dmarc=pass header.from=<iav@iav.lv>
-DKIM-Signature: a=rsa-sha256; b=XwsE/OKhgSV8BT27J+m5RtLTpGlmD2r5OAJQBoml3G3mJAKrH4UlhmUacSyvaKRjiVf6jv2WIYpVW3Zf1hnYQuMIP8iVKsbm/g6dLhyYNPkj9JoZW4z3McwqHJCweLV6luJLFyFNmNcj9d8s1sIjsmdVL0IaFCIvnJVaF1p0uAk=; c=relaxed/relaxed; s=zoho; d=iav.lv; v=1; bh=+G4rf1hzJmKdD7EoOaWqne7TUKWl699YR7p6ZHK04Pg=; h=Content-Description:Content-ID:Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:List-Subscribe:List-Post:List-Owner:List-Id:List-Archive:List-Help:List-Unsubscribe:MIME-Version:Message-ID:Resent-Sender:Resent-Cc:Resent-Date:Resent-To:Reply-To:Resent-Message-ID:Resent-From:Sender:Subject:To:Date:From:Message-Id:Reply-To:Subject:To:Cc;
-Received: by smtp.zoho.eu with SMTPS id 1793817481738396.6696032790776;
-	Wed, 4 Nov 2026 19:38:01 +0100 (CET)
-Date: Wed, 04 Nov 2026 20:38:00 +0200
-From: Igor Velkov <iav@iav.lv>
-To: Neil Armstrong <neil.armstrong@linaro.org>
-Cc: iav@iav.lv, John Stultz <jstultz@google.com>, Thomas Gleixner <tglx@kernel.org>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>,
- Kevin Hilman <khilman@baylibre.com>, Stephen Boyd <sboyd@kernel.org>,
- Miroslav Lichvar <mlichvar@redhat.com>, Jerome Brunet <jbrunet@baylibre.com>,
- Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
- linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-amlogic@lists.infradead.org,
- linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RFC 0/3] alarmtimer: Choose the wakeup RTC per sleep state from the device tree
-Message-ID: <20261104-alarmtimer-rtc-neil-reply-1@iav.lv>
-In-Reply-To: <399668f0-e97a-438e-b761-1ea6c18d904b@linaro.org>
-References: <20261104-b4-alarmtimer-rtc-priority-v1-0-e996681b8086@iav.lv>
- <399668f0-e97a-438e-b761-1ea6c18d904b@linaro.org>
+	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=cEKYfC+6
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-03.galae.net (Postfix) with ESMTPS id AD2FE4E41403;
+	Wed,  4 Nov 2026 18:44:50 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 6833C60770;
+	Wed,  4 Nov 2026 18:44:50 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id BF69910329205;
+	Wed,  4 Nov 2026 19:44:44 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1793817889; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 in-reply-to:references; bh=iYiNfVlDefu7QyzgN/zmHCKOcgLtwtgGp2yoyp3offg=;
+	b=cEKYfC+6BMi/JWjyBZkBqZySFl9y1Mi9ihTxUE0AKiqlu7hW0sZp7eo6q0uoF4QUNjcvYN
+	ktfWX2aA9MfYmUpuVWOAUrb9VFliA3iJcqGlORdu3CwA4mpMzi6iHDpsAhAiFvwruuB8My
+	3TkD1rXvTPWyeUvd2nf90mko5aSt5CQY4ovj6j3Oyth1h0NHRL8ky5jAlKGID6vgPQPGdx
+	kJSSXiLu5+81KEFZP8KVigvu1uuE/Km5gjDOD5u9Jvn4STqdaKSYvoa1Lb3CWcJfZc33ap
+	jOTuXtmk+ZNNMAV/iGkoNZyQWk3AlHnmnKkRJMy8kvh15oeL0bW+/oygEXJO5w==
+Date: Wed, 4 Nov 2026 19:44:43 +0100
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Val Packett <val@packett.cool>
+Cc: Maximilian Luz <luzmaximilian@gmail.com>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Konrad Dybcio <konradybcio@kernel.org>,
+	Abel Vesa <abelvesa@kernel.org>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Hans de Goede <hansg@kernel.org>,
+	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
+Subject: Re: [PATCH 4/5] rtc: Add basic support for RTC via Surface System
+ Aggregator Module
+Message-ID: <202611041844436d5e655d@mail.local>
+References: <20261104070441.74127-1-val@packett.cool>
+ <20261104070441.74127-5-val@packett.cool>
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -73,27 +76,46 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261104070441.74127-5-val@packett.cool>
+X-Last-TLS-Session-Version: TLSv1.3
 
-On 11/4/26, Neil Armstrong wrote:
-> This sounds bulky, perhaps it would be much simpler if we just added
-> all the available RTCs which has RTC_FEATURE_ALARM and can wakeup ?
->
-> Just switch from 1 single to multiple RTCs in a linked list and you're
-> done, no DT & bindings changes.
+On 04/11/2026 04:04:35-0300, Val Packett wrote:
+> +static void surface_rtc_remove(struct ssam_device *sdev)
+> +{
+> +	/* Device-managed allocations take care of everything... */
+> +}
+> +
 
-A list it is, and v2 drops linux,alarmtimer-priority.
+I guess the function can simply be dropped then. Else, this looks good
+to me.
 
-Arming every RTC makes the coarsest one fire first: pcf8563 has no
-alarm seconds, so its alarm comes up to 59 s early, and an RTC with
-alarm_offset_max wakes earlier still. The board wakes before the timer
-expires, and the next alarm may come seconds later: while it is still
-resuming, which takes seconds with disks and PCIe, or right after it
-is suspended again. Drivers then go through suspend and resume at
-short intervals. Arming one RTC per sleep state avoids that, and which
-RTC wakes from which state is board knowledge, so v2 keeps
-linux,wakeup-states.
+> +static const struct ssam_device_id surface_rtc_match[] = {
+> +	{ SSAM_SDEV(SAM, SAM, 0x00, 0x00) },
+> +	{ },
+> +};
+> +MODULE_DEVICE_TABLE(ssam, surface_rtc_match);
+> +
+> +static struct ssam_device_driver surface_rtc_driver = {
+> +	.probe = surface_rtc_probe,
+> +	.remove = surface_rtc_remove,
+> +	.match_table = surface_rtc_match,
+> +	.driver = {
+> +		.name = "surface_rtc",
+> +		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
+> +	},
+> +};
+> +module_ssam_device_driver(surface_rtc_driver);
+> +
+> +MODULE_AUTHOR("Maximilian Luz <luzmaximilian@gmail.com>");
+> +MODULE_DESCRIPTION("RTC driver for Surface System Aggregator Module");
+> +MODULE_LICENSE("GPL");
+> -- 
+> 2.56.0
+> 
 
---
-Igor Velkov
+-- 
+Alexandre Belloni, co-owner and COO, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
