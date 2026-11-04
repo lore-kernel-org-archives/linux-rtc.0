@@ -1,57 +1,53 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793776188;
-	b=z9eIpRvgWRNPXMNzbaa/ZrI4jb1uYEW4FE5hUhpB6YkKk/bpne2xmECJgozfpMppbk3G
-	 SHfzAcmpKWXdBNLcaQ1aTSx5UQ0fzHI48XUauCdIUHJ5WLt0P5ft7Aanhi9LtaEU1o8E0
-	 RX/LUzqAHc3EZbVynEeK6VXfv5nZh48h1eY8on0VXeyr+yT5QoFfT/gZw1K0FDBZ9pRwl
-	 n5hSevyqRj+QJUmyYlt0R/ate9aIcHFngqPiJgFAXtx20VBnJ4w/K5Si60+xTQBIxmL3K
-	 eJAPYkozP17+R42tc+WUAhFATjcAkyf1NF4P/uxSOHTMp+T7t8nlWUz6f3PhljI/ASQ==
+	t=1793776226;
+	b=qiAwWm+7gA8O7kgtNaXGHWmnGnLuwkfBmcBVvMjPULyqyT5kuPX2g2D8aVwYNoIKoeii
+	 GKpiStQx8QJJpR1tKp1xdnbgP82ph1kzbM956c3c1zDQs/Yxh38g231eYawbpP3xsO1Ot
+	 Y8z1BiylQd+GBx82bocF1Vk12qKB+ojhjgk6sUqf5+UZIL6FPfd7Vmo6M/r+vA5UetKVe
+	 6aKjxPL2F5pZ2DShZbPzJRDszDYlUUwCK50LjRKpt4zXL4gpPF5mZc7ZQ+yeTzcjDaK5+
+	 +hnkN+cZSsNWP4h66uedgOowYVh+1+bz5u2csaqUq9XsQQ0zzGChlFz27XeHCC2Cqvg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793776188;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=53pbC/U0rhiWGlhOmfBUEZjuy+0ABq7Anh+NSDlPh8I=;
-	b=0osCRceUZQT2H2mImL0xpmw/zXT5iKsxE5YmGVqh46Rf2Vq+/sj6GoCdVJj2H+lawNQw
-	 B+46N+oXseCchY0WGUs9mYZac07oQ0Q36d2+8kbgdhF5QlFd9yBveAkBWegRocXUS5huF
-	 2409byv6wKBL+KsH6nfjFjxDFho7HKqUh6qWQqkARBNur83b4JU/f7Ba7cr7m0Okl35sq
-	 JvXK2OuZa0ZJy5c6jFo2xPu6dNMcFE/GYXMO8207iTntbrN8qVTxucHldRZdDM6UlnlC6
-	 sXTjrwi6i0AkRctVRk0zv2yY0OKs3emW+UvizgvJNO/RQ/6mNaMoLJkNcDbx6MK16zQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793776226;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=IO3cVza1i0usdKIWVNIEoSXPxMhdh5D5NOd2pz4wcxc=;
+	b=tz7eRYC0or+DmyjWL107EoRaV99bo/gWy08gb+ENNs9CN3KXVuAldwpy0CyGVeHSJ+qb
+	 U2CnLt5Sh1XpvxIurXLB449qc1WnAUfwWl8QGks6aBDb2fnrF61yK9b/hwH1474rjxoO6
+	 SHe9PkqcyHq7Y/5nH+7P29jOWpAw8+PMWPBuL/iLDL1jOyXMbTUqfkbL2/5oinb5XtsrZ
+	 ad/IRjtpRHH74LaM0ee8mL1Uj9xOF+3pkgFXma1hj7JbzbbRzQGP/icvmtp05z5qiCN2o
+	 O8sre3EzDcBs72XcCo1ZzmEZU5nMI0aijqDCMi0pdM7MtNTFsOgBUg00vvic9mS8j/w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CBnFhgWq;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=F6BNiPhn;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 000A0606A326
-	for <linux-rtc@vger.kernel.org>; Wed,  4 Nov 2026 07:09:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 574A2606A32F
+	for <linux-rtc@vger.kernel.org>; Wed,  4 Nov 2026 07:10:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CBnFhgWq
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C7361F000C1;
-	Wed,  4 Nov 2026 07:09:47 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=F6BNiPhn
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 610C41F00A02;
+	Wed,  4 Nov 2026 07:10:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793776187;
-	bh=53pbC/U0rhiWGlhOmfBUEZjuy+0ABq7Anh+NSDlPh8I=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=CBnFhgWq1HWvT09kDZSbhOL63XUJTtTLg7JV3AAOICZMqkJnErZYgVVOYcrvfQa6i
-	 iepjiakTZUAHyVfwv10WTiare4khBTEI23EuRC6KBVTV7x77inaSoZJoE0FuHyDFn3
-	 zUKtX704QzhcXizARBthfFcoJ6yXr4jg0VSguSBSqs9YU45saQCeGQ4IbIzj5nKkiF
-	 CPrGYB1F53TOQXIqPJaz6lFs5B5sSe4b9H0KijmRxolb6clLnngBh4+cq4H99el0wU
-	 gX36prvdY0RwNBnc4/EpZtlsFUzNdrDE3Yvr6mpaMIdHV00Ak/lr4bEG6jbH5r6Fxh
-	 3/ZOJtAW38EqA==
-Message-ID: <sashiko-outbox-196778@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 5/5] platform/surface: aggregator_registry: Add support
- for Surface Pro X
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Val Packett" <val@packett.cool>
-Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20261104070441.74127-6-val@packett.cool>
-References: <20261104070441.74127-1-val@packett.cool>
- <20261104070441.74127-6-val@packett.cool>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 04 Nov 2026 07:09:47 +0000
+	s=k20260515; t=1793776225;
+	bh=IO3cVza1i0usdKIWVNIEoSXPxMhdh5D5NOd2pz4wcxc=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=F6BNiPhnDZaAWJc3GgPxz70yZ2odm/RL4dduN5hLGpw9uVmzzsKFcdkZWxtDUAbmd
+	 SJoNsAtp0gdytwx7RIcQY9RQgUm96PYsxNNwcsDPFWvv2SSI4MLKtqAoiJ6Au8tArw
+	 Mf7VJS5f3x7sRRux55bs1nPumZc97bCagnTjgooa+qApazH/+Sxx2VBN0+jovzEjDa
+	 JGT6YtQgxxEX9ZyRJQKYQqmR4c4iRswJRfRt3CcjqSnTeF68Kcinca9M0aQ1AiA9Ow
+	 //Ru5tJfbYQ0mdMryjjSM2HsQjB0AhNhP/a8Id2lUc+QI2xLvGmUDI03zJMZyFhgY/
+	 hpI2CcIFlNpWw==
+Date: Wed, 4 Nov 2026 08:10:23 +0100
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Wentao Liang <vulab@iscas.ac.cn>
+Cc: Jacky Huang <ychuang3@nuvoton.com>, 
+	Shan-Chun Hung <schung@nuvoton.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>, 
+	linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH] rtc: ma35d1: release the clock reference on probe failure
+Message-ID: <20261104-hissing-succinct-cicada-8dca1b@quoll>
+References: <20261104025339.1527356-1-vulab@iscas.ac.cn>
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -60,17 +56,69 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20261104025339.1527356-1-vulab@iscas.ac.cn>
 
-> From: Maximilian Luz <luzmaximilian@gmail.com>
->=20
-> Add SAM client device nodes for the Surface Pro X.
->=20
-> Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
-> Signed-off-by: Val Packett <val@packett.cool>
 
-Sashiko has reviewed this patch and found no issues.
+On Wed, 04 Nov 2026 02:53:39 +0000, Wentao Liang wrote:
+> ma35d1_rtc_probe() gets the RTC clock with of_clk_get() and enables it
+> with clk_prepare_enable(). The clock reference is never dropped and the
+> clock is never disabled, not on the many later error returns and not on
+> success either, since the driver has no remove callback. The reference
+> and the enabled clock are leaked for every probe attempt.
+> 
+> Use devm_clk_get_enabled(), which ties both the reference and the
+> enabled state to the device lifetime.
+> 
+> Fixes: dc0684adf3b6 ("rtc: Add driver for Nuvoton ma35d1 rtc controller")
+> Cc: stable@vger.kernel.org
+> Assisted-by: DeepSeek-V4.1-Flash and OpenAI Codex
+> Signed-off-by: Wentao Liang <vulab@iscas.ac.cn>
+> ---
+>  drivers/rtc/rtc-ma35d1.c | 6 +-----
+>  1 file changed, 1 insertion(+), 5 deletions(-)
+> 
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104070441.7412=
-7-1-val@packett.cool?part=3D5
+Multiple things here:
+1. Your team ignored completely previous feedback. Multiple times.
+
+2. You use multiple identities with this email address, thus I doubt that we
+   speak with an actual person.
+
+3. Your bot does not even bother running checkpatch, right?
+
+4. Nothing of this was reproduced nor tested.
+
+5. Finally, the same feedback:
+You sent multiple independent patches, to multiple independent
+subsystems. The amount of these patches clearly suggest this was
+AI generated and most likely not tested.
+
+More importantly, you sent all this work without properly organizing
+relevant patches into patchsets. This makes reviewing difficult
+and might cause multiple reviewers to address the same issue.
+Replying to the entire set is impossible and requires handling each
+patch independently, instead of applying or discarding the set.
+Maintainers also won't see the bigger picture of your work. Quite
+worrying.
+
+This is on the verge of hostile patch: bomb us with so many
+contributions, we won't be able to handle them in efficient manner,
+like responding ONCE to ask you to slow down.  Considering all this
+is untested and LLM generated, I have even more doubts whether this
+should be considered for review.
+
+Please read kernel documentation BEFORE posting more work. It will
+explain you how to identify subsystems, how to organize your work per
+subsystem (so a patchset grouping multiple patches with a short cover
+letter), how to document the issue discovery method and what was
+or was not tested.
+
+Best regards,
+Krzysztof
+
+
+
 
