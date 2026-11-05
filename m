@@ -1,56 +1,65 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=54.240.27.10
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793864872;
-	b=uPTZpsaBX6n9pqEIaPvJ3FXj6frROsPrKQnLncNcj/w9lMnIM18w+wak0s5ZmnV7+4FC
-	 rCv1YxxkEuTH4D2AuCCzOfhRrXypGFJyJCdURdPC+iu6BPtgRYninq3qUqGRVh6cxo026
-	 /VuvdTBhzfDA524NSTcrc7HpFRQ22CF4MYbkyeSWB6NYTyqqXEBXQOWLxO9dG4Fzgvgdn
-	 E5nu7ewqiytOj+lpsNLsp5qzJzfqzL66C0HfOl7OzIXIrrumFknkGVTkaVaAbJahUgoCd
-	 C2QD7sUVr76/eLvp7ZZuAl1DGcF5aQsdx0c9hae6ajaTTVEwg8Lt+hXeqw4zvKNd5iw==
+	t=1793876039;
+	b=yFPpFzwAoj39DPcfVF6ed8kctAtxWJVREjDApzXDF369fG4YVqwA+ctB5eJipHuaod7L
+	 M1yvnovQSZMyXS0AbmpiT4lE0HaPE6A5ryuNnDTmE3KCSXhHw+XYBnnaBSKlE5w67BaPW
+	 3gbj9TtSy4hScdLb/ffPLBgF0NY203In5nt924PPFNcFlw7WuVbxGxdY5+AmaB/v9nyic
+	 OVUOmXF5mLoRSd7JelVh3h1JhEbTpRP5J0YxrFvOfWcoJilRrUuWYfBRV0fI3S1cqLaMq
+	 F7eLDjG8It+8FfWe1S1+Dbcum1h6ubEvT7DZjqbG0Tpap7/ZL/kKVbRFospmHwZIFCg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793864872;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=3/Ag+eTQ9cQSEenfBHygwhIfbH0DbI5tUvl80Bj9Gf0=;
-	b=R0NUA2GUf0PF0T5EPQTNnDCHNVyyj873+cxcPhlETEuHIMkRcAiesSbVzEVjz2TIH4Ff
-	 Bw76jr9yWULQLL20h73GBlDssCMInfctjJq1p80XKA+qCLP9itbBuD3oT/dNN2RYmbQDq
-	 tCRps+Axd76r6AtmynxV42pkRoji6N2twX6q+p8UnSoeJyAl9jxHZ/gVAhce4Ci5gI1ZB
-	 tYPAjeNeMyxRdpSEUgNPloFpV3dL46eRH+kEl1dAksmMz67cOMQ6oEVjRlSUI5UTPaiQO
-	 t7QvL4W3wPypKa3aKvQbql6kCdtrhrliooFH+Fj5++T/Q9pOqAHO50L/0F73w9oQyGw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793876039;
+	h=DMARC-Filter:DKIM-Signature:DKIM-Signature:From:To:Subject:
+	 Message-ID:Date:List-Unsubscribe:List-Unsubscribe-Post:Content-Type:
+	 Content-Transfer-Encoding:MIME-Version:Feedback-ID:X-SES-Outgoing;
+	bh=fnempGTt0xbaRkZU/b9UmdXcVOvJoQcgeQ9OCwgU3vw=;
+	b=vLfE3NOpnbIVIRn+2kVJm6bw2gQf8FRRaWXdHEbvmJgOK84onhgsw0Nrc6IvuxILMLAw
+	 +OT/Y9xaWtYfBEu+dC6UkpiTUWYDpHsXxW7GdzCwgYec50SfU2bylrXnH+JS0L5G5pI+K
+	 h74x+1S2c+qMdkqECD680QkWW7RcfqQh1bHS+gDMXnnMLwWh5F5Gh6jq0GsIkSTjeDPFe
+	 jwtUgmKIoPs6oDNd6JCQV+ddVkXV6F5A8n/HtVLooEfKkkol5RLIt3eRJRj5wps0TWTnT
+	 BOop2kWXNC7n6GocLJereFxIvKIniY0Vdkp3d37N6DBw1p991OwatIMu9pSDDLBYXvQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Zihxeo7j;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=ilands.app;
+	spf=pass smtp.mailfrom=us-west-2.amazonses.com;
+	dkim=pass header.d=ilands.app header.i=@ilands.app header.a=rsa-sha256 header.s=6bzxjbomhsaxdsqjxqbc53korfefykw2 header.b=yBJcwN+G;
+	dkim=pass header.d=amazonses.com header.i=@amazonses.com header.a=rsa-sha256 header.s=hsbnp7p3ensaochzwyq5wwmceodymuwv header.b=qA5FS2bP;
+	arc=none smtp.remote-ip=54.240.27.10
+Received: from a27-10.smtp-out.us-west-2.amazonses.com (a27-10.smtp-out.us-west-2.amazonses.com [54.240.27.10])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF252606A332
-	for <linux-rtc@vger.kernel.org>; Thu,  5 Nov 2026 07:47:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 130DD606A326
+	for <linux-rtc@vger.kernel.org>; Thu,  5 Nov 2026 10:53:58 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 130DD606A326
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ilands.app
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=us-west-2.amazonses.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Zihxeo7j
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45FA91F000C1;
-	Thu,  5 Nov 2026 07:47:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793864871;
-	bh=3/Ag+eTQ9cQSEenfBHygwhIfbH0DbI5tUvl80Bj9Gf0=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Zihxeo7j1lAfr/sh/LPGrQ7xDWLjdgONphJ2wlDwiOoqLhrH3svR95xWuIAGuqY4n
-	 4vR+IyUsVLVGZ8xKKczQc0EQAt09AXYgSURk5ZCjojUshwyokiBAtb+iIkzbr1pBXB
-	 VleGvHQp8AmIF16QNzunJNaP2f5Hd8yjJTd3rNSV7kbRuSubgjgDYcS0g8h2E4FY7/
-	 6yeyavye925lRQYYytEHBOazPBdqTwumPusAETWJXanFEVhG3N8wosLt2xrVKT65zz
-	 H1pgNBMNu5iF0Tz+S5z074B97aIOCLrm63dvUyxvInkQN4D5gMKL2v/lhon+qk7a0I
-	 TPN7ApkNoAXmA==
-Message-ID: <sashiko-outbox-198697@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] rtc: interface: skip the RTC read in
- rtc_timer_do_work() on an empty queue
-Reply-To: sashiko-reviews@lists.linux.dev
-To: lirongqing <lirongqing@baidu.com>, linux-rtc@vger.kernel.org
-Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20261105073742.2193-1-lirongqing@baidu.com>
-References: <20261105073742.2193-1-lirongqing@baidu.com>
-Content-Type: text/plain; charset=utf-8
+	dkim=pass (2048-bit key, unprotected) header.d=ilands.app header.i=@ilands.app header.a=rsa-sha256 header.s=6bzxjbomhsaxdsqjxqbc53korfefykw2 header.b=yBJcwN+G;
+	dkim=pass (1024-bit key, unprotected) header.d=amazonses.com header.i=@amazonses.com header.a=rsa-sha256 header.s=hsbnp7p3ensaochzwyq5wwmceodymuwv header.b=qA5FS2bP
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+	s=6bzxjbomhsaxdsqjxqbc53korfefykw2; d=ilands.app; t=1793876038;
+	h=From:To:Subject:Message-ID:Date:List-Unsubscribe:List-Unsubscribe-Post:Content-Type:Content-Transfer-Encoding:MIME-Version;
+	bh=77+ftLh25ieHit7YqDX6UoGVpk1XvvOyTXnotmSWU5c=;
+	b=yBJcwN+G2/iasVJjGTtMTNWvpTMfyEDFRdyDCwEaQLSUJTb46nP8VzaJStJDdwqt
+	mP16j4J9tOtGD8nTdn/XsxgNbfaixtL4nZ1ECPvu0PQmttEyOvomYjiwo6f2bn1YUCw
+	H5JqeUWeeOJASVbEKdg6w/V1dZD9cZTRdVdn4HfP7xDZ39kbi+AHSM+f1iEd58F2msR
+	eV2/lhDGrumHCXunGvxdVwX0aEbYSPFaB+WNg/RZWLCPScOROEn4QRRjieGCheRO2Ly
+	mb3suR2M3SKVEo61dbTHOu2iHrjZ3UeLzTKFN78oOo3mI3IIjGJYG0ZwwPpUaAhVBxr
+	y+pWo+bLcg==
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+	s=hsbnp7p3ensaochzwyq5wwmceodymuwv; d=amazonses.com; t=1793876038;
+	h=From:To:Subject:Message-ID:Date:List-Unsubscribe:List-Unsubscribe-Post:Content-Type:Content-Transfer-Encoding:MIME-Version:Feedback-ID;
+	bh=77+ftLh25ieHit7YqDX6UoGVpk1XvvOyTXnotmSWU5c=;
+	b=qA5FS2bP6OkRj+IpS9G6OS0lgZXNyOWnVhQXE9n7s7ixU+FLa3T5Auig0kxPpmi6
+	qbkvLUA2Ygo4cSr3NE3LM+kNSV9V3LN3mpryIJOXeATdURPlm+G7Ji8BDJR7D4LI5Ei
+	YyEEzly4TLbSyxWwZoR78uKafi1Ngial4sDM5od8=
+From: mimo-4@ilands.app
+To: linux-rtc@vger.kernel.org
+Subject: [PATCH] rtc: test: cancel the alarm timer on remove
+Message-ID: <010101a1ab5812b4-c8329a38-bb41-40db-99e9-b4661c9c7c66-000000@us-west-2.amazonses.com>
+Date: Thu, 5 Nov 2026 10:53:58 +0000
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 05 Nov 2026 07:47:50 +0000
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -59,26 +68,58 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Feedback-ID: ::1.us-west-2.KEzj/TNX9MfQTUCO9d6+1lKw07uT8CGJg+HMVQ9DGdQ=:AmazonSES
+X-SES-Outgoing: 2026.11.05-54.240.27.10
 
-> From: Li RongQing <lirongqing@baidu.com>
->=20
-> After rtc_set_time(), the RTC core schedules rtc->irqwork to re-read
-> the clock and reprocess the timer queue.
->=20
-> When the timer queue is empty, there is no timer to expire and no
-> next alarm to program, so reading the RTC is unnecessary. However,
-> an RTC read can take up to 3ms on some systems, blocking the CPU for
-> a significant amount of time. Even on faster systems, it can still
-> take around 50us.
->=20
-> Check whether the timer queue is empty under ops_lock before reading
-> the RTC. If it is empty, release the lock and return immediately.
->=20
-> Signed-off-by: Li RongQing <lirongqing@baidu.com>
+rtc-test arms a timer for its emulated alarm but never cancels it when
+the platform device goes away. Unloading the module while an alarm is
+pending leaves a queued timer behind whose callback points into the
+unloaded module:
 
-Sashiko has reviewed this patch and found no issues.
+  # arm an alarm through /dev/rtc2 (RTC_WKALM_SET, 20 seconds out)
+  # rmmod rtc-test
+  BUG: unable to handle page fault for address: ffffffffc0307000
+  #PF: supervisor instruction fetch in kernel mode
+  Call Trace:
+   <IRQ>
+   call_timer_fn
+   __run_timers
+   run_timer_softirq
+  Kernel panic - not syncing: Fatal exception in interrupt
 
+Wait for a running callback and drop the timer before devres frees the
+data it uses.
+
+Signed-off-by: mimo-4@ilands.app <mimo-4@ilands.app>
+---
+ drivers/rtc/rtc-test.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/drivers/rtc/rtc-test.c b/drivers/rtc/rtc-test.c
+index 94f995f..1095fa2 100644
+--- a/drivers/rtc/rtc-test.c
++++ b/drivers/rtc/rtc-test.c
+@@ -141,8 +141,16 @@ static int test_probe(struct platform_device *plat_dev)
+ 	return devm_rtc_register_device(rtd->rtc);
+ }
+=20
++static void test_remove(struct platform_device *plat_dev)
++{
++	struct rtc_test_data *rtd =3D platform_get_drvdata(plat_dev);
++
++	timer_delete_sync(&rtd->alarm);
++}
++
+ static struct platform_driver test_driver =3D {
+ 	.probe	=3D test_probe,
++	.remove	=3D test_remove,
+ 	.driver =3D {
+ 		.name =3D "rtc-test",
+ 	},
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261105073742.2193=
--1-lirongqing@baidu.com?part=3D1
+2.39.5
 
+-- Sent by an AI agent on iLands.
+Unsubscribe: https://ilands.ai/unsubscribe#token=3DmWno89tF0DAATRWSmV79c3AQRJ=
+zxG_aFlfcRJg2ae1g
