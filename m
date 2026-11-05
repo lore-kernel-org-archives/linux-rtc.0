@@ -1,57 +1,45 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=180.76.5.236
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793848504;
-	b=saawDZrQL7w4mij1uMFwZ2Zfo2KW4DG/5uc6NsbB8/7kCWqbd4CFo/WSBkK12/yNjbGy
-	 A3gaH8Tm+1mrLPZ4wA+YdJcNE7MPhq30f8arNsq4vYN6n9DHhf5DrsR/uns5/0t75k1rd
-	 88N9GwjA6ZyF4YLi4X+fluWk4OS8FExl16zjtiVbrNuK+2al4ak4usrtXe+zqdqYriMld
-	 Evy2GbZ/U0Cu8A4XegJm1HYfErDbMXGCxym2z5NJBQr6/aejmu3gjMcewjScmtEoMeNl6
-	 qSPbnTxw1KqUita1nHRjGR/F5lpyGAc1ySh+4/D0wztPD8TgLN2w6CsTqDMjQomc5/Q==
+	t=1793864282;
+	b=DwPeiIfwtiUFIxRTMxkwxT01CGa+OBtPSibNRfmx7D2ArX7KKklKC9xog/KEie4cAFtq
+	 Vwx5wlY3bI+3MCefo3S4G/jDPfvlEKrguA+/yr5aImf+9eQ80oHoWhZtQ3pJ07Jj9/Vea
+	 9d8k0mHBm+jNGw/Z6279i1ZhtikIRaL0T1TvguPp2QsR3AR3rKyn1LAkjyKEqfSWQ7Q6U
+	 2pnvbdPkDWgNj5VvL7YaFRaeJmvvK+4Jz156z+yl3JMoRr07tUzAWci3z8+93pjqWg79V
+	 3IqbmXJ83LqCTnGulS3m+10dzFSd/LraF0LM2n2KU8GcHgxnZhgCDT5r/3JG3RPoLmQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793848504;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=029x0NMf520q1WMTUW38KmZdMvpoDqVv46AHekJeKhk=;
-	b=TtiQiVmbc9nuPlc02uAc7YG4JLxPv3+xOHrpwyBqBpzSrkR+txAtBw74hIwVwPN/MiAJ
-	 UKMmpVFUOs3xQotP0ePqdMBEOZpwcpAUCe1IuEFk+Du//xz+MiSKZBAhIFarJ776TKpkE
-	 b5f7nItGAZ3xAyaU0O4PFNQzm66SkvTFRRrCp5u5nRK0k7NUEJ4NVcF521r++RR6Vajr4
-	 q0DhMTcblKGy/rNH83EbTmsGk/5lSE+lZBnSce0Cq0drsAC+/JOyeK2vkLDdh+xIJyqtU
-	 FyFTwz+gSXUPBpAEYsDjLel/jG7A/SmeDsNad78VG73B2N/whFtv9GgYN275nEZqINA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793864282;
+	h=DMARC-Filter:X-MD-Sfrom:X-MD-SrcIP:From:To:CC:Subject:Date:
+	 Message-ID:X-Mailer:MIME-Version:Content-Type:X-Originating-IP:
+	 X-ClientProxiedBy:DKIM-Signature;
+	bh=O+DefVadtLa6SPaklYpaHc8GZx+rmsOjmeUFC9PQ6G8=;
+	b=LhfTySBaw+xTHwUOI2rYp86eUFtptvhKy1Vn04LkuY9HZxXUM6AijxmzGecrovpqKs7J
+	 JX/nD7SPoskxsfN0UD/pRcdJMcXc0QKLjqnV79vkGFnwg5ADEFD3vNNi7wA05WW72sDhK
+	 zkphhV/jpF9LLghRDwLjfzs/fjoMBs/cjGB8hsTusb0vhNQ1ajVrWRzV3hOHqkhyvrzPE
+	 iwJ0Zo3M9BMdMD7gJAX8OGG+McOg5ImKwMEXSljFVBBVDuI0TMHamaId8DHmZP8t19k7P
+	 f3A4j8a0xwdye1EHSPkD6Zc2wNt3B+WFaJ+XgBcYW0muWOQDRPQLEi7yay7y91a508w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=K2D2XTCE;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43D0E606D826
-	for <linux-rtc@vger.kernel.org>; Thu,  5 Nov 2026 03:15:04 +0000 (UTC)
+	dmarc=pass header.from=baidu.com;
+	spf=pass smtp.mailfrom=baidu.com;
+	dkim=pass header.d=baidu.com header.i=@baidu.com header.a=rsa-sha256 header.s=selector1 header.b=Cno54tmj;
+	arc=none smtp.remote-ip=180.76.5.236
+Received: from outbound.baidu.com (outbound.baidu.com [180.76.5.236])
+	by smtp.subspace.kernel.org (Postfix) with SMTP id 406C8606A31B;
+	Thu,  5 Nov 2026 07:37:57 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 406C8606A31B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=baidu.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baidu.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=K2D2XTCE
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A79881F00919;
-	Thu,  5 Nov 2026 03:15:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793848503;
-	bh=029x0NMf520q1WMTUW38KmZdMvpoDqVv46AHekJeKhk=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=K2D2XTCE1qoWb8x3EKqWMB/dNlXwrIs9qgyBkhldysgUfkyi7PQ0kT14qkj83/TEZ
-	 tYAsmnWC6xy4qgfaH1yYT2Qv7abiK8d17Ln6cNM916FD0tC6mlbLUU8dadVzGQR4y/
-	 fjIhQCTswGjpf+CiKWdQ4rX7G1QB8guiM+GBr2sTBNtcEgNg1qQjurqIpvJLnUb6Ox
-	 wVGPx35Xwd6vxo8j3ZODVZb2HZwgKFsTjRyzNH2227I55H/yeereypXS8QJo56snpp
-	 iIXuoOKAMHmS/uQGCwdsdGUc0fXk4M1GNh/kDvxJdf5cfQoC7Wfd89LnyW6Y4dWDwv
-	 EdNOzrQHsS9/w==
-Message-ID: <sashiko-outbox-198509@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] selftests: rtc: Support harness test filtering and
- arguments
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Wake Liu" <wakel@google.com>
-Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20261105030834.3318480-1-wakel@google.com>
-References: <20260910034821.2935214-1-wakel@google.com>
- <20261105030834.3318480-1-wakel@google.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 05 Nov 2026 03:15:03 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=baidu.com header.i=@baidu.com header.a=rsa-sha256 header.s=selector1 header.b=Cno54tmj
+X-MD-Sfrom: lirongqing@baidu.com
+X-MD-SrcIP: 172.31.50.47
+From: lirongqing <lirongqing@baidu.com>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	<linux-rtc@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+CC: Li RongQing <lirongqing@baidu.com>
+Subject: [PATCH] rtc: interface: skip the RTC read in rtc_timer_do_work() on an empty queue
+Date: Thu, 5 Nov 2026 15:37:42 +0800
+Message-ID: <20261105073742.2193-1-lirongqing@baidu.com>
+X-Mailer: git-send-email 2.17.1
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -60,84 +48,56 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain
+X-ClientProxiedBy: bjkjy-exc12.internal.baidu.com (172.31.51.12) To
+ bjkjy-exc3.internal.baidu.com (172.31.50.47)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=baidu.com;
+	s=selector1; t=1793864276;
+	bh=O+DefVadtLa6SPaklYpaHc8GZx+rmsOjmeUFC9PQ6G8=;
+	h=From:To:CC:Subject:Date:Message-ID:Content-Type;
+	b=Cno54tmj4wTuN3ciBdGPpwjo+RD+6741yC02XkHL9cLwoJJKY8AebK2ZhvIZg+YKW
+	 z36btYR2q5no0pC9xLDeqjPk/DhCdNG0qYN6rk9STSK+S4fGp7IVejKjzoAPX7SyTW
+	 2YVR4bs8NZGzkxvYuirK3j3SBLGc3URA0xUVaaNDw/E6YIecnRazfZcVjouAh98po4
+	 2LgphnMEm6N5JTnW4SqlKx73MArCCIqXH5AGZfDuFNe/PQM/47Aa0dTZGCvsdsTGrU
+	 FcMOcs6fJ4YWIb5VycG4SdPqrxtn5KrLuuidVTh2N2YlwQ6qnSMiaPg5Ink6PBCw9e
+	 G20rX2f+erHlA==
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Medium] selftests: rtc: incomplete getopt() reset on -h/-l in main()
---
+From: Li RongQing <lirongqing@baidu.com>
 
-commit 9bed5ee7eee853de78b5dce8eb5280f5ed1c8688
-Author: Wake Liu <wakel@google.com>
+After rtc_set_time(), the RTC core schedules rtc->irqwork to re-read
+the clock and reprocess the timer queue.
 
-selftests: rtc: Support harness test filtering and arguments
+When the timer queue is empty, there is no timer to expire and no
+next alarm to program, so reading the RTC is unnecessary. However,
+an RTC read can take up to 3ms on some systems, blocking the CPU for
+a significant amount of time. Even on faster systems, it can still
+take around 50us.
 
-This commit updates main() in rtctest.c to parse command-line options with
-getopt() so kselftest harness flags can be passed alongside the optional RTC
-device node path.
+Check whether the timer queue is empty under ops_lock before reading
+the RTC. If it is empty, release the lock and return immediately.
 
-> diff --git a/tools/testing/selftests/rtc/rtctest.c b/tools/testing/selfte=
-sts/rtc/rtctest.c
-> index 552191fe1ca09..eb26d957835d7 100644
-> --- a/tools/testing/selftests/rtc/rtctest.c
-> +++ b/tools/testing/selftests/rtc/rtctest.c
-> @@ -487,18 +487,44 @@ TEST_F_TIMEOUT(rtc, alarm_wkalm_set_minute, 65) {
->  int main(int argc, char **argv)
->  {
->  	int ret =3D -1;
-> +	int opt, i;
-> +	int non_opt =3D 0;
-> +
-> +	while ((opt =3D getopt(argc, argv, "dhlF:f:V:v:t:T:r:")) !=3D -1) {
-> +		switch (opt) {
-> +		case 'h':
-> +			fprintf(stderr,
-> +				"Usage: %s [-h|-l|-d] [-t|-T|-v|-V|-f|-F|-r name] [rtcdev]\n\n",
-> +				argv[0]);
-> +			optind =3D 1;
-> +			return test_harness_run(argc, argv);
-> +		case 'l':
-> +			optind =3D 1;
-> +			return test_harness_run(argc, argv);
+Signed-off-by: Li RongQing <lirongqing@baidu.com>
+---
+ drivers/rtc/interface.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-[Severity: Medium]
-What happens if -h or -l is passed as the first flag in a clustered short
-option argument (such as -hd or -ld)?
+diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
+index 96626f8..a65b594 100644
+--- a/drivers/rtc/interface.c
++++ b/drivers/rtc/interface.c
+@@ -977,6 +977,11 @@ void rtc_timer_do_work(struct work_struct *work)
+ 		container_of(work, struct rtc_device, irqwork);
+ 
+ 	mutex_lock(&rtc->ops_lock);
++	if (!timerqueue_getnext(&rtc->timerqueue)) {
++		pm_relax(rtc->dev.parent);
++		mutex_unlock(&rtc->ops_lock);
++		return;
++	}
+ again:
+ 	err = __rtc_read_time(rtc, &tm);
+ 	if (err) {
+-- 
+2.9.4
 
-When getopt() parses the first character in argv[1], optind is still 1 and
-getopt()'s internal within-argument character cursor points to the second
-character ('d'). Returning early from inside the getopt() loop after setting
-optind =3D 1 does not reset that internal cursor when getopt() has not fini=
-shed
-consuming the current argument.
-
-When main() calls test_harness_run() -> test_harness_argv_check():
-
-tools/testing/selftests/kselftest_harness.h:test_harness_argv_check() {
-    ...
-    while ((opt =3D getopt(argc, argv, "dhlF:f:V:v:t:T:r:")) !=3D -1) {
-        switch (opt) {
-        ...
-        case 'h':
-            test_harness_usage(argv[0]);
-            return KSFT_FAIL;
-        case 'l':
-            __test_harness_list_tests();
-            return KSFT_FAIL;
-        ...
-        }
-    }
-    return KSFT_PASS;
-}
-
-getopt() in test_harness_argv_check() resumes at 'd' instead of re-reading
-'h' or 'l', returns KSFT_PASS, and runs the full RTC test suite (while also
-having bypassed the access(rtc_file, R_OK) check in main()).
-
-Would it be better to let the getopt() loop finish scanning all options (for
-example by recording a flag for -h/-l or resetting optind =3D 0 where suppo=
-rted)
-before calling test_harness_run()?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261105030834.3318=
-480-1-wakel@google.com?part=3D1
