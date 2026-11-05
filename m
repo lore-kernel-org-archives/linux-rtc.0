@@ -1,78 +1,78 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=23.83.209.82
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=23.83.223.216
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793915600;
-	b=0MrTMziZwxII4vRl4o+jAwURWtLBHrl+e05EQ5l7SH48dc/PaA0QIG+pdNI4QtB4J3Bm
-	 rYRpPwu6uleDCj7VN6VYJKaDQljy3Nt0YwpHUw0c5YlkUqdPf6G4wR0MGgSOuA/5Mghl7
-	 54BNQexoCF3P0fORA6RXgrynnByvW3JAGiSsxWNrsyOyaKNnJLud20SsJjwOHTZXFGCGm
-	 ePqooHbwczg893dQACwuUmMJzddxv03TrMjOHYU69rVvxVv3l3hlhI3QkQU30pCT0eKjY
-	 Jzj9DBtKU4/HKE4UeLFeOc3Ntbvh5hZ4Wl1FL1p5rja04AiHSYlg+lDTZ7qH/SCeexA==
+	t=1793915610;
+	b=OwtW5sh19jBM3BiXwCMl4js9zphtvuLHcrh8eHggxhSrM63B94g+fI5Pgem2iJLhdCM1
+	 M4+X0lT0RsjnwfhM63W0eErvuT9nrXmvyT/qMKCfQ/Lm1CnJuMX0GPvwqqy/7dnPn9Xqt
+	 CItRyRmpAaW7IJkg5aBOLDxV7zP9ioyzf6vKfENxtlNi0ByLxR9bZ0VuBPABuFCTrAqCx
+	 gyHA5HQynFPDPWybYuxl2DlKUYAGKyyDYFDAEXc7rDw0ScjKXj8EXaj+hx0BqwHZBZr3c
+	 Ae4n30C3cCm4I1COvcN6MSX5gG3BNAMarIXniFji87MHmu3PleFFpO5lEDhlOc2JQPQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793915600;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793915610;
 	h=DMARC-Filter:X-Sender-Id:Received:Received:X-Sender-Id:X-MC-Relay:
-	 X-MailChannels-SenderId:X-MailChannels-Auth-Id:X-Soft-Attack:
+	 X-MailChannels-SenderId:X-MailChannels-Auth-Id:X-Trade-Whimsical:
 	 X-MC-Loop-Signature:X-MC-Ingress-Time:Received:DKIM-Signature:
 	 X-AuthUser:Received:From:To:Cc:Subject:Message-ID:X-Mailer:
 	 In-Reply-To:References:MIME-Version:Content-Transfer-Encoding:Date:
-	 X-CM-Analysis:X-CM-Envelope;
-	bh=x6fWEIwcZqF+uebJhhOi96RZVMVojjt7Yr1nCZ0fX90=;
-	b=vXf7uOC0hqpa+i1cNkoQPMlzEws8MhBMmW/i7jUYveJxuULpiokL6yNt5Li996ulSYiS
-	 X26JHH5r9itqn0zelq3Ta2Ef+cLOn8w810J01GY8FqmkbYwjJ32RhFa7Z1QYiP94XIb91
-	 gR666fB3fnV8yOl814m4Vy7hHHH6aSY1zzsKHLLxcCVkEqBkdMSVX1HIUf0u6uYFXPIzU
-	 UJC+LhFVQDB3OTxILTgErNRJ0OxEjlEx67WEkidqlmXANikREdCM5T4/IY/XrVafYx+tv
-	 IwWTJ/83H9sObMezx/1Pga6d8wcMrPmm5vqBlIO+4aU7xmPaZ14pzjnvtYPc2ylov9g==
+	 X-CM-Envelope:X-CM-Analysis;
+	bh=AHNmQxajZGbM4aGt/Ao+fSqmi9KKqww7lQcOcOgpAxo=;
+	b=SpjWVvoSnhdI4EV5CMb5bVUNC0T2xX8RupBiMQTb0lj8tlgGVWItSZNz1TYgL6MyGtG6
+	 cUIVY7wJnRvEMzIjtdnkwKkn+AKxUfO8aOoVfyXzn6ldCfCvlIF3gkj964CBDPIIw0VBM
+	 M/SVjBOAqXNjWI8a2KBspdRRiHKPHZQB7cPiDpr/QWt1L1ol1OvWsxwxNobLL4RpTF/Xt
+	 /8tvhi1HUio0o/+TVEW0egFzkUGgxFaKV5Dz7ya1HydjehdyRtSsRCAoYPEMp7pXnKOiW
+	 j2sbqD+UBOeeFL4A+qwnl2oFCkB8nnUvUh0WLljxRh1GPyMJPKtbWzUsWlFPgFJ2CHw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=marsrover.mx;
 	spf=pass smtp.mailfrom=marsrover.mx;
-	dkim=pass header.d=marsrover.mx header.i=@marsrover.mx header.a=rsa-sha256 header.s=hostingermail-a header.b=qSPkgMW9;
-	arc=none smtp.remote-ip=23.83.209.82
-Received: from heron.birch.relay.mailchannels.net (heron.birch.relay.mailchannels.net [23.83.209.82])
+	dkim=pass header.d=marsrover.mx header.i=@marsrover.mx header.a=rsa-sha256 header.s=hostingermail-a header.b=Iml5lpg4;
+	arc=none smtp.remote-ip=23.83.223.216
+Received: from puffin.cherry.relay.mailchannels.net (puffin.cherry.relay.mailchannels.net [23.83.223.216])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58293606D802;
-	Thu,  5 Nov 2026 21:53:19 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 58293606D802
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0395606A328;
+	Thu,  5 Nov 2026 21:53:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D0395606A328
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marsrover.mx
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marsrover.mx
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=marsrover.mx header.i=@marsrover.mx header.a=rsa-sha256 header.s=hostingermail-a header.b=qSPkgMW9
+	dkim=pass (2048-bit key, unprotected) header.d=marsrover.mx header.i=@marsrover.mx header.a=rsa-sha256 header.s=hostingermail-a header.b=Iml5lpg4
 X-Sender-Id: hostingeremail|x-authuser|rodrigo.rea@marsrover.mx
 Received: from relay.mailchannels.net (localhost [127.0.0.1])
-	by relay.mailchannels.net (Postfix) with ESMTP id 54B6C4E1FAC;
-	Thu, 05 Nov 2026 21:53:13 +0000 (UTC)
-Received: from fr-int-smtpout22.hostinger.io (100-99-176-144.trex-nlb.outbound.svc.cluster.local [100.99.176.144])
+	by relay.mailchannels.net (Postfix) with ESMTP id 6DE644E233A;
+	Thu, 05 Nov 2026 21:53:23 +0000 (UTC)
+Received: from fr-int-smtpout22.hostinger.io (trex-green-2.trex.outbound.svc.cluster.local [100.99.176.144])
 	(Authenticated sender: hostingeremail)
-	by relay.mailchannels.net (Postfix) with ESMTPA id 5BD944E1F32;
-	Thu, 05 Nov 2026 21:53:11 +0000 (UTC)
+	by relay.mailchannels.net (Postfix) with ESMTPA id 917C14E19C6;
+	Thu, 05 Nov 2026 21:53:21 +0000 (UTC)
 X-Sender-Id: hostingeremail|x-authuser|rodrigo.rea@marsrover.mx
 X-MC-Relay: Neutral
 X-MailChannels-SenderId: hostingeremail|x-authuser|rodrigo.rea@marsrover.mx
 X-MailChannels-Auth-Id: hostingeremail
-X-Soft-Attack: 3cc6770d49e0cae9_1793915593224_2425707991
-X-MC-Loop-Signature: 1793915593224:3081047466
-X-MC-Ingress-Time: 1793915593223
+X-Trade-Whimsical: 68e1e6f375efd16d_1793915603308_3191682949
+X-MC-Loop-Signature: 1793915603308:3338776904
+X-MC-Ingress-Time: 1793915603308
 Received: from fr-int-smtpout22.hostinger.io (fr-int-smtpout22.hostinger.io
  [148.222.54.26])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384)
 	by 100.99.176.144 (trex/8.0.2);
-	Thu, 05 Nov 2026 21:53:13 +0000
+	Thu, 05 Nov 2026 21:53:23 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marsrover.mx;
-	s=hostingermail-a; t=1793915589;
+	s=hostingermail-a; t=1793915599;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=x6fWEIwcZqF+uebJhhOi96RZVMVojjt7Yr1nCZ0fX90=;
-	b=qSPkgMW9nd1cjHd+DeIfh4R/NOpjcAYWpWoSRnBkRAeiC2B882vFM+mxy24H8ZNGZIsHs2
-	5VWSrsL6VrxfYe2S8b197E5z0+0pWpiDX6d9MhEOO5L00mlyiX7vMqhCxeq/5839BOTeo2
-	FOUj4H7AMQ5Ynh5A7fEnTw/UGFuC+CFzI1HDPEOa9FxTt+tvSKAwd0EMotKi4WtH/4F9z7
-	alB1NC7KmWlMt9CGpi2k/6GJSEAEDd8I0PkVkTlCDy/c1NPcuIn3RJsmuvjFtpxdEPCKS3
-	fXqvBun8/wd3arFDMM9kRTeZeGbG6365N1FNT8P4gNgRi3un22gkpGTqnFGBUg==
+	bh=AHNmQxajZGbM4aGt/Ao+fSqmi9KKqww7lQcOcOgpAxo=;
+	b=Iml5lpg40Wz2evqyjOlJr4rN+P9tHAqkutjWpMVsvzsWfla83LnSy17C3nheK7N8Cf61V+
+	cFAmmLSC/i5Hh+nbPqtpsyQSk5vRrMkUKrm9cMXd395H6IzHPyaI074xd41gs/Y/878sc9
+	fltM4bIIWVEcd5SK1QmZnY3KALVLEVbZpMXDzgbmxr/dFkTFI5l7M5pDwkxct1x9ACvbAP
+	ZIFdj8xe4sRNKXexqK2x88sGdZCB8xB7eIvsHKWQwJrjJBgKxiY6wAqp+KMe/Jf0sL9inf
+	PL3iiT5bG+NRnBPcX7r6JZTqskVyKpIfhPgta1BYCfyjDvNNEcP9xrNo246P+Q==
 X-AuthUser: rodrigo.rea@marsrover.mx
 Received: from 0-0 (unknown [IPv6:2806:103e:32:db7c:5585:b158:b565:ff3c])
 	(Authenticated sender: rodrigo.rea@marsrover.mx)
-	by smtp.hostinger.com (smtp.hostinger.com) with ESMTPSA id 4jLGJg6sRCzyg7;
-	Thu,  5 Nov 2026 21:53:07 +0000 (UTC)
+	by smtp.hostinger.com (smtp.hostinger.com) with ESMTPSA id 4jLGJt0SMQzyZv;
+	Thu,  5 Nov 2026 21:53:17 +0000 (UTC)
 From: Rodrigo Rea <rodrigo.rea@marsrover.mx>
 To: alexandre.belloni@bootlin.com
 Cc: robh@kernel.org,
@@ -84,8 +84,8 @@ Cc: robh@kernel.org,
 	linux-kernel@vger.kernel.org,
 	daniel.aguirre@nxp.com,
 	rodrigo.rea@nxp.com
-Subject: [PATCH 1/2] dt-bindings: rtc: pcf85063: Add NXP PCA85074A
-Message-ID: <20261105215204.2446733-2-rodrigo.rea@marsrover.mx>
+Subject: [PATCH 2/2] rtc: pcf85063: Add support for NXP PCA85074A
+Message-ID: <20261105215204.2446733-3-rodrigo.rea@marsrover.mx>
 X-Mailer: git-send-email 2.56.0
 In-Reply-To: <20261105215204.2446733-1-rodrigo.rea@marsrover.mx>
 References: <20261105215204.2446733-1-rodrigo.rea@marsrover.mx>
@@ -99,31 +99,45 @@ List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Date: Thu,  5 Nov 2026 21:53:07 +0000 (UTC)
-X-CM-Analysis: v=2.4 cv=UdEDS7SN c=1 sm=1 tr=0 ts=6aecfac5 a=IBQtBY+zZK3LDN2rWOxbiA==:617 a=xqWC_Br6kY4A:10 a=8AirrxEcAAAA:8 a=6YoeE7raNcvHRFXWJXEA:9 a=ST-jHhOKWsTCqRlWije3:22
-X-CM-Envelope: MS4xfFbLdyNXQfzM9Q9v/ZnOI06TLdUw95FPk+0FkPUiNAYnczLwE69wqjaIYu6b+EEME/U9PKDkr1BWOYiHW42H43GMjA1bIyLcAuka2AvhZW0w7Ys8/E7Z 41CnY/Dpw+098oEi/5UzVfV8jl3sgvESHC1I8oyKnuFibn1piwa+qoqSPNXp2kWigrjvFDyT3Op/RwEuWYmvqvJyAAlJIwEvPpjEBJCozD0RrF69LJBHv1U6 PLKLqF9VQ7ZbD0wS5+oRx8XAILzXgOJx2fIZJHDTYRPHS/tKI/DkF/pbncGe/Q2/+JiN7qNdEI6CpbvrfDfsKOLvOiQ1mkXho7RFFShi/RiIpTpzxYvJ9PU8 8Dq1dwgIY4QOO+7yGlyXv6bhQ2TCjIt2A86+ZaEQamlgLp25FuuTXyttU3H3r6WH+fv7sIYDoSEVtAPfuj3EuO9Ay6zmHIN26Y1xUmIc+JAK2ScbuKm6HVDd 4BYg+dDLPGU6VxGj82G0xKQmuqmczqpBZ7JOoelWfuQW79ChFmHKv+kMeZxLnpWD0kyX7CN2w0J/frIRLOhclKalawGklFpGWoBXWg==
+Date: Thu,  5 Nov 2026 21:53:17 +0000 (UTC)
+X-CM-Envelope: MS4xfHwb/EVfs9crIhiQYUA15plBJqAXnP6LTePNdgsIyI0xwayu0ti6c5p6tKsMagShYZxPFhDiNkpFpA55VZmfXUVeHUaO1Tb5xZFJmUL/kk5U8Zmq9YOj LqmbZpu+bJo00O1HbsQIuAkMWtLyWT0MkwFSKTYTVxyepvglcXO//IF6NnbKuheFSRaIbFw5oS6H2lHVeq9T42ioUIDL4KNEYvAjJfycqAMPaCqjxA6qL3/S W27fC2FLdeZ0U3BqLdgFB+hdL1ToYvgAcwyBQeeOH3qZupze73tVjfjkjhPm1LWdtdLfzuvdQSSuui0X7ZSkXL3Z/vMMQDRu6yE1iSk67R0pm5afzW4Gxn7q r94I/nuomqwnZWGXmGNsjI/zLTZyWjl0ALLF2YNCjoQnXXlB+sDbij6eTpHd/pvACrAC/Ii8gJsC2/ZFVNUGaf82v81l3vFxBKEVLc24RydPHGuhO6YcI2Py SE0aItiSmXvtOam6t2gp7OufxNgtXnDPQ9eB01cnSpWlC0MwEI1fJ9XemFIp8d/sECBAEGL/G92tuX+igpLM3+RXnzM2OlnPMWQk5g==
+X-CM-Analysis: v=2.4 cv=UdEDS7SN c=1 sm=1 tr=0 ts=6aecfacf a=IBQtBY+zZK3LDN2rWOxbiA==:617 a=xqWC_Br6kY4A:10 a=8AirrxEcAAAA:8 a=0WcUORTWb5vEv_qsYz8A:9 a=ST-jHhOKWsTCqRlWije3:22
 
 From: Rodrigo Rea <rodrigo.rea@nxp.com>
 
-Document the NXP PCA85074A real-time clock compatible.
+The PCA85074A uses the same register map as the PCA85073A, which
+already uses the PCF85063A configuration. Add I2C and OF match entries
+that reuse config_pcf85063a for the PCA85074A as well.
+
+Tested on i.MX91S and i.MX93 platforms.
+
+Link: https://www.nxp.com/docs/en/data-sheet/PCA85074A.pdf
 
 Signed-off-by: Rodrigo Rea <rodrigo.rea@nxp.com>
 ---
- Documentation/devicetree/bindings/rtc/nxp,pcf85063.yaml | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/rtc/rtc-pcf85063.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/rtc/nxp,pcf85063.yaml b/Documentation/devicetree/bindings/rtc/nxp,pcf85063.yaml
-index f7013cd8f..b06ad3e0c 100644
---- a/Documentation/devicetree/bindings/rtc/nxp,pcf85063.yaml
-+++ b/Documentation/devicetree/bindings/rtc/nxp,pcf85063.yaml
-@@ -18,6 +18,7 @@ properties:
-       - nxp,pcf85063a
-       - nxp,pcf85063tp
-       - nxp,pca85073a
-+      - nxp,pca85074a
+diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
+index 32952e73f..64f106e92 100644
+--- a/drivers/rtc/rtc-pcf85063.c
++++ b/drivers/rtc/rtc-pcf85063.c
+@@ -763,6 +763,7 @@ static const struct pcf85063_config config_rv8263 = {
  
-   reg:
-     maxItems: 1
+ static const struct i2c_device_id pcf85063_ids[] = {
+ 	{ .name = "pca85073a", .driver_data = (kernel_ulong_t)&config_pcf85063a },
++	{ .name = "pca85074a", .driver_data = (kernel_ulong_t)&config_pcf85063a },
+ 	{ .name = "pcf85063", .driver_data = (kernel_ulong_t)&config_pcf85063 },
+ 	{ .name = "pcf85063tp", .driver_data = (kernel_ulong_t)&config_pcf85063tp },
+ 	{ .name = "pcf85063a", .driver_data = (kernel_ulong_t)&config_pcf85063a },
+@@ -774,6 +775,7 @@ MODULE_DEVICE_TABLE(i2c, pcf85063_ids);
+ #ifdef CONFIG_OF
+ static const struct of_device_id pcf85063_of_match[] = {
+ 	{ .compatible = "nxp,pca85073a", .data = &config_pcf85063a },
++	{ .compatible = "nxp,pca85074a", .data = &config_pcf85063a },
+ 	{ .compatible = "nxp,pcf85063", .data = &config_pcf85063 },
+ 	{ .compatible = "nxp,pcf85063tp", .data = &config_pcf85063tp },
+ 	{ .compatible = "nxp,pcf85063a", .data = &config_pcf85063a },
 -- 
 2.56.0
 
