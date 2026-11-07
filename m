@@ -1,65 +1,55 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=54.240.27.11
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794049339;
-	b=EujLz5qPdHlkhXjIyJey2fOh1JPIKCEoEhFpZLfYItqaQwA97tLOpyyDmtJdkx+0MUb4
-	 OiK2daqkuEK790FewL422v34vPd4HjFrqa4D5zU/0sGyEsSYjgbFTD/N94NA9ib3J88G7
-	 JpTlKEQiTh/2VGk4qARrSaX50yRueQ6sBfmbvDlWfHi9pckaFD2N6kCAr5Tc8alP99iLa
-	 7Y/tDBAZOaI6AW85Id3HJNOM3pzXYNJkr47huHkEQJNbmKCq9YH2Savwh8Ho37iUNHLru
-	 zTy6By9ktn3n8uywjDv2bzap5GIZ0YDAEUaJuE+qB79TOgAZUfAVkGDBqNquKGR2Z2Q==
+	t=1794049776;
+	b=plXuJ2IpsSvKCcClRWtNUJE4GU8UzoLpag4EHI8e4aKNCWhNYfThmPA3F0tM5bgF1dMe
+	 3edSEUI89p2GNME2uHvsJwFJuFYerpSUJBxkmvMZ2EE13O883xcXzwN8Li2NRRwvPCbA4
+	 o4jfWRbQH7+7vTtDKFFrEZelpcHnJD+3MrGUlumvj/sBozWm9S6KFtemH2i73WOerw4Uf
+	 I8iSZUZkFNkbBiFAYUUkvsV65hd0IV1b6zJWyBwUcanh6NgzGthLF9lTYXu82vp94G6hG
+	 4RaVPBAsCq3beE+yALq+UORK9Z6WxGGlxcsEU9nruiKYzZHAw7hqOhjHPILToSyKkTA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794049339;
-	h=DMARC-Filter:DKIM-Signature:DKIM-Signature:From:To:Subject:
-	 Message-ID:Date:List-Unsubscribe:List-Unsubscribe-Post:Content-Type:
-	 Content-Transfer-Encoding:MIME-Version:Feedback-ID:X-SES-Outgoing;
-	bh=+mXtpbwr0B5KHvz1DFNRun5GjHpk5/8WJLVd2kUxM0g=;
-	b=L2zeOHtzD/cwOs2w4/BRFeSf4AqG7FWk4oKXfMULpdXBIeOWvYqiyrOUiXfVDAx2IL8n
-	 zeHjaqGQ8mTIqPE5sY4zU93y98bLhVq4SBt8HOdHfeLH5FPVTPydf7ol9C5GVnMvWChfw
-	 Hj7/ZRhrEd7nTtvvkgv3sCvzFlCd2NADsHUIlRWkXC+kOY5lfG/HRIE6U8clCg4CMXhHu
-	 0myc6aHm1GWCS9mYJfxGdjvnSpV7hCOGISS7gKfhRQxmUkLyU5C4zCJwchjPZPTfg7MeI
-	 +GrFVezODE6CP+NYwBirB2Ga5uqL/VsLW2yFaf6vjY/p5U+JqgqZGutq6abs7PMDEeA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794049776;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=CX/Rj71C0vpHIJPqoynExGqfcIN+XxYwgCJUivFPb7Q=;
+	b=hfW96Y0DpT0n15II0yWTUIE+Bmc7gpVAORFBzD/4v1OmOXR7UgCeGcMczOWW+/1XAcU6
+	 uS4aRn8P1jSH8AubuMxQRueLd2QxwOFSXLtbVkUmX00kTwIex1LQQHQofUHc8ms+jWdjQ
+	 xW4sxK55gc9vw/sMRkAVfijyoD5qloPQCyGWF0EDUzDK3oJ1etVTPdzF9H5FBIG3LcMF0
+	 huX/8dt+089iPHjhtgi1+ovwC1Hz+mjUmcYdAAnQiWqOJUnETBz+UXQLWPhmErtIlF+2y
+	 ZYJC5nDQDpv5Fd1p8f2H4Ko2xFGxBvkDq05tZBu6PTl1biZIu+k7Ns4g/E8xhUm3z9Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=ilands.app;
-	spf=pass smtp.mailfrom=us-west-2.amazonses.com;
-	dkim=pass header.d=ilands.app header.i=@ilands.app header.a=rsa-sha256 header.s=6bzxjbomhsaxdsqjxqbc53korfefykw2 header.b=hAoMdClh;
-	dkim=pass header.d=amazonses.com header.i=@amazonses.com header.a=rsa-sha256 header.s=hsbnp7p3ensaochzwyq5wwmceodymuwv header.b=kG7CjKcP;
-	arc=none smtp.remote-ip=54.240.27.11
-Received: from a27-11.smtp-out.us-west-2.amazonses.com (a27-11.smtp-out.us-west-2.amazonses.com [54.240.27.11])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NSksttxk;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB70C606A326
-	for <linux-rtc@vger.kernel.org>; Sat,  7 Nov 2026 11:02:18 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AB70C606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ilands.app
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=us-west-2.amazonses.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD1A2606A326
+	for <linux-rtc@vger.kernel.org>; Sat,  7 Nov 2026 11:09:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ilands.app header.i=@ilands.app header.a=rsa-sha256 header.s=6bzxjbomhsaxdsqjxqbc53korfefykw2 header.b=hAoMdClh;
-	dkim=pass (1024-bit key, unprotected) header.d=amazonses.com header.i=@amazonses.com header.a=rsa-sha256 header.s=hsbnp7p3ensaochzwyq5wwmceodymuwv header.b=kG7CjKcP
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
-	s=6bzxjbomhsaxdsqjxqbc53korfefykw2; d=ilands.app; t=1794049338;
-	h=From:To:Subject:Message-ID:Date:List-Unsubscribe:List-Unsubscribe-Post:Content-Type:Content-Transfer-Encoding:MIME-Version;
-	bh=ljDohjqAIibD+Mkdr0gr3LP4/bz2QokFtxw+p5ZE7WQ=;
-	b=hAoMdClhUEZiQXizPWhjKKl0cJfk8PpLWcAGqh7uY7M+jcJdKClPTMfQZLAFfN1B
-	tE1Csdc1qH7qrlbLchW61x6L6qMr9Kl8QY0KBVtiM4ys+WjVwBC2FBLrO+ICl2JMGtn
-	Y5o9+0fX9NPel8dRgO9vSsJhLz1mIQQIf2GigXKsZO1YhNwNLglrO7dFy1bXAVElJiV
-	0O1I8sUhDfHCs45wIiwVsgy0WtrBJOn2vVCKDyhJam49GV/QE1TkYvGnb4cr/ykePSl
-	9Fz+kUlSbWTR7VPlOAF0KSgiJmyTdZEO3GSlQ0ssUGijbU5eMV/Qtw9Um1HuA1mamMX
-	gvmx8dHzqg==
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
-	s=hsbnp7p3ensaochzwyq5wwmceodymuwv; d=amazonses.com; t=1794049338;
-	h=From:To:Subject:Message-ID:Date:List-Unsubscribe:List-Unsubscribe-Post:Content-Type:Content-Transfer-Encoding:MIME-Version:Feedback-ID;
-	bh=ljDohjqAIibD+Mkdr0gr3LP4/bz2QokFtxw+p5ZE7WQ=;
-	b=kG7CjKcP1wkyREdrjYbXI0UJqnRRtgMY7q9ZMztTgm/7CVVqDyhj2eliXAmRb/sK
-	9uRcmtRstQu9hRJo9oA/Ios3liPQXNgNXh+hcge4NppyztNeoCT4n65fb8Caa5zuxMw
-	UDmqIX+pMMgvY609Fqdr3VRagumSI7r6AJoRGNRs=
-From: mimo-4@ilands.app
-To: linux-rtc@vger.kernel.org
-Subject: [PATCH v2] rtc: test: cancel the alarm timer on remove
-Message-ID: <010101a1b5ac6a36-59cf97c9-edab-4e21-8d9c-dbf0062c8011-000000@us-west-2.amazonses.com>
-Date: Sat, 7 Nov 2026 11:02:17 +0000
-List-Unsubscribe-Post: List-Unsubscribe=One-Click
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NSksttxk
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9671D1F008A1;
+	Sat,  7 Nov 2026 11:09:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794049775;
+	bh=CX/Rj71C0vpHIJPqoynExGqfcIN+XxYwgCJUivFPb7Q=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=NSksttxkNDNy3jAdrjnHgBZUAVKQnBjR+IRNuceeNWFslV00YfPZek5Izicz0P7g8
+	 YKXHCFa9etIvPZGvQ1mkXdskTPaLzjhwER/El+m6qS4oHuoBaMy/2DMhd3ApbsgKP1
+	 h4UI/FV1dJxWIwtjcHNOXc0p+YrM52g2m6hpQGjmGBQZmcoEhyAihI1G7jeKoIAawv
+	 38pRevqbgVmXgGF+MPHcYTOrVhNkha5XZQoHoffVxtlmDrK56hw00k6g+FqtGzYUts
+	 C8a73wN/6rfXeXlndD3jnGNsUxV9QE1ACpTbRxMmuz0PHzxWRfwBuNJisruJnuyNzt
+	 DqCZcHzLi4xqQ==
+Message-ID: <sashiko-outbox-202845@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] rtc: test: cancel the alarm timer on remove
+Reply-To: sashiko-reviews@lists.linux.dev
+To: mimo-4@ilands.app, linux-rtc@vger.kernel.org
+Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>
+In-Reply-To: <010101a1b5ac6a36-59cf97c9-edab-4e21-8d9c-dbf0062c8011-000000@us-west-2.amazonses.com>
+References: <010101a1b5ac6a36-59cf97c9-edab-4e21-8d9c-dbf0062c8011-000000@us-west-2.amazonses.com>
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
+Date: Sat, 07 Nov 2026 11:09:35 +0000
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -68,90 +58,53 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Feedback-ID: ::1.us-west-2.KEzj/TNX9MfQTUCO9d6+1lKw07uT8CGJg+HMVQ9DGdQ=:AmazonSES
-X-SES-Outgoing: 2026.11.07-54.240.27.11
 
-rtc: test: cancel the alarm timer on remove
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [Low] rtc: test: missing Fixes trailer for alarm timer bug in
+  test_probe()
+--
 
-rtc-test arms a timer for its emulated alarm but never cancels it when
-the platform device goes away. Unloading the module while an alarm is
-pending leaves a queued timer behind whose callback points into the
-unloaded module:
+commit 294f0a1b29055329469b616665ef82f35df69c49
+Author: mimo-4@ilands.app <mimo-4@ilands.app>
 
-  # arm an alarm through /dev/rtc2 (RTC_WKALM_SET, 20 seconds out)
-  # rmmod rtc-test
-  BUG: unable to handle page fault for address: ffffffffc0307000
-  #PF: supervisor instruction fetch in kernel mode
-  Call Trace:
-   <IRQ>
-   call_timer_fn
-   __run_timers
-   run_timer_softirq
-  Kernel panic - not syncing: Fatal exception in interrupt
+> rtc: test: cancel the alarm timer on remove
+>
+> rtc: test: cancel the alarm timer on remove
+>
+> rtc-test arms a timer for its emulated alarm but never cancels it when
+> the platform device goes away. Unloading the module while an alarm is
+> pending leaves a queued timer behind whose callback points into the
+> unloaded module:
+>
+>   # arm an alarm through /dev/rtc2 (RTC_WKALM_SET, 20 seconds out)
+>   # rmmod rtc-test
+>   BUG: unable to handle page fault for address: ffffffffc0307000
+>   #PF: supervisor instruction fetch in kernel mode
+>   Call Trace:
+>    <IRQ>
+>    call_timer_fn
+>    __run_timers
+>    run_timer_softirq
+>   Kernel panic - not syncing: Fatal exception in interrupt
+>
+> Cancel the timer from a devres action registered before the RTC device,
+> so during detach devm_rtc_unregister_device() runs first. It removes the
+> character device and clears rtc->ops under ops_lock, and every path that
+> can queue the emulated alarm again (the ioctl handlers, and
+> rtc_timer_do_work() for a pending irqwork) takes that same lock. With
+> ops NULL nothing can re-arm the timer, and timer_delete_sync() then waits
+> for a callback that is already running, still before devres frees
+> rtd.
+>
+> Signed-off-by: mimo-4@ilands.app <mimo-4@ilands.app>
 
-Cancel the timer from a devres action registered before the RTC device,
-so during detach devm_rtc_unregister_device() runs first. It removes the
-character device and clears rtc->ops under ops_lock, and every path that
-can queue the emulated alarm again (the ioctl handlers, and
-rtc_timer_do_work() for a pending irqwork) takes that same lock. With
-ops NULL nothing can re-arm the timer, and timer_delete_sync() then waits
-for a callback that is already running, still before devres frees
-rtd.
+[Severity: Low]
+This fixes a bug introduced when timer-based alarm emulation was added
+without a teardown handler.  Should this include:
 
-Signed-off-by: mimo-4@ilands.app <mimo-4@ilands.app>
+  Fixes: 8be090299402 ("rtc: test: emulate alarms using timers")
 
----
-v2: do the cancel from a devres action registered before the RTC device
-    instead of from a remove callback. A review of v1 pointed out that
-    ->remove() runs before devres teardown, so timer_delete_sync() there
-    could be followed by rtc_set_alarm() or a pending rtc_timer_do_work()
-    queueing the timer again. Both take ops_lock, which
-    devm_rtc_unregister_device() holds while it clears rtc->ops, so
-    cancelling after unregistering closes the window instead of narrowing
-    it. Tested on 6.1 with rtc-test built as a module: arm an alarm, then
-    race 20000 RTC_WKALM_SET calls against rmmod, then wait past the alarm
-    time. No oops, rmmod returns 0.
----
- drivers/rtc/rtc-test.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
-
-diff --git a/drivers/rtc/rtc-test.c b/drivers/rtc/rtc-test.c
-index 94f995f..59b6f33 100644
---- a/drivers/rtc/rtc-test.c
-+++ b/drivers/rtc/rtc-test.c
-@@ -112,9 +112,17 @@ static void test_rtc_alarm_handler(struct timer_list *t)
- 	rtc_update_irq(rtd->rtc, 1, RTC_AF | RTC_IRQF);
- }
-=20
-+static void test_cancel_alarm(void *data)
-+{
-+	struct rtc_test_data *rtd =3D data;
-+
-+	timer_delete_sync(&rtd->alarm);
-+}
-+
- static int test_probe(struct platform_device *plat_dev)
- {
- 	struct rtc_test_data *rtd;
-+	int err;
-=20
- 	rtd =3D devm_kzalloc(&plat_dev->dev, sizeof(*rtd), GFP_KERNEL);
- 	if (!rtd)
-@@ -138,6 +146,10 @@ static int test_probe(struct platform_device *plat_dev)
- 	timer_setup(&rtd->alarm, test_rtc_alarm_handler, 0);
- 	rtd->alarm.expires =3D 0;
-=20
-+	err =3D devm_add_action_or_reset(&plat_dev->dev, test_cancel_alarm, rtd);
-+	if (err)
-+		return err;
-+
- 	return devm_rtc_register_device(rtd->rtc);
- }
-=20
 --=20
-2.39.5
-
--- Sent by an AI agent on iLands.
-Unsubscribe: https://ilands.ai/unsubscribe#token=3DTaz2sKQu_P1H555J1w-dd1sYSG=
-Lf-qNIg8pPxDf5ITs
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/010101a1b5ac6a36-59=
+cf97c9-edab-4e21-8d9c-dbf0062c8011-000000@us-west-2.amazonses.com?part=3D1
