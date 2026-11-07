@@ -1,96 +1,93 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=23.83.212.45
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.214.176
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793990068;
-	b=3+OlUU/NA2oo6i3BcQF/m8EqjeLJOj5+evruRefusOpy1Wcnnqmi/BHY193hZTAz/CVX
-	 UjPyUsO8AK/ihTPw9+LFXYlxNyqh7REMdjcWNcP647lsKYZhbnmOE3paYiY37mKkkLmSv
-	 YGMcNU0Cp+zZuw6BXnDAQdEaawAWZY9OLCaA4MLzWg+PSIeFcltWhJ0THSS2XIUbUHyit
-	 l/t6xNzj3lzz++XANOP/vDwtFf9h9i1eeqbQs/BVouxBi6qgAiXq16DrOUpEoKB7/1Esr
-	 4VWCeCg3fL65NYvPMJYdb71WEStSxIVHee1Z73gX8UzS5r8MmGYV3CfXimObaGlPQCw==
+	t=1794033439;
+	b=nrwZrD2sEUmeptBgwD/5Z/arHKgMNMjxVzySXnyQ+iDuzBgGEcp2sZ67EM0/XkOFDggU
+	 zqjBetgA1JynPynE3S160+7vH7UH4iHBKjvgxqIA86LgyXZaZ/9GBIt6dIekzfNoXdzM5
+	 Qz3GhHmBfm6OeS5LfxEF40i5nKkdCQm5x+iDCMkVJy+M/e5fAwyEnSK3492JDYR7WDhm6
+	 BUb3ZRJP2u5mXwtUVkHDvNdml0MdyLTS92Il8+Vy+7QSPQQBMoBOxQwe9DF8V0mgQpKcM
+	 4GIVYydXJ2wrVsOGQGkIQqyIt1TWc9C2bbAQcVHob1Xk3Uhivd6Gvyw6omwEKKnjSNg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793990068;
-	h=DMARC-Filter:X-Sender-Id:Received:Received:X-Sender-Id:X-MC-Relay:
-	 X-MailChannels-SenderId:X-MailChannels-Auth-Id:X-Abortive-Whistle:
-	 X-MC-Loop-Signature:X-MC-Ingress-Time:Received:DKIM-Signature:
-	 X-AuthUser:Received:From:To:Cc:Subject:Message-ID:X-Mailer:
-	 In-Reply-To:References:Content-Type:MIME-Version:
-	 Content-Transfer-Encoding:Date:X-CM-Envelope:X-CM-Analysis;
-	bh=xwy0rr+46abKVO94r4Gb7/Dyo13GvYwU4Nn8qCQ2HmA=;
-	b=rYw3FRcY0QghMOsh99vvdNa1yMHUMb45RqN73hm/MyVSG/ypNDZ8pJY7kgCtxfvymLsn
-	 B0SD+vF+WKsPx/4pZHtY4J0+I4ePNVoq6f0PpaMWdbrqVy/taKzvRZyO9tMI30RJDfF8K
-	 U5we6/GBTaHPAN0V4DeUccB2BTwIB02RoN6LBrs/DvJUutaLvwkhZP1XtaWKDVS02giHH
-	 yuRy6joLLTRTL4RyhS6JfoEX7cKxQ+vzuloZAd67LgOO22Owik1wVtf8/9+xvLmzcfSSz
-	 LnOKTCezBC5iWeGETG9GZMWTcFIbzRUeqAn2smzvS7IiQct/8D7KIot11JqTW8wIA8Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794033439;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=t0SasdD5O78Tua3GaSrEY4WvAvJVfv0N4XP5fK5UX6k=;
+	b=pdhJr2jUnlMefplCa32IOm38Puw+s7jR8SdXF6gMQX4VHnKT62LPC9wqTmqh+3wYtylv
+	 qLott1fQb3mHAWQyyrJy71YaqtKqxrb9l4jxoNOGFua+mntDZabzKS8oACW5Db56QfF1z
+	 5c0lNsT5BmH8ktVOwJakKEl5vNJ3QhLECSQWTYJGx5VPNZceaiA+IrWaJfT9VcDJgz+f+
+	 YRKFuAmnv1iL7EPXl4KmRczomNai4s3XKbr7mp3w5Ly9RUhteCQpN/axTCM8ZEBl8Jz0e
+	 aV6o7r2bWrb+oEfTHR0AcUHsBKOdEI81nlb7OC6OcSEIXkMAntEmS4zbqVGDd2EzUHQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=marsrover.mx;
-	spf=pass smtp.mailfrom=marsrover.mx;
-	dkim=pass header.d=marsrover.mx header.i=@marsrover.mx header.a=rsa-sha256 header.s=hostingermail-a header.b=hoVrGYRB;
-	arc=none smtp.remote-ip=23.83.212.45
-Received: from crocodile.elm.relay.mailchannels.net (crocodile.elm.relay.mailchannels.net [23.83.212.45])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=R52Okyr8;
+	arc=none smtp.remote-ip=209.85.214.176
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53454606A326;
-	Fri,  6 Nov 2026 18:34:27 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 53454606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marsrover.mx
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marsrover.mx
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4156606A332
+	for <linux-rtc@vger.kernel.org>; Sat,  7 Nov 2026 06:37:18 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C4156606A332
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=marsrover.mx header.i=@marsrover.mx header.a=rsa-sha256 header.s=hostingermail-a header.b=hoVrGYRB
-X-Sender-Id: hostingeremail|x-authuser|rodrigo.rea@marsrover.mx
-Received: from relay.mailchannels.net (localhost [127.0.0.1])
-	by relay.mailchannels.net (Postfix) with ESMTP id A418E7225FE;
-	Fri, 06 Nov 2026 18:34:26 +0000 (UTC)
-Received: from fr-int-smtpout27.hostinger.io (100-99-188-64.trex-nlb.outbound.svc.cluster.local [100.99.188.64])
-	(Authenticated sender: hostingeremail)
-	by relay.mailchannels.net (Postfix) with ESMTPA id 40426722FAB;
-	Fri, 06 Nov 2026 18:34:24 +0000 (UTC)
-X-Sender-Id: hostingeremail|x-authuser|rodrigo.rea@marsrover.mx
-X-MC-Relay: Neutral
-X-MailChannels-SenderId: hostingeremail|x-authuser|rodrigo.rea@marsrover.mx
-X-MailChannels-Auth-Id: hostingeremail
-X-Abortive-Whistle: 46afba274ffcde7f_1793990066329_358400402
-X-MC-Loop-Signature: 1793990066329:983237729
-X-MC-Ingress-Time: 1793990066329
-Received: from fr-int-smtpout27.hostinger.io (fr-int-smtpout27.hostinger.io
- [148.222.54.8])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384)
-	by 100.99.188.64 (trex/8.0.2);
-	Fri, 06 Nov 2026 18:34:26 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marsrover.mx;
-	s=hostingermail-a; t=1793990062;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=xwy0rr+46abKVO94r4Gb7/Dyo13GvYwU4Nn8qCQ2HmA=;
-	b=hoVrGYRBQzVb9c3yjO32aWO1N1NWOnlqEELPEnLJ6wqosETqkMZn/bDNgBV7Vn3Fi2G93y
-	PPY9Bj1CsP48by5OT4aY5qlU/M7dVP/QVz2Vz5OtPQrqgagBJSFkQyFGTx+0c4KSPpdMJk
-	X2amZARadR1n9vldWmOpxYlhWlqKfbVCClfiGzx5w3qh9HkJZMLIeMhf1B3V7MNl/aRpTL
-	jbnX/WMtE5w6LDw7chcyPSWT+3j3wPqASOG3w56RF4aq0FHGyIdGCagPEGMhOKHR5uADX4
-	eQoU/cDWDJeabEOvYc9+0y//fkBUFxpzfz1xQxSk97Hnx4OKs34AzWrvqArlow==
-X-AuthUser: rodrigo.rea@marsrover.mx
-Received: from 0-0.nxp.com (static-148-244-115-92.alestra.net.mx [148.244.115.92])
-	(Authenticated sender: rodrigo.rea@marsrover.mx)
-	by smtp.hostinger.com (smtp.hostinger.com) with ESMTPSA id 4jLnrq4MTqz2yqF;
-	Fri,  6 Nov 2026 18:34:19 +0000 (UTC)
-From: Rodrigo Rea <rodrigo.rea@marsrover.mx>
-To: Conor Dooley <conor@kernel.org>
-Cc: alexandre.belloni@bootlin.com,
-	robh@kernel.org,
-	krzk+dt@kernel.org,
-	conor+dt@kernel.org,
-	alexander.stein@ew.tq-group.com,
-	linux-rtc@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	daniel.aguirre@nxp.com,
-	rodrigo.rea@nxp.com
-Subject: Re: [PATCH 1/2] dt-bindings: rtc: pcf85063: Add NXP PCA85074A
-Message-ID: <20261106183402.7514-1-rodrigo.rea@marsrover.mx>
-X-Mailer: git-send-email 2.56.0
-In-Reply-To: <20261106-shush-suffering-cd7caec6e3a2@spud>
-References: <20261105215204.2446733-1-rodrigo.rea@marsrover.mx>  <20261105215204.2446733-2-rodrigo.rea@marsrover.mx>  <20261106-shush-suffering-cd7caec6e3a2@spud>
-Content-Type: text/plain; charset="us-ascii"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=R52Okyr8
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-2e9d7791b00so10157905ad.0
+        for <linux-rtc@vger.kernel.org>; Fri, 06 Nov 2026 22:37:18 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794033438; x=1794638238; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=t0SasdD5O78Tua3GaSrEY4WvAvJVfv0N4XP5fK5UX6k=;
+        b=R52Okyr8y2WeBJ90NdR32XbxQ4qgbDLtcRNASwCSEPonXO5Kc5v1Pd5JlH7qxg8t7c
+         HPY9y5VlzGvRuhP4EaDj7pc7SUMPeyuDIQTQiLL1DUvL9dIqtGl4Nzt2muqstyyb7q2v
+         PdKzpQhDr7TUrNFAC5DkaiGkscPsqeALksYrgIGWZnMrELUFQYBAu36r3nLl8hwCx8wo
+         c8VvuWTirrGqgVcKY1fghZht8PDF26snR6l+PqYD0WOqF1kQlvUjzY+EsQA7Bmbh8jkj
+         VsJT3HQTR+TrAfRHK7Qla5uR4B6przejXtwubtfe6IGpJF+HeO7J1TIXySmkxCLAwBW3
+         /sfQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794033438; x=1794638238;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=t0SasdD5O78Tua3GaSrEY4WvAvJVfv0N4XP5fK5UX6k=;
+        b=XPyvfhH+eAxFeOOInkaRNy5xeM3AnqcU0GBbtTDAT7uURTenW9AN5BIJKDcF/YYGg/
+         PXX/dc2N6/xboKqiyn+b+P4IToaKOXRDvodQua3Ez/U2hIuLyWJSTw551Cw4w5WsM/Vh
+         TQ/gO5lYQ2HK3jG6j+XwUg2UzTJEx+b0Bt1tqAkxWIQcRzWexoLuTkNja8/C2gQr90cf
+         1HgKZH2nWphh9GWK8hNvzZPstMHmr9r2lRvYK4eqcTa4EIUyllcSCxgzvxxZMSuW37kV
+         h84tHGJfBCxaSFtvTBxsg3OLjWHcZpz3C1azoHAnvlkDH2Lu9b6GtFkeY/gUUNvPTePX
+         dYsw==
+X-Forwarded-Encrypted: i=1; AL+hErFnyTg7EyXMr53eXmvMN1ER9D9PS9hRWvqM6dFBoB+NaqeawOX1pTqgBxe9fO5uqa3XKKwAzS97MyI=@vger.kernel.org
+X-Gm-Message-State: APuU4Z/wEHlGrbViF/OfuzIOkFyJT9XpYtGGUiR9srn3np0n+o5pSXev
+	N5nn8wYKN404oDeHpdEisPetrleDGm1fQo83ZmmGx0PgMiHb1Dm4KG0jhqpeUUhn
+X-Gm-Gg: AYBFou3wGzS0vn/87IVaDoYCFDArF5cfk+dV02c2WHRxdHMk+Ru6K+BMeWPnRe/bovQ
+	EuvnoK+2zA99Qe+bW3ScAtIk1I0g68P+UzQlT5uTtTAS186nNLm/FN2pk9YC2q3E4yS7GYyFJSG
+	BvMjCpXLxN+gb+9w98nq3y+UNAwZn+yfKsFQHQCiq71RIwR6N6nUBHljn7F8r7ZS9cs4P/74JKD
+	tQ0cYP0jeuT/Dq8yNkCgVdBFd11YTniFLQ/5tbspMdndnzMzCrMKVL3Wm/D0n/4XgaKI7YVBluh
+	NZtCLmYfAj1bQmuZVxTE4JRTDDE0idyA3UIFvwChcxbuaclEYSwcdMYOhlQTK8KJFMcliN1d0wd
+	YpXdbfFMPR7yLocuwsaqGJS515MX+8BjlSj6MHga4UgTsDRe+vsd7Pgk2SQYOJudbJUDwl8buGG
+	u6wIv2zGqBS80W2qk1YrOBZXlUolZU2eX9mciyds551472P4GuhTJVd6ojTCkJLzNql/+53NNAY
+	DIGuG1HoSTGDFcdkW1TNLzy0dit9Gl42zVFap8YmJzrq7Pjc0LGqGJS03hW48EuTvpRfxIxKmc5
+	WR3EaUjWVLlkANeIWp0RX2tODYiF0NWuoXCXTRr+dUjTqYcEzbbOEmoBN9v9kVM4D8K0pQ==
+X-Received: by 2002:a17:90b:510f:b0:3a5:c08:4c41 with SMTP id 98e67ed59e1d1-3b0db724f88mr4471992a91.50.1794033438122;
+        Fri, 06 Nov 2026 22:37:18 -0800 (PST)
+Received: from hj.. ([163.239.22.29])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3b0fc23b547sm1597066a91.0.2026.11.06.22.37.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 06 Nov 2026 22:37:17 -0800 (PST)
+From: hyunjungg <hj351016@gmail.com>
+To: CL Wang <cl634@andestech.com>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+	Hyunjung Ko <hj351016@gmail.com>,
+	stable@vger.kernel.org
+Subject: [PATCH] rtc: atcrtc100: drain the alarm work before the RTC device is freed
+Date: Sat,  7 Nov 2026 15:37:11 +0900
+Message-ID: <20261107063711.3388440-1-hj351016@gmail.com>
+X-Mailer: git-send-email 2.43.0
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -100,22 +97,100 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Date: Fri,  6 Nov 2026 18:34:19 +0000 (UTC)
-X-CM-Envelope: MS4xfBU0Y2j4nb8GK7p8964viWbiUsSv4qWqKtKG1qIjt2OJ2thOXq23Je8/jukXdUVeU6SvMKugl66Hee4liLnFAWj88pPKDwbqdNhspNIqlq6oR1ZvTT9v c8xK+kjSmanC05nvuU5jlLzwV79w6EkJxd8PT/2cXtF2n/WT843tIyjlRswd/v7YErJvoTZ0lWRrtH0gs3wxQ3lZf6MSOtklVy8zahZBfsaZ1ouHFU19IMNm gkEJ4KyCyIKO4r3nHArRo7ZoK/7X3hiOi/E6do2naaR9GKO/jPu+mdP1HTCpWDOV3j9uK9vdA08rlrUp8gKZLCxhviunuksQfng/muDV8KyyF1XeY4zdpDbu T4nmnFoCq2re+SAn5+zBhCryOd1xFX5JKxZ7wF/VQ+g+wS4WrDd0jB8DyFA3n6GuSXyrJ4Fk38F9eb/xZso+k1ASQA6zhvsjGCkHZH/C6hUXONYmWoGIAS4T nOuay/2i1yGa3gOMkm+rAgD6+d10f72O4LxN1UfWTX43Ug+9ZOIbzxmD7TLVq5pxpGDAEZEbNHQOEcsL
-X-CM-Analysis: v=2.4 cv=CoDtcW4D c=1 sm=1 tr=0 ts=6aee1dae a=VnbrY5TOLAh+WZUOsuTEUw==:117 a=VnbrY5TOLAh+WZUOsuTEUw==:17 a=kj9zAlcOel0A:10 a=dhTltIek3hopVLoF0psA:9 a=CjuIK1q_8ugA:10 a=zZCYzV9kfG8A:10
+Content-Transfer-Encoding: 8bit
 
-Hi Conor,=0D
-=0D
-> Driver change suggests a fallback compatible can be used. Why haven't=0D
-> you used one?=0D
-=0D
-I overlooked the fallback approach when adding the new compatible.=0D
-I added explicit driver match entries, but they reuse the existing=0D
-configuration without any chip-specific changes.=0D
-=0D
-Thanks for pointing this out. I'll verify the compatibility with=0D
-PCA85073A and update the binding to use a fallback in v2 if confirmed.=0D
-=0D
-Regards,=0D
-Rodrigo=0D
+From: Hyunjung Ko <hj351016@gmail.com>
+
+atcrtc_alarm_isr() schedules atcrtc_dev->rtc_work (atcrtc_alarm_clear),
+whose handler obtains the atcrtc_dev via container_of() and dereferences
+rtc->rtc_dev (guard(rtc_ops)(rtc->rtc_dev)).
+
+atcrtc_probe() requested the alarm IRQ with devm_request_irq() *before*
+allocating rtc_dev with devm_rtc_allocate_device(), and INIT_WORK()'d
+rtc_work last with no teardown cancel.  Because devres unwinds in reverse
+registration order, on unbind the RTC device is freed before the IRQ, and
+rtc_work is never cancelled at all: an alarm interrupt arriving around
+unbind can run atcrtc_alarm_clear() after rtc->rtc_dev (and the devm
+driver data) have been freed -> use-after-free.
+
+Allocate the RTC device first, then register rtc_work for device-managed
+cancellation with devm_work_autocancel(), and only then request the IRQ.
+devres now frees the IRQ first (so it can no longer schedule the work),
+then drains the work while rtc_dev is still valid, then frees rtc_dev and
+the driver data.
+
+Found by code review; not reproduced (requires ATCRTC100 hardware and an
+alarm interrupt racing device unbind).
+
+Fixes: 7adca706fe16 ("rtc: atcrtc100: Add ATCRTC100 RTC driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Hyunjung Ko <hj351016@gmail.com>
+---
+ drivers/rtc/rtc-atcrtc100.c | 30 +++++++++++++++++++++---------
+ 1 file changed, 21 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/rtc/rtc-atcrtc100.c b/drivers/rtc/rtc-atcrtc100.c
+index 2433df3..51a38f0 100644
+--- a/drivers/rtc/rtc-atcrtc100.c
++++ b/drivers/rtc/rtc-atcrtc100.c
+@@ -7,6 +7,7 @@
+ 
+ #include <linux/bitfield.h>
+ #include <linux/delay.h>
++#include <linux/devm-helpers.h>
+ #include <linux/interrupt.h>
+ #include <linux/math64.h>
+ #include <linux/module.h>
+@@ -301,6 +302,26 @@ static int atcrtc_probe(struct platform_device *pdev)
+ 				     "Failed to get IRQ for alarm\n");
+ 	atcrtc_dev->alarm_irq = ret;
+ 
++	atcrtc_dev->rtc_dev = devm_rtc_allocate_device(&pdev->dev);
++	if (IS_ERR(atcrtc_dev->rtc_dev))
++		return dev_err_probe(&pdev->dev, PTR_ERR(atcrtc_dev->rtc_dev),
++				     "Failed to allocate RTC device\n");
++
++	set_bit(RTC_FEATURE_ALARM, atcrtc_dev->rtc_dev->features);
++	atcrtc_dev->rtc_dev->ops = &rtc_ops;
++
++	/*
++	 * Register rtc_work for device-managed cancellation after the RTC
++	 * device it dereferences and before the IRQ that schedules it, so on
++	 * unbind devres frees the IRQ, then drains the work, then frees the
++	 * RTC device and driver data -- never the reverse (atcrtc_alarm_clear()
++	 * touches rtc->rtc_dev).
++	 */
++	ret = devm_work_autocancel(&pdev->dev, &atcrtc_dev->rtc_work,
++				   atcrtc_alarm_clear);
++	if (ret)
++		return ret;
++
+ 	ret = devm_request_irq(&pdev->dev,
+ 			       atcrtc_dev->alarm_irq,
+ 			       atcrtc_alarm_isr,
+@@ -312,12 +333,6 @@ static int atcrtc_probe(struct platform_device *pdev)
+ 				     "Failed to request IRQ %d for alarm\n",
+ 				     atcrtc_dev->alarm_irq);
+ 
+-	atcrtc_dev->rtc_dev = devm_rtc_allocate_device(&pdev->dev);
+-	if (IS_ERR(atcrtc_dev->rtc_dev))
+-		return dev_err_probe(&pdev->dev, PTR_ERR(atcrtc_dev->rtc_dev),
+-				     "Failed to allocate RTC device\n");
+-
+-	set_bit(RTC_FEATURE_ALARM, atcrtc_dev->rtc_dev->features);
+ 	ret = device_init_wakeup(&pdev->dev, true);
+ 	if (ret)
+ 		return dev_err_probe(&pdev->dev, ret,
+@@ -330,9 +345,6 @@ static int atcrtc_probe(struct platform_device *pdev)
+ 				     "Failed to set wake IRQ\n");
+ 	}
+ 
+-	atcrtc_dev->rtc_dev->ops = &rtc_ops;
+-
+-	INIT_WORK(&atcrtc_dev->rtc_work, atcrtc_alarm_clear);
+ 	return devm_rtc_register_device(atcrtc_dev->rtc_dev);
+ }
+ 
+-- 
+2.43.0
+
