@@ -1,83 +1,83 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.50
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.49
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794173314;
-	b=sSfOrBsUsFvnqOYYbNsE36PbUhdAiwDiSsZNYAR2VuZSHjpqy0wu3eKV7kxSskXBZ2L8
-	 KalqPrJOE+5/AE66Wx602fbnenBsvF0sEcr5MaEam/l3TE2Vzou6LrDcYGaY150q70N1L
-	 wTg85K/QK+ggl5DKJ1faOU81QxzmovfKK96bIwbmbIdjB+7/cUq4FallEl/RX2WMNVU9W
-	 cK01R78xTSnpuAWnciUAQ+kdrb9aPncMJ3KJwudRyd2526QxEKkWZeDHy2LJaSvDHDO2z
-	 hbrPan9La2x+k65f/WhYix+COgFmT+kk7btgesEq51xxOODsbfBASivm42E7dBmWUcA==
+	t=1794173318;
+	b=1kc/2wesXa1ZQsYztIlUzbWCaTj7ikBtsxn3k4XD/fyUXy9fVw5F/pnYy13kDMjUNDOA
+	 GpfkPAfqg6htvqUNl+eJP18bgKEKU8AoRBNs0GMt4t8YWPjY1HCBAbOYjaUhtj0BheZCn
+	 8D8I5e/YwrBWDGCb5pRPlYL4mJlBiWGtLMb+LDLff4jm+123f/AnPPZfpSIwqLw5rf7by
+	 ExyI/FLog2J5ZviE2Eqegcli2eqvDdiX3KsKjafJ/IShzjJvQLKTuOZEyhNmYNZ7CQJTu
+	 n81Es4SOebnYCE0jgN0sLQ9pmZx/NkaVLzpLGovVYQvtojUaDgLOomrVcNFQGMirQ9g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794173314;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794173318;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
 	 MIME-Version:Content-Transfer-Encoding;
-	bh=QXRVCJ6p53mhv78a1V9znscskgidqnRubCEiNV0CGUQ=;
-	b=iWoYOJ5nAX5ZDSvHcsrSRg9PY0Pdox5i2dOfZ2cA9H+UeJDYmJHR5kqJWu5vUHWSTDY6
-	 vGHp55JLZ7FzMvLw38fdrxk/pCw9j3EDs8zhOIAQRWR6gey2weGmIJJvlHkkwEVHSP6v/
-	 nUPWqaLhlH4uTqAnlPEtmReTh84pDKP5aWQnwo3jZ/zs9mmBFlyfFChk2iKb6tYa1e9YD
-	 TxAeqncE6s7ep7Vvx/g3QyxE1eqT3ZKpjRMknHr2fRPMnxcBH50iLVgW/UyfHgwGNaq8y
-	 mySO4z7nJQZ3Y53FNEaCJ9k0OWuj8kQ1AQazfuhd721RlWKsvz4tclhircyZil/fQlQ==
+	bh=9c+0JpSdppPnVjAStrh5Kr2A5OTKsZL2ZVgzfm3fxgE=;
+	b=vYSxcIMoqSKdFkDk/cRSyutT4nTO9K2jrY3mfy2s1XddKpqNbGR5iYTRcQKQ5RqBAAG7
+	 iwf9sGt27pGjPuWbZof1d9JV4N8LDyHZj3sg3Tknxa1H7F0Fb18y0DkHKQJp2G/a5Md/n
+	 vqzJdqLBHZh1QlK6MkDrsW9QtiMqYjwHH8ZQjynknvJ6718YK9O4agbubtV0QeaarBxzW
+	 TIPnkDOPLAPA47acyGX6E64BtxUsWYQ/xpGFTPgVTpPNKbkbiZZ/8q1evgrAMpA2+Xj7N
+	 rqC25RArtlumD+/6o4ot7VSFEtIl51lutYSXGmLWUlagkalVZK8Uj+H67NrKRch7hlg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=XL57eWKD;
-	arc=none smtp.remote-ip=209.85.221.50
-Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=PgpDdVIx;
+	arc=none smtp.remote-ip=209.85.221.49
+Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B5B1606A326
-	for <linux-rtc@vger.kernel.org>; Sun,  8 Nov 2026 21:28:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7B5B1606A326
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFF90606A33B
+	for <linux-rtc@vger.kernel.org>; Sun,  8 Nov 2026 21:28:36 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EFF90606A33B
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=XL57eWKD
-Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-491971ac844so258577f8f.2
-        for <linux-rtc@vger.kernel.org>; Sun, 08 Nov 2026 13:28:34 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=PgpDdVIx
+Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-49465892f7bso201450f8f.1
+        for <linux-rtc@vger.kernel.org>; Sun, 08 Nov 2026 13:28:36 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794173313; x=1794778113; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1794173315; x=1794778115; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=QXRVCJ6p53mhv78a1V9znscskgidqnRubCEiNV0CGUQ=;
-        b=XL57eWKD2uSIcrWKMYH6JeAdiayS1nITNSJ6dRBeiD5M1VHBITmr+3boaUCWUOXPfS
-         fuhPT0Cm+8KFc9DJY+p6tgTcg8cgRE/GLbzcbZkJJWbJCEw/g90pwPxX5GOKeAZLEjAn
-         WkP7dbiM7+YTF4PoAZCpF6KznK4QsxdADNm8cN5YrAr0Ae8FzEh9IgeIKCeWTLcfcBs+
-         Cajlw3AAq9MoU4zlV9JI6ne05Tn9tMTd8KoP8OPLVRQMGj5lI09Xpt0kx96GE0QvCvjJ
-         sb7J211O3xzW632+9Q6m2vjahMDfgUYE2mLdSzb1ErY//CWCF4glgBju2qPMgXhJNiRO
-         31TQ==
+        bh=9c+0JpSdppPnVjAStrh5Kr2A5OTKsZL2ZVgzfm3fxgE=;
+        b=PgpDdVIx/mpgGNCCJApF6AZESXgqSEc5qyt0BmoMBWQmKJr4Bx06q7rOs7hNR2/C1h
+         bstlpM8zG2xbQ4i4zvS/M+iWQ1SMcxdnGLBh4QwX+g7O+LxJBkF2deRFxribGRFBriWT
+         wkpeUtpqvtGTkqq0secG3uxy79ZgdpBZZLXln/jC2wmxehu5i411JiuU4fgMQYzaX9XX
+         4pjkBhNlOAEBpqIBZoqGZJl1Rxa4lRcWUdQJBMT+KNk16GeUrKEUHFt0pFmQMgbxEgmx
+         32bP1+4youAY47Cd19yCEF/u0ojrv9mVrTczYevdN9+qBvDSJPBXTGmZo70ZX5kh+N0q
+         9CPw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794173313; x=1794778113;
+        d=1e100.net; s=20260707; t=1794173315; x=1794778115;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=QXRVCJ6p53mhv78a1V9znscskgidqnRubCEiNV0CGUQ=;
-        b=Bmd9wFFP9qMBD9XwlJyjx86nY4pRiJ0H9xe50FOKvuFLPaJqD9LrUdGqjLotXAhSon
-         1+9QgEsBiYnLSE0OVP/IOeT3Hejg4BuEdqQTIjSeaQUL3UV415ZCwGZ9GK5N8RvceMZJ
-         6Qi1kBXX78ZHqJoJ8Tw4zr8sg+i1qEiXLpnVI9G2fai1DvZTSDa9G+kTzSYWyoA5OOfk
-         KgnE/x/oWbwBi8Lr3cfNEA/cOXtusAOsLC1LVNX9tBy2EIEKqbnbRCOrdzC7bY3rbCab
-         xgFNAM+Dcjbva/OUF4+s+i0Ucwwh7aIu46DRGdFPKnGUdStLRdNwY+gtQnUZNjzULTZ/
-         KfZA==
-X-Forwarded-Encrypted: i=1; AL+hErH7x5gllzPuCjUvNKDg8RqG3qhWlFEghsg1LREof6OiJ7Xnqq8IcGLDEpJtRR5PWWs74KMj/nr1Sso=@vger.kernel.org
-X-Gm-Message-State: APuU4Z/qDFMhlopcR9NgrzPfzCsRhoRmeyk3p3GEMXqBNqhnk9kgiDYW
-	772vL3o2wuuk0ErDxhD0M/lk9ySqzb17njak2Y9GO4egfzP6Pa8IJ3r0
-X-Gm-Gg: AYBFou2ZHgbA6dRqN9UHTIQoB5zyz5JVYsd85jA/mkjEyGRMBfQClKdkn3QYKGZqVpi
-	b3VBIvyZzRSBH79aSuZ4alKbPF9HihRmpmCN6JS6fXf9EsXBe3pcOEmdRleQguTe7/FvGD19dRk
-	fKeQePR7htQJ7v7u04oP2+E+YpYwK6Sqmcow1DcK+LsM8d64IMbc5qQQHJqlsNU4ONT6nRTZO7W
-	Ffg9d5jdFjJK3qiUhUs53lB0jr73u/kCFXVVCOoGybl21W2YctGKBlklcBF+6NmRxHJcfH5YDt2
-	AkyVIJsAcsM4O4wpb2/0FRsCJbj7k6vVkgHKbu+NySQTzZD/4BxubF2T2Xi2x2wSTAmwbjOTRej
-	nJ3LNheOMfwSys6aSBP5CH5zfraeTaCoQcZ84+UiIOrUzlOh2eHmyJ+yKOFTVLHiamgWJ7JM965
-	W1VYtDLMw7055m/PlJ38gVYXa2pMqxXulnoZFmrbBSOn0yhiEZxybrWxranzeW2RqrL6I43t5BV
-	ff9ZkWKP4ZGawKIJgFXCGd94daQT3OQW53yQy6FJEJSRijHV0//osI6MFZNvBsocQ3mH7qYNDO1
-	6rlGgOfuR5oBR3dieADZ04XnX+BJ0pMNYA==
-X-Received: by 2002:a05:6000:260b:b0:48b:108:48cf with SMTP id ffacd0b85a97d-495844a312emr4255528f8f.25.1794173312645;
-        Sun, 08 Nov 2026 13:28:32 -0800 (PST)
+        bh=9c+0JpSdppPnVjAStrh5Kr2A5OTKsZL2ZVgzfm3fxgE=;
+        b=pw2hiiLY+sWB3ySwZzx5mi2ECLYPMndX3x5iTcr9j0ZzPVADqfy8fPCVMZMNUkBrI7
+         ph0JjfqgDOTXwqayX63JNDs2dWhexUpEGoM2mbFUzDJ6g+7gX749Kb2LMqZDwC5YYntl
+         a/jgN+f0MsQSB3pHyRWdawLmPd7XcqRbmZKAcsU+T319AyqRfi/Z9BT7mQyaXgyWV6XJ
+         +PJntePi6WCVie30EIqgEet5p7VZjudD3t6Z3WcfgP1VHTDsY5hFljjOJxmW4V3z7kjM
+         sSyb55or1qZxpMaOgsg7xV4WXyf18iedxkavGuKiYgPHrYQ1AV4AGpjyfhDNQbIcX6Vf
+         dHqw==
+X-Forwarded-Encrypted: i=1; AL+hErGcP0MNglaFGc3KW5FjrEbKjNJMDxvGEEaT2a7TAq54EdxuEJgH8hr3lsO/7/VuL7gdHdfB9wloxZY=@vger.kernel.org
+X-Gm-Message-State: APuU4Z+ZvjFwg3sWjWbP/TRw0IWkxfeyq3Et+dHgzx5/Pp5EG2fb0KS+
+	V8Ery5pHnrkVHcc9PfgkJJ9rFNTBiwBp57liYvWSgQ//zyI6SqN+e4xW
+X-Gm-Gg: AYBFou3RB9xeKq5ru9IhZgHHWMPRYCyQRpH+BcmVBkOJ34KaypX2Ba6eCFPmTVzW9AB
+	g1Tzq0ow8rUGHYPbd/5N97OHdxzaXDc1AqMWBuFs30fxj2jtyEpboLMZPEzSlB6P41cpp6k9W72
+	sXeqLIocBXq7ODmmJv2B1rZTzYQGyc7JghbCv6b9XrMGBovzlh7hSDYQI08vrtV39Uqhzmqylna
+	oc+IjDFkMVoTVzXmCnDUvIwntIJRUBYwvA4IZJ93eE9FP6K4NPfY3nn0J2N13fwRuNao9HivKnw
+	UTevLdh01uHPtksfwlBUy3vNVoGEe3ij704Uc572SEHjYEUjDkgsyWdquAd3pZMSmJBP+vjDA4Q
+	u5N3z/aFKhEKUyGtMKfAgsnKr7drDKy41K4KHfaDCRiHTqZ+fkegwo1/MfZvj7e8sLXXCJWDnHS
+	smuVT8Bdvw/53x4YFoQ2d6zx9XywLSdnzmFTq4wclzfHAxK2tp8lrpeERPCb09le5qVrZm7q4jR
+	+GkFKR1aX1mFX7SLK5cc+M+dAWGk08EL6/HxNZF2zc6lLDHKyvpvAz2Ru0z02K8UE1ltGYFN/72
+	FLgMpgDBT6F8eMHiP5zH2fDoOHR9o6vzVg==
+X-Received: by 2002:a05:6000:2c0b:b0:48f:bcdf:6f7d with SMTP id ffacd0b85a97d-4958b9106c3mr4719669f8f.34.1794173315099;
+        Sun, 08 Nov 2026 13:28:35 -0800 (PST)
 Received: from hp-z640.fritz.box ([109.76.148.69])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-49597091400sm5692050f8f.32.2026.11.08.13.28.29
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-49597091400sm5692050f8f.32.2026.11.08.13.28.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 08 Nov 2026 13:28:30 -0800 (PST)
+        Sun, 08 Nov 2026 13:28:34 -0800 (PST)
 From: Owen O'Hehir <oo.hehir@gmail.com>
 To: Alexandre Belloni <alexandre.belloni@bootlin.com>,
 	linux-rtc@vger.kernel.org
@@ -97,9 +97,9 @@ Cc: Rob Herring <robh@kernel.org>,
 	"ziv.xu" <ziv.xu@starfivetech.com>,
 	Conor Dooley <conor@kernel.org>,
 	=?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
-Subject: [PATCH v2 1/4] dt-bindings: rtc: Add StarFive JH7110 RTC
-Date: Sun,  8 Nov 2026 21:28:23 +0000
-Message-ID: <20261108212826.15890-2-oo.hehir@gmail.com>
+Subject: [PATCH v2 2/4] rtc: Add StarFive JH7110 RTC driver
+Date: Sun,  8 Nov 2026 21:28:24 +0000
+Message-ID: <20261108212826.15890-3-oo.hehir@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20261108212826.15890-1-oo.hehir@gmail.com>
 References: <20261108212826.15890-1-oo.hehir@gmail.com>
@@ -114,105 +114,390 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Describe the RTC in the always-on domain of the StarFive JH7110 SoC.
+From: "ziv.xu" <ziv.xu@starfivetech.com>
 
+Add a driver for the RTC in the always-on domain of the StarFive JH7110
+SoC. It supports time, alarm with wakeup, and the frequency offset.
+
+Signed-off-by: ziv.xu <ziv.xu@starfivetech.com>
+Signed-off-by: Hal Feng <hal.feng@starfivetech.com>
+[Owen: rework of the StarFive vendor driver for mainline: drop hardware
+ calibration & the default time set in probe, use the generic wake IRQ
+ helpers, wait for the update bit in set_time, re-read a time that rolls
+ over during the read, round the offset to the nearest step & follow the
+ sysfs offset sign, enable the 32k counter clock]
+Co-developed-by: Owen O'Hehir <oo.hehir@gmail.com>
 Signed-off-by: Owen O'Hehir <oo.hehir@gmail.com>
 ---
- .../bindings/rtc/starfive,jh7110-rtc.yaml     | 85 +++++++++++++++++++
- 1 file changed, 85 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/starfive,jh7110-rtc.yaml
+ drivers/rtc/Kconfig      |  11 ++
+ drivers/rtc/Makefile     |   1 +
+ drivers/rtc/rtc-jh7110.c | 323 +++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 335 insertions(+)
+ create mode 100644 drivers/rtc/rtc-jh7110.c
 
-diff --git a/Documentation/devicetree/bindings/rtc/starfive,jh7110-rtc.yaml b/Documentation/devicetree/bindings/rtc/starfive,jh7110-rtc.yaml
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 73ec9230e..332f2e022 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -1807,6 +1807,17 @@ config RTC_DRV_MPC5121
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-mpc5121.
+ 
++config RTC_DRV_JH7110
++	tristate "StarFive JH7110 RTC"
++	depends on ARCH_STARFIVE || COMPILE_TEST
++	help
++	  If you say yes here you get support for the RTC in the always-on
++	  domain of StarFive JH7110 SoCs, with alarm and frequency offset
++	  support.
++
++	  This driver can also be built as a module. If so, the module
++	  will be called rtc-jh7110.
++
+ config RTC_DRV_JZ4740
+ 	tristate "Ingenic JZ4740 SoC"
+ 	depends on MIPS || COMPILE_TEST
+diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+index 46f1a0fc2..a5cddb8d8 100644
+--- a/drivers/rtc/Makefile
++++ b/drivers/rtc/Makefile
+@@ -82,6 +82,7 @@ obj-$(CONFIG_RTC_DRV_IMX_BBM_SCMI)	+= rtc-imx-sm-bbm.o
+ obj-$(CONFIG_RTC_DRV_ISL12022)	+= rtc-isl12022.o
+ obj-$(CONFIG_RTC_DRV_ISL12026)	+= rtc-isl12026.o
+ obj-$(CONFIG_RTC_DRV_ISL1208)	+= rtc-isl1208.o
++obj-$(CONFIG_RTC_DRV_JH7110)	+= rtc-jh7110.o
+ obj-$(CONFIG_RTC_DRV_JZ4740)	+= rtc-jz4740.o
+ obj-$(CONFIG_RTC_DRV_LOONGSON)	+= rtc-loongson.o
+ obj-$(CONFIG_RTC_DRV_LP8788)	+= rtc-lp8788.o
+diff --git a/drivers/rtc/rtc-jh7110.c b/drivers/rtc/rtc-jh7110.c
 new file mode 100644
-index 000000000..a88ab91ab
+index 000000000..d2d89cdd4
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/starfive,jh7110-rtc.yaml
-@@ -0,0 +1,85 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/rtc/starfive,jh7110-rtc.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
++++ b/drivers/rtc/rtc-jh7110.c
+@@ -0,0 +1,323 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * RTC driver for the StarFive JH7110 SoC
++ *
++ * Copyright (C) 2021 StarFive Technology Co., Ltd.
++ */
 +
-+title: StarFive JH7110 Real Time Clock
++#include <linux/bcd.h>
++#include <linux/bitfield.h>
++#include <linux/clk.h>
++#include <linux/interrupt.h>
++#include <linux/io.h>
++#include <linux/iopoll.h>
++#include <linux/math64.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <linux/pm_wakeirq.h>
++#include <linux/reset.h>
++#include <linux/rtc.h>
 +
-+maintainers:
-+  - Owen O'Hehir <oo.hehir@gmail.com>
++#define JH7110_RTC_CFG			0x00
++#define  JH7110_RTC_CFG_ENABLE		BIT(0)
++#define  JH7110_RTC_CFG_CAL_SEL_HW	BIT(2)
++#define  JH7110_RTC_CFG_HOUR_24H	BIT(3)
++#define JH7110_RTC_SW_CAL_VALUE		0x04
++#define JH7110_RTC_IRQ_EN		0x10
++#define JH7110_RTC_IRQ_EVENT		0x14
++#define  JH7110_RTC_IRQ_ALARM		BIT(4)
++#define  JH7110_RTC_IRQ_ALL		GENMASK(4, 0)
++#define  JH7110_RTC_EVENT_UPDATE	BIT(31)
++#define JH7110_RTC_CAL_VALUE		0x24
++#define JH7110_RTC_CFG_TIME		0x28
++#define JH7110_RTC_CFG_DATE		0x2c
++#define JH7110_RTC_ACT_TIME		0x34
++#define JH7110_RTC_ACT_DATE		0x38
++#define JH7110_RTC_TIME			0x3c
++#define JH7110_RTC_DATE			0x40
 +
-+description:
-+  The RTC in the always-on domain of the StarFive JH7110 SoC. It counts BCD
-+  time and date from a 32.768 kHz clock and has an alarm, a frequency offset
-+  adjustment and millisecond and one-second pulse outputs.
++#define JH7110_RTC_TIME_SEC		GENMASK(6, 0)
++#define JH7110_RTC_TIME_MIN		GENMASK(13, 7)
++#define JH7110_RTC_TIME_HOUR		GENMASK(20, 14)
++#define JH7110_RTC_DATE_DAY		GENMASK(5, 0)
++#define JH7110_RTC_DATE_MON		GENMASK(10, 6)
++#define JH7110_RTC_DATE_YEAR		GENMASK(18, 11)
 +
-+allOf:
-+  - $ref: rtc.yaml#
++#define JH7110_RTC_CAL_MASK		GENMASK(15, 0)
++#define JH7110_RTC_TICKS_PER_SEC	32768
 +
-+properties:
-+  compatible:
-+    const: starfive,jh7110-rtc
++#define JH7110_RTC_SYNC_TIMEOUT_US	1000
 +
-+  reg:
-+    maxItems: 1
++struct jh7110_rtc {
++	struct rtc_device *rtc;
++	void __iomem *base;
++};
 +
-+  interrupts:
-+    items:
-+      - description: Millisecond pulse
-+      - description: One-second pulse
-+      - description: Alarm and calibration events
++static void jh7110_rtc_reg2tm(struct rtc_time *tm, u32 time, u32 date)
++{
++	tm->tm_sec = bcd2bin(FIELD_GET(JH7110_RTC_TIME_SEC, time));
++	tm->tm_min = bcd2bin(FIELD_GET(JH7110_RTC_TIME_MIN, time));
++	tm->tm_hour = bcd2bin(FIELD_GET(JH7110_RTC_TIME_HOUR, time));
++	tm->tm_mday = bcd2bin(FIELD_GET(JH7110_RTC_DATE_DAY, date));
++	tm->tm_mon = bcd2bin(FIELD_GET(JH7110_RTC_DATE_MON, date)) - 1;
++	tm->tm_year = bcd2bin(FIELD_GET(JH7110_RTC_DATE_YEAR, date)) + 100;
++}
 +
-+  interrupt-names:
-+    items:
-+      - const: ms-pulse
-+      - const: sec-pulse
-+      - const: rtc
++static u32 jh7110_rtc_tm2time(struct rtc_time *tm)
++{
++	return FIELD_PREP(JH7110_RTC_TIME_SEC, bin2bcd(tm->tm_sec)) |
++	       FIELD_PREP(JH7110_RTC_TIME_MIN, bin2bcd(tm->tm_min)) |
++	       FIELD_PREP(JH7110_RTC_TIME_HOUR, bin2bcd(tm->tm_hour));
++}
 +
-+  clocks:
-+    items:
-+      - description: APB bus clock
-+      - description: Calibration reference clock
-+      - description: 32.768 kHz counter clock
++static u32 jh7110_rtc_tm2date(struct rtc_time *tm)
++{
++	return FIELD_PREP(JH7110_RTC_DATE_DAY, bin2bcd(tm->tm_mday)) |
++	       FIELD_PREP(JH7110_RTC_DATE_MON, bin2bcd(tm->tm_mon + 1)) |
++	       FIELD_PREP(JH7110_RTC_DATE_YEAR, bin2bcd(tm->tm_year - 100));
++}
 +
-+  clock-names:
-+    items:
-+      - const: apb
-+      - const: cal
-+      - const: 32k
++static int jh7110_rtc_read_time(struct device *dev, struct rtc_time *tm)
++{
++	struct jh7110_rtc *jrtc = dev_get_drvdata(dev);
++	u32 time, date;
 +
-+  resets:
-+    items:
-+      - description: 32.768 kHz counter domain reset
-+      - description: APB bus reset
-+      - description: Calibration reset
++	/*
++	 * re-read if the time rolled over between reading TIME & DATE, since
++	 * that rollover can also change the date.
++	 */
++	do {
++		time = readl(jrtc->base + JH7110_RTC_TIME);
++		date = readl(jrtc->base + JH7110_RTC_DATE);
++	} while (time != readl(jrtc->base + JH7110_RTC_TIME));
 +
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - interrupt-names
-+  - clocks
-+  - clock-names
-+  - resets
++	jh7110_rtc_reg2tm(tm, time, date);
 +
-+unevaluatedProperties: false
++	return 0;
++}
 +
-+examples:
-+  - |
-+    #include <dt-bindings/clock/starfive,jh7110-crg.h>
-+    #include <dt-bindings/reset/starfive,jh7110-crg.h>
++static int jh7110_rtc_set_time(struct device *dev, struct rtc_time *tm)
++{
++	struct jh7110_rtc *jrtc = dev_get_drvdata(dev);
++	u32 val;
 +
-+    rtc@17040000 {
-+        compatible = "starfive,jh7110-rtc";
-+        reg = <0x17040000 0x10000>;
-+        interrupts = <10>, <11>, <12>;
-+        interrupt-names = "ms-pulse", "sec-pulse", "rtc";
-+        clocks = <&aoncrg JH7110_AONCLK_RTC_APB>,
-+                 <&aoncrg JH7110_AONCLK_RTC_CAL>,
-+                 <&aoncrg JH7110_AONCLK_RTC_32K>;
-+        clock-names = "apb", "cal", "32k";
-+        resets = <&aoncrg JH7110_AONRST_RTC_32K>,
-+                 <&aoncrg JH7110_AONRST_RTC_APB>,
-+                 <&aoncrg JH7110_AONRST_RTC_CAL>;
-+    };
++	writel(jh7110_rtc_tm2time(tm), jrtc->base + JH7110_RTC_CFG_TIME);
++	writel(jh7110_rtc_tm2date(tm), jrtc->base + JH7110_RTC_CFG_DATE);
++
++	/*
++	 * The counter loads CFG_TIME & CFG_DATE on this pulse; the bit appears
++	 * to read back as 1 until the load is done.
++	 */
++	writel(JH7110_RTC_EVENT_UPDATE, jrtc->base + JH7110_RTC_IRQ_EVENT);
++
++	return readl_poll_timeout(jrtc->base + JH7110_RTC_IRQ_EVENT, val,
++				  !(val & JH7110_RTC_EVENT_UPDATE), 10,
++				  JH7110_RTC_SYNC_TIMEOUT_US);
++}
++
++static int jh7110_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
++{
++	struct jh7110_rtc *jrtc = dev_get_drvdata(dev);
++	u32 val;
++
++	val = readl(jrtc->base + JH7110_RTC_IRQ_EN);
++	if (enabled)
++		val |= JH7110_RTC_IRQ_ALARM;
++	else
++		val &= ~JH7110_RTC_IRQ_ALARM;
++	writel(val, jrtc->base + JH7110_RTC_IRQ_EN);
++
++	return 0;
++}
++
++static int jh7110_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
++{
++	struct jh7110_rtc *jrtc = dev_get_drvdata(dev);
++
++	jh7110_rtc_reg2tm(&alrm->time, readl(jrtc->base + JH7110_RTC_ACT_TIME),
++			  readl(jrtc->base + JH7110_RTC_ACT_DATE));
++	alrm->enabled = !!(readl(jrtc->base + JH7110_RTC_IRQ_EN) & JH7110_RTC_IRQ_ALARM);
++
++	return 0;
++}
++
++static int jh7110_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
++{
++	struct jh7110_rtc *jrtc = dev_get_drvdata(dev);
++	u32 val;
++	int ret;
++
++	jh7110_rtc_alarm_irq_enable(dev, 0);
++	writel(jh7110_rtc_tm2time(&alrm->time), jrtc->base + JH7110_RTC_ACT_TIME);
++	writel(jh7110_rtc_tm2date(&alrm->time), jrtc->base + JH7110_RTC_ACT_DATE);
++	writel(JH7110_RTC_IRQ_ALARM, jrtc->base + JH7110_RTC_IRQ_EVENT);
++
++	ret = readl_poll_timeout(jrtc->base + JH7110_RTC_IRQ_EVENT, val,
++				 !(val & JH7110_RTC_IRQ_ALARM), 10,
++				 JH7110_RTC_SYNC_TIMEOUT_US);
++	if (ret)
++		return ret;
++
++	return jh7110_rtc_alarm_irq_enable(dev, alrm->enabled);
++}
++
++/*
++ * 1 sec for the RTC = CAL_VALUE + 1 cycles of the 32.768 kHz clock.
++ * Default of 0x7fff = exactly one second.
++ * Each step of CAL_VALUE changes the rate by 1/32768, about 30.5 ppm.
++ */
++static int jh7110_rtc_read_offset(struct device *dev, long *offset)
++{
++	struct jh7110_rtc *jrtc = dev_get_drvdata(dev);
++	s64 ticks;
++
++	ticks = (readl(jrtc->base + JH7110_RTC_CAL_VALUE) & JH7110_RTC_CAL_MASK) + 1;
++	*offset = DIV_S64_ROUND_CLOSEST((ticks - JH7110_RTC_TICKS_PER_SEC) * NSEC_PER_SEC,
++					JH7110_RTC_TICKS_PER_SEC);
++
++	return 0;
++}
++
++static int jh7110_rtc_set_offset(struct device *dev, long offset)
++{
++	struct jh7110_rtc *jrtc = dev_get_drvdata(dev);
++	s64 ticks;
++	u32 val;
++
++	if (offset < -NSEC_PER_SEC || offset > NSEC_PER_SEC)
++		return -ERANGE;
++
++	ticks = JH7110_RTC_TICKS_PER_SEC +
++		DIV_S64_ROUND_CLOSEST((s64)offset * JH7110_RTC_TICKS_PER_SEC, NSEC_PER_SEC);
++	if (ticks < 1 || ticks > JH7110_RTC_CAL_MASK + 1)
++		return -ERANGE;
++
++	writel(ticks - 1, jrtc->base + JH7110_RTC_SW_CAL_VALUE);
++	val = readl(jrtc->base + JH7110_RTC_CFG);
++	writel(val & ~JH7110_RTC_CFG_CAL_SEL_HW, jrtc->base + JH7110_RTC_CFG);
++
++	return 0;
++}
++
++static irqreturn_t jh7110_rtc_irq(int irq, void *data)
++{
++	struct jh7110_rtc *jrtc = data;
++	u32 events, val;
++
++	events = readl(jrtc->base + JH7110_RTC_IRQ_EVENT) &
++		 readl(jrtc->base + JH7110_RTC_IRQ_EN) & JH7110_RTC_IRQ_ALL;
++	if (!events)
++		return IRQ_NONE;
++
++	writel(events, jrtc->base + JH7110_RTC_IRQ_EVENT);
++	if (readl_poll_timeout_atomic(jrtc->base + JH7110_RTC_IRQ_EVENT, val,
++				      !(val & events), 0, JH7110_RTC_SYNC_TIMEOUT_US))
++		dev_warn_ratelimited(&jrtc->rtc->dev, "interrupt events 0x%x not cleared\n",
++				     events);
++
++	if (events & JH7110_RTC_IRQ_ALARM)
++		rtc_update_irq(jrtc->rtc, 1, RTC_AF | RTC_IRQF);
++
++	return IRQ_HANDLED;
++}
++
++static const struct rtc_class_ops jh7110_rtc_ops = {
++	.read_time		= jh7110_rtc_read_time,
++	.set_time		= jh7110_rtc_set_time,
++	.read_alarm		= jh7110_rtc_read_alarm,
++	.set_alarm		= jh7110_rtc_set_alarm,
++	.alarm_irq_enable	= jh7110_rtc_alarm_irq_enable,
++	.read_offset		= jh7110_rtc_read_offset,
++	.set_offset		= jh7110_rtc_set_offset,
++};
++
++static int jh7110_rtc_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct reset_control *rst;
++	struct jh7110_rtc *jrtc;
++	struct clk *clk;
++	int irq, ret;
++	u32 val;
++
++	jrtc = devm_kzalloc(dev, sizeof(*jrtc), GFP_KERNEL);
++	if (!jrtc)
++		return -ENOMEM;
++
++	jrtc->base = devm_platform_ioremap_resource(pdev, 0);
++	if (IS_ERR(jrtc->base))
++		return PTR_ERR(jrtc->base);
++
++	clk = devm_clk_get_enabled(dev, "apb");
++	if (IS_ERR(clk))
++		return dev_err_probe(dev, PTR_ERR(clk), "failed to enable apb clock\n");
++
++	clk = devm_clk_get_enabled(dev, "cal");
++	if (IS_ERR(clk))
++		return dev_err_probe(dev, PTR_ERR(clk), "failed to enable cal clock\n");
++
++	clk = devm_clk_get_enabled(dev, "32k");
++	if (IS_ERR(clk))
++		return dev_err_probe(dev, PTR_ERR(clk), "failed to enable 32k clock\n");
++
++	/* Never asserted again, as that would stop the clock & lose the time */
++	rst = devm_reset_control_array_get_exclusive(dev);
++	if (IS_ERR(rst))
++		return dev_err_probe(dev, PTR_ERR(rst), "failed to get resets\n");
++
++	ret = reset_control_deassert(rst);
++	if (ret)
++		return dev_err_probe(dev, ret, "failed to deassert resets\n");
++
++	irq = platform_get_irq_byname(pdev, "rtc");
++	if (irq < 0)
++		return irq;
++
++	jrtc->rtc = devm_rtc_allocate_device(dev);
++	if (IS_ERR(jrtc->rtc))
++		return PTR_ERR(jrtc->rtc);
++
++	platform_set_drvdata(pdev, jrtc);
++
++	jrtc->rtc->ops = &jh7110_rtc_ops;
++	jrtc->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
++	jrtc->rtc->range_max = RTC_TIMESTAMP_END_2099;
++
++	val = readl(jrtc->base + JH7110_RTC_CFG);
++	writel(val | JH7110_RTC_CFG_HOUR_24H | JH7110_RTC_CFG_ENABLE,
++	       jrtc->base + JH7110_RTC_CFG);
++
++	ret = devm_request_irq(dev, irq, jh7110_rtc_irq, 0, dev_name(dev), jrtc);
++	if (ret)
++		return dev_err_probe(dev, ret, "failed to request irq\n");
++
++	ret = devm_device_init_wakeup(dev);
++	if (ret)
++		return dev_err_probe(dev, ret, "failed to init wakeup\n");
++
++	ret = devm_pm_set_wake_irq(dev, irq);
++	if (ret)
++		return dev_err_probe(dev, ret, "failed to set wake irq\n");
++
++	return devm_rtc_register_device(jrtc->rtc);
++}
++
++static const struct of_device_id jh7110_rtc_of_match[] = {
++	{ .compatible = "starfive,jh7110-rtc" },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, jh7110_rtc_of_match);
++
++static struct platform_driver jh7110_rtc_driver = {
++	.driver = {
++		.name = "jh7110-rtc",
++		.of_match_table = jh7110_rtc_of_match,
++	},
++	.probe = jh7110_rtc_probe,
++};
++module_platform_driver(jh7110_rtc_driver);
++
++MODULE_AUTHOR("Samin Guo <samin.guo@starfivetech.com>");
++MODULE_AUTHOR("Hal Feng <hal.feng@starfivetech.com>");
++MODULE_DESCRIPTION("StarFive JH7110 RTC driver");
++MODULE_LICENSE("GPL");
 -- 
 2.43.0
 
