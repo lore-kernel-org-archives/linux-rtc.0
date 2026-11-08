@@ -1,56 +1,63 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794173801;
-	b=rAuuYVT1RUE6qdI9cO495mNoBGHm+7HZU9l7BZLq4GOZH+k1S+EQRrjjrfUzn0efWosY
-	 Iedf2L0CYXpO93oeWL5jYbb+R8jAlHilLSr4XJR6OfCcbmtwXN7XA7u8N65+8zK027ZId
-	 VCr9IjsuajTaXJXtg8uulcR75YJZgBBQFfJkvKzuZ0Ptpd69SK5yDoga/UYoFghzArHKr
-	 mDb2ORDDklUwPx7QzzyJavlnLKtFPPhpfqhsxWtkkweCGnDq6Si952ZZTdyvcrvG9+c0z
-	 Dvpp53yRKFm/EaiLxzNB5/ur00MHgaAdyBGDahIv3FEOtI7HjhED61pQsd35Ut7c0dQ==
+	t=1794178621;
+	b=ugFR8y5iAfb3XS6BxfvmwE2clki2aQavlc0tjEn+hnGaI9jNGCsXjvoHhaW3xZRxAjfW
+	 F/K7f09bKk+bbfxf+62Pi7uofWJhatS6z+pI0KD6RpTXbJcNrjB1bZOYtt+sLcseCc116
+	 QVs7/QDkwBlzlghIBQQZOsRrAUWabOsBMc53zn5FkmbwuFlaLX3vr7Saj3ExGREp/imKX
+	 UEmly1kFMbbh+mhSYWzP9wNrW8ZSH1un/1tmZoo/paihj7cOSAQCSpchjU3p11jameXks
+	 qYM/ZRGp7kC1rRDw0KrHXqz7F57B20W6aZNgZMFl6q8pgAIMU+1LtifPCbwmulifFpw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794173801;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=egfl87lfIsLqS7mixGpwXbC+W9xzWtdKLS2j6FORViE=;
-	b=iWDrM5ohS0EwMdrP6toDczGcC4Sf9AQpCB87Bqdct+yGtKvlGx+oIrn/mESOQRy2dP0O
-	 Q8nYvDR5SrJ+5Z3/5e8zIsiSAYv5lfzIGULR6blffkT5aiX0xMnBgRBJUgOnJdaq4VBGk
-	 2G9npa4AnyiIL/OXZ93DbmQwLOzfM9f3nSTeCEaF2Jeo9Ze4gNx+5u4BLv+Z3VM8eRjm2
-	 jstUA1mSZa1ffn92IeL1QEXsJKJmfJ6eAM5cH1yzORn+VyGVgf+dwlqCa7Ds+y/l8sU2s
-	 VgVMAQzy0X1AFnL/fS7wpUcYKb1lqul9ysV6V7IU9iYRIvX2XRc4U5iUTmdLZE1SWmA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794178621;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=20LGVkr7OyVCpXpA7vzhMSUIjmcZLUme60763s7WuI4=;
+	b=z67D43467yWffQja7I7Nz5AABV9untfleozi6LEL0Vx6uuCXtiPXGDtyy7Jspzs6hnbS
+	 sKPBIv8WsiAj7jVb4Jjl9eCInJHcN/4elkWS2Am4cXFNXZspYPWEuL0vbLmcmwf8G078t
+	 YE8orxzpoXhgv2sW3pK8pPyeTCBwbewyZufkH4HwQEBqBsDnCj34TtuqNwN1qjDz3aB/E
+	 vxM25qGzX6cz6EMoqk92zMaCgl5kJCcvURvusCgU1wrQj7XSvXrMt78NiS/+U2QdFbZr8
+	 kEQAnNR+dnEzCJigzm3wQ17O9FZsHUoHsGp4ZHYBUEKiVp9eS85/P9nYSWf1Mpa2qnw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QYX8867m;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LXRE6x6S;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BB13606A31C
-	for <linux-rtc@vger.kernel.org>; Sun,  8 Nov 2026 21:36:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FC6D606A31C;
+	Sun,  8 Nov 2026 22:57:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QYX8867m
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 427F21F0089F;
-	Sun,  8 Nov 2026 21:36:41 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LXRE6x6S
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D71C1F0089F;
+	Sun,  8 Nov 2026 22:56:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794173801;
-	bh=egfl87lfIsLqS7mixGpwXbC+W9xzWtdKLS2j6FORViE=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=QYX8867mGsMzuLFZC4rStMnTmNwo721jlwWNuxa+Gfq0HOs+ey6Mkgrbmpz9YRZzv
-	 /IfJX9Ss6VJ69y1KgBrYv7N0RqolOQrhuuRKBqJ6juG81wLmI9Gv8kslJVacZiB1y3
-	 605mDiC9NcpJoOG+lWg/VDtSaf+K+5TNDbhzQr+6gmt5iYtbIpDE6LL2hXcpNXrI/A
-	 ak3P4A8M5N3d89oDC08FkA5o4BImyWAEiM1lQwg0h1TiSUWxXj8PohI+kRTdyotZvY
-	 cFut5vuH+uGTypVKbrzAF0dPs5WgpFn8MGVBrl6NdDDUkv9Q0/p6qhioDIah4yFT5F
-	 70Rz/wx8wADRA==
-Message-ID: <sashiko-outbox-204085@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 2/4] rtc: Add StarFive JH7110 RTC driver
-Reply-To: sashiko-reviews@lists.linux.dev
-To: =?utf-8?b?T3dlbiBPJ0hlaGly?= <oo.hehir@gmail.com>, linux-rtc@vger.kernel.org
-Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20261108212826.15890-3-oo.hehir@gmail.com>
+	s=k20260515; t=1794178620;
+	bh=20LGVkr7OyVCpXpA7vzhMSUIjmcZLUme60763s7WuI4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=LXRE6x6SdG7IyarknMia1YiU8msG0Ve5ktruCyF0lCx+UVcgvavx8E+O78sPKTsGG
+	 x5+n5UPog+1EzaoORkKrMCILjgKfrifmQUiZVggZUBou2tqsshQs2fe5PG51J+trjH
+	 dKpNJY0KX5zLqfrgGZEfZDmflcz024+wfgXVOl4nnvuWXLPsZcydJrzH6WkbsZrlN4
+	 HBO2PGhub/47bFEdy+0XlTr2OPB5YVKtkl+Q8WIDCWSPgdljaHJI6b4F3wfI4qsbqg
+	 1VoEn+HG0mveOemARyuRmlDOMjnHg7wBGxZyuMlJXXd9evDRmRKRh/Yp3xS5Pe18nV
+	 ue8KI0YIlRAbQ==
+Date: Sun, 8 Nov 2026 22:56:55 +0000
+From: Conor Dooley <conor@kernel.org>
+To: Owen O'Hehir <oo.hehir@gmail.com>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	linux-rtc@vger.kernel.org, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Emil Renner Berthing <kernel@esmil.dk>,
+	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+	Philipp Zabel <p.zabel@pengutronix.de>, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org,
+	Hal Feng <hal.feng@starfivetech.com>,
+	"ziv.xu" <ziv.xu@starfivetech.com>,
+	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@baylibre.com>
+Subject: Re: [PATCH v2 1/4] dt-bindings: rtc: Add StarFive JH7110 RTC
+Message-ID: <20261108-arrogant-comfy-702e4005ffb9@spud>
 References: <20261108212826.15890-1-oo.hehir@gmail.com>
- <20261108212826.15890-3-oo.hehir@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 08 Nov 2026 21:36:40 +0000
+ <20261108212826.15890-2-oo.hehir@gmail.com>
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -59,25 +66,28 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="SjCXAX+7+0ikTLlp"
+Content-Disposition: inline
+In-Reply-To: <20261108212826.15890-2-oo.hehir@gmail.com>
 
-> From: "ziv.xu" <ziv.xu@starfivetech.com>
->=20
-> Add a driver for the RTC in the always-on domain of the StarFive JH7110
-> SoC. It supports time, alarm with wakeup, and the frequency offset.
->=20
-> Signed-off-by: ziv.xu <ziv.xu@starfivetech.com>
-> Signed-off-by: Hal Feng <hal.feng@starfivetech.com>
-> [Owen: rework of the StarFive vendor driver for mainline: drop hardware
->  calibration & the default time set in probe, use the generic wake IRQ
->  helpers, wait for the update bit in set_time, re-read a time that rolls
->  over during the read, round the offset to the nearest step & follow the
->  sysfs offset sign, enable the 32k counter clock]
-> Co-developed-by: Owen O'Hehir <oo.hehir@gmail.com>
-> Signed-off-by: Owen O'Hehir <oo.hehir@gmail.com>
+--SjCXAX+7+0ikTLlp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Sashiko has reviewed this patch and found no issues.
+Acked-by: Conor Dooley <conor.dooley@microchip.com>
+pw-bot: not-applicable
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261108212826.1589=
-0-1-oo.hehir@gmail.com?part=3D2
+--SjCXAX+7+0ikTLlp
+Content-Type: application/pgp-signature; name=signature.asc
 
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCavD+MQAKCRB4tDGHoIJi
+0pnsAP0eKWJ6w6W1snNjKukK8Fjs/2I49K2VUTuJDFtynSBZkgD+PikODNItjDsS
+5JRL6HhB3lWBTwpaxHIxtWpOFzjT7wM=
+=iVtu
+-----END PGP SIGNATURE-----
+
+--SjCXAX+7+0ikTLlp--
