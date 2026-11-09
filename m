@@ -1,63 +1,56 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=111.22.67.139
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794195953;
-	b=OULHxp7v3Eyr46N+8ZGxD3iTQSJR86A3MDp1RfnEeIDhNtDNveSzMWbsGhm+tL5OzeS0
-	 s/AlEhYN/WtscKlXp67jc67H0s3fiPzWZw6UVj7k7fu7HqHA5DfaXValDnJ2yts8IyOx1
-	 LDUxmj7lrRPVML3o1ngWIC7v9qCKF95BrSrsEkBxrwZCAhN51+AULs3sBJdyk+FqqRy0E
-	 Qlu4GaWDRXFRwP5APYbkvCSHVAvccO+AgNzLbrdFKYzlbwTX0SrKJpBqfmFQl+/OCLxXC
-	 SOW3T70HH+wfPkEgb8mnlC8Cyb4ED+Dy54ljpSQOO7xqSCbQqcUrRAspsdibLepo/QQ==
+	t=1794196127;
+	b=yu3LgzxGCmxijmkkzsTWfmOwRdlRqQvDDhCtc3KZx+iP6BAMiP+X+0r2bkeS57WqNkO9
+	 h1j/bzU4Jkr+HfJRMp9oyuKV8wHT0EoXuj5XZkIMXXUuUj/ygeHnaAETyww9VY5rKHj4t
+	 DC1c8X9dTmNpOs3pElbkxTQGLjESlfhJ4SzQr6ng8eV+vjSpMFvKprKRng2D/lGPJiVE+
+	 D4xJfXruFTje36IWyaHd4c/KUEYdJIHm17gKPYSBWhWSRt7exKaVO821UQxzfTYeFPS0+
+	 50fU/QNcsoJ2lG9WE517jvj4DLrZVA7Qxza329M2Hbvn2XByXA4cUqo0AVbifm7WKQQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794195953;
-	h=DMARC-Filter:DKIM-Signature:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:
-	 X-RM-TRANSID:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:X-RM-TRANSID:From:
-	 To:Cc:Subject:Date:Message-ID:In-Reply-To:References:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=Iz4Qp7XjPDXjbSBT/keNOWn8pux5m+Fdx0Qh4Yd13qg=;
-	b=qgCVCIBVNvKmfornEyRBCrSj9V7d0Ui1Vbi5lRmJFouzrqDife7f4AWadvQEfTa+Csrz
-	 88ZcKy+jVQBUdnShmNnkHwJIuwQRdCsAoelJE5juEMq1CRNdberN4e1OGNTnu60sOjXWu
-	 d8vAA76Y+QwhloXTwCgaZshEPmzV8K4M/u96XFLHu77eNqWv6yHVJkwD4keDsBoKraawf
-	 esBmYFYQlZdX9W/GaZfH5hCq9ciePSdXLvV6JNkYt7vc+sQJpmnqZRbjKJKaoCs6djISN
-	 nAZYxV0gPEHHo0cUNn0Ymya7MMDYhUV4tNLEQ94155UH/W++zdNQJs77StyfAK11Rag==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794196127;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=dPUI79ZTuYvyeGLw2oxosUBgSkuYkeg+QlasMFm1hio=;
+	b=XF/TLnxJWAMsWK2BMFSCYKKQqag27vpmSu2Wwt29nDfbi5FtuKe+pBDUgYZPzPWQVqti
+	 w26FQ0E0iUlvWTk8eBlcuHOFBSWJkar3hHtR+H3jUghDvC1uKW+YeBlEDH4AuRwKVUGLp
+	 zuk3+7/L8uoqGP+wJl6Q7vxEsWxNaSu+p6GLde+Jugj8woQ+5hJlRNBXAvlcZumCueFYE
+	 WEFWJ9VpqVp1JjVdBaobUOAIaOhzWM0DcOjjvPLJDpzbdJEpMnGyilT6XVaJl15D5cSVr
+	 s9dF/8ZspyCcOmgjFX6ALYcHjxihaXEriqMSmKFCXeQU6j3qCMr2hCM4hG6ZGFUJfRA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=cmss.chinamobile.com;
-	spf=pass smtp.mailfrom=cmss.chinamobile.com;
-	dkim=pass header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b=P63z8p1j;
-	arc=none smtp.remote-ip=111.22.67.139
-Received: from cmccmta6.chinamobile.com (cmccmta6.chinamobile.com [111.22.67.139])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id B6659606A31C;
-	Mon,  9 Nov 2026 03:45:51 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B6659606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cmss.chinamobile.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cmss.chinamobile.com
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UdBzpZG1;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99833606A31C
+	for <linux-rtc@vger.kernel.org>; Mon,  9 Nov 2026 03:48:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b=P63z8p1j
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cmss.chinamobile.com; s=default; l=0;
-	h=from:subject:message-id:to:cc:mime-version;
-	bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
-	b=P63z8p1j8NBCDmiGnvfNt4rY9xGpTPl3L3YOFMiF0mkJMkhMgXpr1o0e51eCwVau1uhk4HoqetFtS
-	 NfdoP/I4iJ3arkzS8ucKqP4CdC96Fjh7IvBoH246t+m/3maXrGVkXcsuh77uxZEWC86EPGFyIpyCk3
-	 dpFHWOtcUZ05yWCY=
-X-RM-TagInfo: emlType=0                                       
-X-RM-SPAM-FLAG:00000000
-Received:from spf.mail.chinamobile.com (unknown[10.188.0.87])
-	by rmmx-syy-dmz-app09-12009 (RichMail) with SMTP id 2ee96af141eda52-c5cd9;
-	Mon, 09 Nov 2026 11:45:50 +0800 (CST)
-X-RM-TRANSID:2ee96af141eda52-c5cd9
-X-RM-TagInfo: emlType=0                                       
-X-RM-SPAM-FLAG:00000000
-Received:from cmss.chinamobile.com (unknown[10.55.1.72])
-	by rmsmtp-syy-appsvr08-12008 (RichMail) with SMTP id 2ee86af141eb4eb-7fedd;
-	Mon, 09 Nov 2026 11:45:50 +0800 (CST)
-X-RM-TRANSID:2ee86af141eb4eb-7fedd
-From: Yuehong Wu <wuyuehong@cmss.chinamobile.com>
-To: linux-rtc@vger.kernel.org
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH v2] rtc: ab-eoz9: fix negative temperature readings
-Date: Mon, 09 Nov 2026 11:50:00 +0800
-Message-ID: <20261109-rtc-ab-eoz9-neg-temp-v2-1-yuehongwu@cmss.chinamobile.com>
-In-Reply-To: <20261109-rtc-ab-eoz9-neg-temp-1-yuehongwu@cmss.chinamobile.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UdBzpZG1
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2291F1F0089F;
+	Mon,  9 Nov 2026 03:48:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794196127;
+	bh=dPUI79ZTuYvyeGLw2oxosUBgSkuYkeg+QlasMFm1hio=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=UdBzpZG1u7CpPnhjDjl6AYvud49cUa8v6phVHgI7HFa1iAoscMY3llkbdqNtjcRTy
+	 jebCM4fuOOErObr32VgZEHs1AC3vcEbDhqcX0qTFRElGDNLHosxtwmwQmso9ebh03Q
+	 NSVyipYAiIYh7k0DU7oiRjOmwi24MGIPcs55LdgDKmTuHRD7kD2BPClPn23S/hezax
+	 qvY2+BlADkDDuI2LRtCs1D/Uv4mTDJkj13RK0JCY98Pkl1GJZul5WRhg15qCz2c9Tf
+	 FoW8Thj4b3Svf4Xz8yZ5QT+J+53yezRE4vIvWQjDnGXtB2vuslJ3e7BArgdo+DOOl9
+	 0jk/5Tcyo0xZQ==
+Message-ID: <sashiko-outbox-204383@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] rtc: ab-eoz9: fix negative temperature readings
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Yuehong Wu" <wuyuehong@cmss.chinamobile.com>, linux-rtc@vger.kernel.org
+Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>
+In-Reply-To: <20261109-rtc-ab-eoz9-neg-temp-v2-1-yuehongwu@cmss.chinamobile.com>
 References: <20261109-rtc-ab-eoz9-neg-temp-1-yuehongwu@cmss.chinamobile.com>
+ <20261109-rtc-ab-eoz9-neg-temp-v2-1-yuehongwu@cmss.chinamobile.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 09 Nov 2026 03:48:46 +0000
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -66,57 +59,32 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
 
-The temperature register is coded with an offset of ABEOZ953_TEMP_MIN
-(-60 degrees C), so the driver computes "raw + ABEOZ953_TEMP_MIN".
-regmap_read() hands the raw value back in an unsigned int, which makes
-that addition - and the multiplication by 1000 that follows - unsigned as
-well: -60 becomes 0xffffffc4 and 1000 * (raw - 60) wraps around for every
-raw value below 60.
+> The temperature register is coded with an offset of ABEOZ953_TEMP_MIN
+> (-60 degrees C), so the driver computes "raw + ABEOZ953_TEMP_MIN".
+> regmap_read() hands the raw value back in an unsigned int, which makes
+> that addition - and the multiplication by 1000 that follows - unsigned as
+> well: -60 becomes 0xffffffc4 and 1000 * (raw - 60) wraps around for every
+> raw value below 60.
+>=20
+> On 64-bit systems the wrapped unsigned int is then zero-extended into the
+> long hwmon attribute, so every temperature below 0 degrees C is reported
+> as a huge positive value: raw 0 (the -60 degrees C code) becomes
+> 4294907296 instead of -60000, raw 30 (-30 degrees C) becomes 4294937296
+> instead of -30000.  This also contradicts temp1_min, which the same
+> driver reports as -60000, and consumers that only look for negative
+> values (thermal governors, monitoring daemons) do not discard the bogus
+> value.
+>=20
+> Perform the arithmetic on a signed value.
+>=20
+> Fixes: 67075b63cce2 ("rtc: add AB-RTCMC-32.768kHz-EOZ9 RTC support")
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Yuehong Wu <wuyuehong@cmss.chinamobile.com>
 
-On 64-bit systems the wrapped unsigned int is then zero-extended into the
-long hwmon attribute, so every temperature below 0 degrees C is reported
-as a huge positive value: raw 0 (the -60 degrees C code) becomes
-4294907296 instead of -60000, raw 30 (-30 degrees C) becomes 4294937296
-instead of -30000.  This also contradicts temp1_min, which the same
-driver reports as -60000, and consumers that only look for negative
-values (thermal governors, monitoring daemons) do not discard the bogus
-value.
+Sashiko has reviewed this patch and found no issues.
 
-Perform the arithmetic on a signed value.
-
-Fixes: 67075b63cce2 ("rtc: add AB-RTCMC-32.768kHz-EOZ9 RTC support")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Yuehong Wu <wuyuehong@cmss.chinamobile.com>
----
-v2: no code change; restore the first line of the commit message, which
-was lost when v1 was converted to plain text.
-
-The two expressions were checked with a small user space model of the
-same types: raw 0 gives 4294907296 with the old expression and -60000
-with this fix, raw 30 gives 4294937296 and -30000.
-
-Compile-tested with gcc and W=1 (CONFIG_RTC_DRV_ABEOZ9=m); there is no
-AB-RTCMC-32.768kHz-EOZ9 hardware here, so this was not exercised on a
-device.
-
- drivers/rtc/rtc-ab-eoz9.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/rtc/rtc-ab-eoz9.c b/drivers/rtc/rtc-ab-eoz9.c
---- a/drivers/rtc/rtc-ab-eoz9.c
-+++ b/drivers/rtc/rtc-ab-eoz9.c
-@@ -399,7 +399,7 @@ static int abeoz9z3_temp_read(struct device *dev,
- 		ret = regmap_read(regmap, ABEOZ9_REG_REG_TEMP, &val);
- 		if (ret < 0)
- 			return ret;
--		*temp = 1000 * (val + ABEOZ953_TEMP_MIN);
-+		*temp = 1000 * ((int)val + ABEOZ953_TEMP_MIN);
- 		return 0;
- 	case hwmon_temp_max:
- 		*temp = 1000 * ABEOZ953_TEMP_MAX;
-
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261109-rtc-ab-eoz=
+9-neg-temp-v2-1-yuehongwu@cmss.chinamobile.com?part=3D1
 
