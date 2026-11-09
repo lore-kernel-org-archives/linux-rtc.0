@@ -1,85 +1,79 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794225679;
-	b=xE6gq9PnOa492NiawS4q0tUghzr9OuTSmHVIPWF1WTedgHHzyXDVKk0qsubJQeCHr+dL
-	 412AS1ANy/XzsGqui3T8Cm5HI4k6ZeB5Kkc9dv1/KyBmcI/ZTj0yYoegacj9B2MclX+CX
-	 4JF3WM68X6ZmxKfJtrJPPcdrfhHyset0gJ0TRa+bIVOSWXCI7tXkFkskeYShammFVOgVl
-	 ErYho86yofloyktmM3pimNYnCUGUbevk+oWAzgO3baEXU/TyEP8r/ebLHtdcZRiymypuf
-	 qXYHOaPXgMFchp1PJ5eYo7Yz5ZJh6XzKds3Tb9bG+v5Uw6z7gJKLoK4SrieO+QCV86A==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794225679;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 In-Reply-To:References:X-Mailer:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=pxzG4Z9tUr84C+n4G473WYz9seP+45U8TnoBcPvES30=;
-	b=4pVfMdZHrY7Z84DMgoTrjBtzVXvegjoydJllnh3N4n+zJPvvMe+R+yTZdH3+7CpP7qe5
-	 H5nIwtnrwm0snTNQzH+nhX0iUJgNW9idsUTJc4CjRoM+GZSbmRNK+Ed0m3RX/wtplAVog
-	 oKLsD8jp6XlzhboITpzpe6qQfQXKOzAvbiRILM257tCWYJdXKy92c1T/7jx7FfwWqxUjO
-	 6IHz0PWz/+pGSTHfHHQJrYbqIHPrHTP0wAx3z8qEIbqnj7zWUCjz0ZBO4AWda08OhtPmh
-	 jOkTeezslPe4gyBMetJkKwpoqeRqT0lPnwgf4BfZq4hQOr0F81nzAwhVfFlGcizgk/w==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Srlba1QQ;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=192.198.163.8
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1794226832;
+	b=03JmE8FswWp48ZkmBPL6IyWPhBKppHRUj0aSKY6rwBIc23gXgb0HQzytX0uDesF1x1Xf
+	 kVbCB3V9qcHDEgAMtuubFAyfYJZngTQIWWotPEkksHJwMP/MKjJKMvKQk0bKsvrbrHNrY
+	 HGU5r7aLVzdacYiCDcjxLn1yecPGoMgrUe5I+uv++Bgujlchef6tRP4iBOn8g7eAAYSQw
+	 KAFC0VmV1j9e6U/pzYLXY+k2NP5ia8BSj5+/w1eR/XhcZRn8qWUfhVsJINqn2zmB2ub3K
+	 0nxkbgP/NGVfK47qf83E12uuHjAbWJQSFOiaDG3ROXxHohcCj3szxjTWmj9Q6kYKhRA==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794226832;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Date:From:To:Cc:
+	 Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To:Organization;
+	bh=kE0/ygUG6OzgulQ1EncC7piIzJkfHZsxcepIiOM66SY=;
+	b=i+T3taSCErKbq61MUKXMjtGgP8/mKbPi6ovg/vhm0cQwBzzQNL7+VNuMF12c2d2je5JG
+	 7CJFCf+eTs+i5Vxog2L9/WlpVWzwFFvE9bEj80vrfDb7SI7bKSbzZpb7JjpxTjG4uShwg
+	 EW+DAqhWdU4lj6gGoGDYkQHygFwMXHimv5PUrx4VDOlxPBf/6eOEKbi4vNTrRQWp7XZeG
+	 cHabBMg8x4QgBjrWPvtuQEVYVZjs1e3xBMqX981nHlR1CUcZOEpwfTtgzdoW6i1JXFTx+
+	 K8nkf82ubc0cJy2WTN94l9b0tePHlCSJYKEiMqRCUStAJPaiHpzQGZhV1RK13uSSozQ==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=intel.com;
+	spf=pass smtp.mailfrom=intel.com;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=MgHoO1Y8;
+	arc=none smtp.remote-ip=192.198.163.8
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.8])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B671A606A31C;
-	Mon,  9 Nov 2026 12:01:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8C00606A338;
+	Mon,  9 Nov 2026 12:20:30 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A8C00606A338
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Srlba1QQ
-Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=90.182.112.124
-ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1794225678;
-	b=H6pnApyDwvQKJiIZCb3HhNC9v2+J3C5JqiPDz+Manf3ufmUimH6KWLzXq0mmZXGAic6p
-	 C2ueCr8fnU6wrtUBDQOKE6sDqwp8P3VgNngd9vdpB9D8bZ+Ns2BQC5I7OoFtl+BQ3wsWI
-	 6q0V0fzG4g79oP3OTzli2vuTVskgMjYan+ze8xy+tefDQjAssaQ1hd88EhwaYNs0sxoH/
-	 6PK/x1IyuJST370tcCktv/32RVdsmb8K7z51B1QdZ/TMwUlbsxxbywhzOgIpCpvL5CNYX
-	 FS0cAbgzu5oLRp8QD/bdT7y/Gp3dBuAINoQVd1SslNJEEt83RCsznZB2WqCkygTQkuA==
-ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1794225678;
-	h=DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:In-Reply-To:
-	 References:X-Mailer:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=pxzG4Z9tUr84C+n4G473WYz9seP+45U8TnoBcPvES30=;
-	b=oa3tCVDihpcrW0ftMjvjWyIpztvziRl5Vjq4grR+K+5MaSqldOypR+AtuadAmhHunSvi
-	 a4vujr2Njk3Si9QaidHaRj/ZXp/R4g4268sozU3rrPVqwsK0flaTAfW9twniF+jdnVJSg
-	 q9QxGVeUlto8owAVazlgy+QuJX7Ak6wSFeGLxBhSUSUgtd1Bb5vB5CqZE2cRkqWwrFvVA
-	 jqv/pusnVJFzxy8Igd79YgEbUtkh4DcVBvCEtpLvurwvrGtddV0ze+SqgmsmzYdf6Wk3N
-	 Cc1USby9/KcpjbQEryO6D4q5tuDU85FS/FdPvqjbok7OXxVmXjse5phnnfJDnMs2+Kg==
-ARC-Authentication-Results: i=1; smtp.kernel.org; 
-	arc=none smtp.remote-ip=90.182.112.124
-Received: from localhost (90-182-112-124.rcp.o2.cz [90.182.112.124])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPSA id 8A9AE1F008A1;
-	Mon,  9 Nov 2026 12:01:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794225678;
-	bh=pxzG4Z9tUr84C+n4G473WYz9seP+45U8TnoBcPvES30=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=Srlba1QQ6QNms9fdYyWQZmx/GjFcwwjH25qwjZj8EmvqEmODeEeiehT9y1c+OVoyH
-	 DmJeqxoVEIMrghgFYGxQac3PnwmT0fkcLVmqo1vPnfje0RmjLR1wBOjPr2x0p8AKcv
-	 X8uGGisEeu+m3AU2+uhij2JkIw8IcEhLftK4ES2r3ebS94RKsS/21Cl2PFNd6dGvsy
-	 EX7jkgOfi8islkmPcGRcg3cwl86pEP1JD9liS7x+314M9t6FMedGaSBM1ndaMj/Bwe
-	 UdlmkP+a9kl1XyApqYfvqf+Yr/B+VL9M9/p4Au+8Esf+nOLkHIC/iaAECpo5yPeyPQ
-	 +hLXkrhA8EadQ==
-Date: Mon, 9 Nov 2026 13:01:07 +0100
-From: Joshua Crofts <crofts@kernel.org>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=MgHoO1Y8
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1794226831; x=1825762831;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=sAUoNYP2fqQVvNPq10oZ3ofWU7N+A2Mo3q9QoET+I0E=;
+  b=MgHoO1Y8UyLmba0u3FYxRNsDM8OAKhaQvn4rjq20IdE4jLPXsAHsocOH
+   0mseL6CzdDjp9raKHwoPdtbQwM3osWsSjUAOy1CEG/vUGJv6vj5kK+P8O
+   0eVXwH5BzXeUNxxvNvxBjAJkz6j2SEx8drboispyZ2V9ppzpBB+vzwnLW
+   dKVG/olDfxi/wrNixPjI+65iV2k1dRYlQEF6kOU88s3YjwCvl5F2QNclZ
+   IqbEXKshunsKf5nJQ0gYjRCpZ77efZdfCedBBOplzpkdOztkMmMgtju98
+   fwLRmiJ5hxqZUlYckIMhoan6If7paNeAUte3r6kXNJH5ym5vEZJuohEBX
+   w==;
+X-CSE-ConnectionGUID: f6yEzodlTSu7hcoVgdhRag==
+X-CSE-MsgGUID: 56HXQBUJSgeA01yalJgYxQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11960"; a="2828824"
+X-IronPort-AV: E=Sophos;i="6.27,203,1787036400"; 
+   d="scan'208";a="2828824"
+Received: from fmviesa012.fm.intel.com ([10.60.135.152])
+  by fmvoesa102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Nov 2026 04:20:30 -0800
+X-CSE-ConnectionGUID: L2GkJ3hlRCCgs9mkzPu5NQ==
+X-CSE-MsgGUID: ppIOps2dQbGIrJDpQXi7bA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,203,1787036400"; 
+   d="scan'208";a="9602986"
+Received: from amilburn-desk.amilburn-desk (HELO localhost) ([10.245.244.144])
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Nov 2026 04:20:27 -0800
+Date: Mon, 9 Nov 2026 14:20:24 +0200
+From: Andy Shevchenko <andriy.shevchenko@intel.com>
 To: Akhilesh Patil <akhilesh.patil@linux.dev>
 Cc: jic23@kernel.org, dlechner@baylibre.com, andy@kernel.org,
- robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org,
- alexandre.belloni@bootlin.com, linux-kernel@vger.kernel.org,
- linux-iio@vger.kernel.org, devicetree@vger.kernel.org,
- linux-rtc@vger.kernel.org, akhileshpatilvnit@gmail.com,
- akhilesh@ee.iitb.ac.in
+	robh@kernel.org, crofts@kernel.org, krzk+dt@kernel.org,
+	conor+dt@kernel.org, alexandre.belloni@bootlin.com,
+	linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-rtc@vger.kernel.org,
+	akhileshpatilvnit@gmail.com, akhilesh@ee.iitb.ac.in
 Subject: Re: [PATCH v2] MAINTAINERS: Update Akhilesh Patil Email address
-Message-ID: <20261109130107.000056f8@kernel.org>
-In-Reply-To: <20261109104443.GA531570@u5ce4748bae3b54.ant.amazon.com>
+Message-ID: <avG6iHBBDp0ATTsi@ashevche-desk.local>
 References: <20261109063924.GA118887@u5ce4748bae3b54.ant.amazon.com>
-	<20261109104443.GA531570@u5ce4748bae3b54.ant.amazon.com>
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.51; x86_64-w64-mingw32)
+ <20261109104443.GA531570@u5ce4748bae3b54.ant.amazon.com>
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -89,22 +83,31 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261109104443.GA531570@u5ce4748bae3b54.ant.amazon.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On Mon, 9 Nov 2026 10:44:43 +0000
-Akhilesh Patil <akhilesh.patil@linux.dev> wrote:
-
+On Mon, Nov 09, 2026 at 10:44:43AM +0000, Akhilesh Patil wrote:
 > Move to my new linux.dev email address akhilesh.patil@linux.dev
 > I plan to use this email for kernel development going forward.
 > Also update email address in few yaml and driver source files.
-> 
-> Signed-off-by: Akhilesh Patil <akhilesh.patil@linux.dev>
-> ---
 
-Next time please don't send a v2 as a reply to v1, it can break
-tooling like b4.
+...
+
+> --- a/.mailmap
+> +++ b/.mailmap
+> @@ -1030,3 +1030,4 @@ Zhu Yanjun <zyjzyj2000@gmail.com> <yanjunz@nvidia.com>
+>  Zijun Hu <zijun.hu@oss.qualcomm.com> <quic_zijuhu@quicinc.com>
+>  Zijun Hu <zijun.hu@oss.qualcomm.com> <zijuhu@codeaurora.org>
+>  Zijun Hu <zijun_hu@htc.com>
+> +Akhilesh Patil <akhilesh.patil@linux.dev> <akhilesh@ee.iitb.ac.in>
+
+It's not a rocket science to see the order in this file...
 
 -- 
-Kind regards,
-Joshua Crofts
+With Best Regards,
+Andy Shevchenko
+
+
