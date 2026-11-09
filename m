@@ -1,83 +1,83 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.51
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.54
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794239111;
-	b=31Mh85ttLHPNHpqQbYoI1J+mKNes6f/CJmQU746qNJjPIQg3z5sPbJzB8/iCGMPhZkiX
-	 BIXjGuBiFsfSO3gyyrCUOZnWmMNwmmezsDiwotNltC20xIOcB2F5zl0ZRzTOuTTVNgYGE
-	 xIkth9lo/b+1RMSVPzbiKGiDTJuuxKD5Ny2SKmwUqgGkB/7N0RcAOfnV/2wSYUufigJ1B
-	 zKMBAii8lkD6vQxYlpmofJBaigmA3xUsGlO7V5okqkgP4tjnrdkFFCbGed71HB573iuwH
-	 n9DQ/tt88D4Hit4MEkhhF3SEmeRF2Q8mv5xC23u6/s0URgyi1gyz1cBbR7+ZzK/ZTlw==
+	t=1794239112;
+	b=Eva+IG6+1fwJdXoF/nKN7reOKPpn0/ejS3tPjgYQS0GSl/zXEpYyz85uD4A6TEJbwjqV
+	 T2axIyeyStIRMnf9IfazQ3kJKewLGiSrFVzAUNETH1I7fETb5Qov3vvO6dhv6+4MpRx9M
+	 nWIW2nZXhcmxjHWxD8KiOl+sgtG4FL0fyOiJQnqC6gJz3Dcp1aopkNzZAfiGLFXWQMT4K
+	 8MRsmoKPN7DOGrjWwuYczQY4Lfi/p1ZGrgirZUB75TH2PE+gOI8J4JVUVStuNJA79g+6B
+	 XpFK9+Vut5tRcLTVhXNmsl2Q8uznlrsydyNvFvD/SvlMxU3Y6DP0u8LgoCyhZmhCESQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794239111;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794239112;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
 	 MIME-Version:Content-Transfer-Encoding;
-	bh=L2Uvgg/TH8ek7dpiyCaiigwe788vwtcSZF4TPOxN5MA=;
-	b=GABW89Ifb4GP6+xSoPbjDzBE7K/kCmEoejny6VA46jawhWKEbGi5mQSR2n623G8VuxNY
-	 PzHgKci6ciEcObh1QQ/Aye+8Us6CFyttJg/APRxbl4aF4fJDdEBduqYytxP3OAcgvn/9k
-	 W3ouNvBO7AWyuPghB83eO1+fWkegzvSRepId84opyZUD7kTxmwsV2kvmegmqjcJFuq39d
-	 0JJHNkpNgLCkz0qf5PJyqbiVZhzSupaDY/LvQHaCNiIR3qI/QiIH5m8lad9LrQBjhdyVy
-	 vtkmzAz2oLSUiczvh9+zZ/fnWHz3Y4W1jedLHPYPuVLJ+m+xbLMjGFObttLtXJg6o+w==
+	bh=++xuuyWKK1G1etes6zMMtPPyYRZJNwwBAUgMD6pOMi0=;
+	b=lM3bG2D/exGHJFeuqiuxbmMcyN3Q2erBg0f6LIhkrFI/BGSUGbnYk2f/IiPD7/8JEE1G
+	 5qC8AOS+6p7ZB3yq4UPrtq5aHbQ8eJKXh+PxK2BlXeJSPw2gB+JpS5+iVhLcOc8tnOqVi
+	 +PYXsv+QJqrzWyFpVU3xmnEyPFFBRC4S6Wij8mvas2WbGP3u9BoWMC8/AG+bjLFLZuiSO
+	 2hCABG/V1NUGPzD8sG2VEiqNgUkaRSPBIfHiFIR2+sineoY4r+6loUHlzgj71jhXze9yS
+	 gU+Mx/zdvSCcvocjlgdtO585narZ1G1plQZDWMegl5n0RT759G2AVdzPKCyLB7drKlQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=kxMiVwrH;
-	arc=none smtp.remote-ip=209.85.128.51
-Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=xaOJtD7j;
+	arc=none smtp.remote-ip=209.85.128.54
+Received: from mail-wm1-f54.google.com (mail-wm1-f54.google.com [209.85.128.54])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACF6B606EEA3
-	for <linux-rtc@vger.kernel.org>; Mon,  9 Nov 2026 15:45:10 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org ACF6B606EEA3
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 217F7606EEB6
+	for <linux-rtc@vger.kernel.org>; Mon,  9 Nov 2026 15:45:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 217F7606EEB6
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=kxMiVwrH
-Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-4a60f9474c4so12762655e9.0
-        for <linux-rtc@vger.kernel.org>; Mon, 09 Nov 2026 07:45:10 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=xaOJtD7j
+Received: by mail-wm1-f54.google.com with SMTP id 5b1f17b1804b1-4a4d7ae1ae9so9318275e9.1
+        for <linux-rtc@vger.kernel.org>; Mon, 09 Nov 2026 07:45:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794239109; x=1794843909; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1794239110; x=1794843910; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=L2Uvgg/TH8ek7dpiyCaiigwe788vwtcSZF4TPOxN5MA=;
-        b=kxMiVwrHgthmZG5BwH+M8Z/aD7QF/ofqnxPCU+Eu92AUH+c1cK1DpdSeAK9TAJjwY7
-         7sMjuNWTQasTENCjxM9bbsMcrlKik0NA8N58kzbdqCDhjyYsCLaXuP1yUnfNSwLsKlNd
-         SJRfy3RU0210TAvojGoZsNPp2KPGZo2KkKeUW+v/fGCcHXnsYXukEjDSOmVpTMf7vXgl
-         eEBAXoLRpUc0/SCthO7tczp3MpGejFcn7R1po7DtzPz+OftVLFE74NloYZvexw8zkUrs
-         BKwkaQJtXXb7QQWmnIEKRf+4OjzMuXTStte2OfYkD0sfJyPqwg8kR1+wDRV1UOu0xm74
-         NTLQ==
+        bh=++xuuyWKK1G1etes6zMMtPPyYRZJNwwBAUgMD6pOMi0=;
+        b=xaOJtD7jx5mEGk5B/pZ9Exhce5KGFHlTlXdlBgbOwA8PLMypkHyTwDyag5aMOe3y39
+         pSDHg6X8ek2rff9JHpDnbQ07TsroWqDA4IgkASDG5Vp2lSaW8NY9C2/QvDSpYIi7UvCM
+         zzHZqxIB03YAFS6CGOzmJcf9u6cUe3D33u/wN7A1tL8IHQn0lfrGWqzm22xTrlRSqLlu
+         Y38vQSBocLTXUwllRhKLQayP/lE8Ud1aumUDHTlLfTt56HhUrgss/cIMq4NZfaC+uPXo
+         FdHSUbOoHqYZZJ3L07+tjToh3N3t2xQIPPLX7TyufanZwheUU2w+AXJqCQSky6W7sogI
+         Sdiw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794239109; x=1794843909;
+        d=1e100.net; s=20260707; t=1794239110; x=1794843910;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=L2Uvgg/TH8ek7dpiyCaiigwe788vwtcSZF4TPOxN5MA=;
-        b=BIA9xXJ+V80PoR13piD+h1JOSspSfgelHfaUXkrqxo4Ja1ahMGY/7rfmu7dwpNPAbs
-         DmWBRtrq5x/D6mYxp8cnBXFXeEw6EOmJhKxSWhMUd74vWEhp+0IoFp9MMszqa/6Axk8T
-         hzDQfj4DsBFg2rWD9kDYdoggU+jKIKEg4dfqOKfIxtCEg1cX4LKKx/8ycYgb4LnKQ8gd
-         5efFtY0P1zeqY6LN5Vf6CRaWTOUoo3lToIy4BysFSqZMh+EhUXcVzfKvO8VQIw3rADpi
-         YF3sZp4J1OgTlp2GtQ1R4d+9O1kYaUOIYC595t7JWT12Gdt5cZy1p52LNXZbTFW/MdPw
-         LZww==
-X-Forwarded-Encrypted: i=1; AL+hErFwwE2la0MWNndiKsB+nkHLY+ttZuSVztT14iOAgMVlc3VpF7J6bgamo3tgEVFS6qrZaJp06FHm0eg=@vger.kernel.org
-X-Gm-Message-State: APuU4Z+ZzRWBI8o8F0kKWcS9q9uFAEUYU9BFKTYMmTruKreSztkExjmf
-	g/3eu2Estde0V8c+Jim2sPCf1gCUXLGDIv0bQLhl9Om2wHB9TqlncDUk
-X-Gm-Gg: AYBFou2ZsBtngBynCF22Mi3xPl6891svyTN62deDbjh904MtVjEMv1tTXz4k8RqaeCL
-	V80kSuQui1SdrGvTXIBlgGyjAc+bF8QGPXIvX93eabnrUDgDgIyPLG8ziar9pnFqsMOmu+NRtll
-	4f9TB2IjxwxejtRCwSN0rHCuWUAoTqt4GmMDgx/p1vJQSI4o9VieqMJTfPXtQ8D7mAC0Y1pUm8z
-	CeOdP5/TQFwJYOck3kbt4akCgW6fExcape8PLUiaDCXcFuEKOQ7TQmNbdytgp2Mo5oeN30luK7h
-	RUkFzxQwG98L3bJUIg0Ao+Fp3Oj9u9Hgh//GJmd81aW9zK0mcxa+ggIt3T3zUkISbJ4rVymGmSL
-	Ysp1AuTCyJIwfOSDTvWW0KwAeGTI/aDZenvgTm0m2Nqmc16wkMlqYYyNH5zpi7+n0JljepEkIpI
-	403+fEcJE2px3jNc1IFaQV9q2sDGEggQb/96KedNIphiuL2xjJseipKt8UkhLfXYj7ay29pjuC0
-	vtT6bGNs7SlWJXZSY6y2jmuBPSGs+bAsoLSPdiv5iZT1QCjJj7rUNaejv/XGDq0Y6mahnkM9Abp
-	/Ud9jfbZLCt3K05QGR5xUprvygo/LOoDmQ==
-X-Received: by 2002:a05:600c:1d08:b0:4a9:2a92:231f with SMTP id 5b1f17b1804b1-4b960d9b26amr81779735e9.7.1794239108805;
-        Mon, 09 Nov 2026 07:45:08 -0800 (PST)
+        bh=++xuuyWKK1G1etes6zMMtPPyYRZJNwwBAUgMD6pOMi0=;
+        b=HbbJ/DiLSgvdkAq0/yiSNFDpv/YDfjFc4wqya34fdfPbzM3ee9SiGdbadvZg8aoS9o
+         8QogW7VJYWORsL0bqQATT32t3NHjQ3JoYZrvNSN2TeaJwheLqY6YpgteV1wMmcFCOtQE
+         r7/t1CatNKaSxdZCVG/4/fEu9Fd5c26np3Jm90TNnsOIJ8glkEZzb/uS1mzeHcPT2hXe
+         OalQQVzcBF3Db05rYYE6pgEnMABPLxPqaJA19aGHmpEM2BCXIKD2niNHs7Zt8TvtW8Y2
+         e1SOJkgIhNpQlfxSs2bMKgTX6y0dJx5F2V8WHTdxI47eGwO2IPbXtD8y53gyTc4CFoEp
+         SkVQ==
+X-Forwarded-Encrypted: i=1; AL+hErGcHSz5P+Mmtn6NQMLIqlIsyyu7URMENbWgHFau8RioDaWqTJvmtUGN+qMzqrnc8tf36StUZCgGJmA=@vger.kernel.org
+X-Gm-Message-State: APuU4Z9wSd7sQzf97K0JNY+j0AKYMfAVbu4L3yvf4Nbwsgc+StuDnajx
+	C3sc4sgeTbwE++i9VJV/GMxxN24W8lwGECzlYMd9Wz7fB90D1GThgnJJ
+X-Gm-Gg: AYBFou2lSwd1meGu58Gwz+BN7fwk51sowy1KAgN4xGm13PrenizDGjGPZE3g7nmUFN7
+	Qorm3qiAtnjpye7x0zaxijLaUGMPxV4s43QveeBlsvhJTbQm5pJPdbbhgoQ8c5utVD2lP50Cq4n
+	NyVQKXXNbWSq3JclVdijU98jzwkmCRsYUTBI5NxLooO+SyjAEwYJ26itMf2wqClE20GQY3jIPYl
+	EZcJhVsrR/UtpnlZORRtjSRTx8rHph/u396R0txGjOdgilsHPM13O3Ksb5RfM/O5+AZZxSGy7Ef
+	Ujf6nvpm64kcGNz2iBK85gfBQV/3UpMfwOSbETCeBIRZAKgfKgIUTv2Z6K+kTJEVjrKS8LgW5Yy
+	nkw4TlTO66X81o9U0iNYJbzcW2Qil7s8ktPoY8tEephZVX1bpVy6bwukW+N+Qe6MSKzevhTGqzQ
+	KrkCvfT99EBJo7PnQTWlZuoZkQQE05m6K3s/2q13aQ8pjYoTKZ7cFXBvi3XHGCn5cvous9b84Bh
+	80umLraV44/l3iLQ0xDRjjQx4AYIxqOLV5f97ViCDvcxi7AkqNzeUbXKDlaqULL38UeAe0LaJVd
+	pEZmGVLTUhemMLvkRWpsRkN1c/QfQr0gvg==
+X-Received: by 2002:a05:600c:5397:b0:4a1:78c5:79f5 with SMTP id 5b1f17b1804b1-4b963c8d7ddmr76018955e9.33.1794239110309;
+        Mon, 09 Nov 2026 07:45:10 -0800 (PST)
 Received: from hp-z640.fritz.box ([51.37.204.122])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4b7e32ad4d1sm257163645e9.5.2026.11.09.07.45.07
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4b7e32ad4d1sm257163645e9.5.2026.11.09.07.45.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Nov 2026 07:45:08 -0800 (PST)
+        Mon, 09 Nov 2026 07:45:09 -0800 (PST)
 From: Owen O'Hehir <oo.hehir@gmail.com>
 To: Alexandre Belloni <alexandre.belloni@bootlin.com>,
 	linux-rtc@vger.kernel.org
@@ -98,9 +98,9 @@ Cc: Rob Herring <robh@kernel.org>,
 	Conor Dooley <conor@kernel.org>,
 	=?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>,
 	E Shattow <e@freeshell.de>
-Subject: [PATCH v3 3/4] MAINTAINERS: Add entry for the StarFive JH7110 RTC driver
-Date: Mon,  9 Nov 2026 15:45:00 +0000
-Message-ID: <20261109154501.63762-4-oo.hehir@gmail.com>
+Subject: [PATCH v3 4/4] riscv: dts: starfive: jh7110: Add the RTC node
+Date: Mon,  9 Nov 2026 15:45:01 +0000
+Message-ID: <20261109154501.63762-5-oo.hehir@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20261109154501.63762-1-oo.hehir@gmail.com>
 References: <20261109154501.63762-1-oo.hehir@gmail.com>
@@ -115,32 +115,38 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add myself as maintainer of the StarFive JH7110 RTC driver and its
-binding.
+Tested on a VisionFive 2 v1.3B.
 
 Signed-off-by: Owen O'Hehir <oo.hehir@gmail.com>
 ---
- MAINTAINERS | 7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/riscv/boot/dts/starfive/jh7110.dtsi | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index aa647f5d3..2ee86a46c 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -26877,6 +26877,13 @@ S:	Supported
- F:	Documentation/devicetree/bindings/sound/starfive,jh7110-pwmdac.yaml
- F:	sound/soc/starfive/jh7110_pwmdac.c
+diff --git a/arch/riscv/boot/dts/starfive/jh7110.dtsi b/arch/riscv/boot/dts/starfive/jh7110.dtsi
+index 82ea63f71..817898eab 100644
+--- a/arch/riscv/boot/dts/starfive/jh7110.dtsi
++++ b/arch/riscv/boot/dts/starfive/jh7110.dtsi
+@@ -1206,6 +1206,20 @@ pwrc: power-controller@17030000 {
+ 			#power-domain-cells = <1>;
+ 		};
  
-+STARFIVE JH7110 RTC DRIVER
-+M:	Owen O'Hehir <oo.hehir@gmail.com>
-+L:	linux-rtc@vger.kernel.org
-+S:	Maintained
-+F:	Documentation/devicetree/bindings/rtc/starfive,jh7110-rtc.yaml
-+F:	drivers/rtc/rtc-jh7110.c
++		soc_rtc: rtc@17040000 {
++			compatible = "starfive,jh7110-rtc";
++			reg = <0x0 0x17040000 0x0 0x10000>;
++			interrupts = <10>, <11>, <12>;
++			interrupt-names = "ms-pulse", "sec-pulse", "rtc";
++			clocks = <&aoncrg JH7110_AONCLK_RTC_APB>,
++				 <&aoncrg JH7110_AONCLK_RTC_CAL>,
++				 <&aoncrg JH7110_AONCLK_RTC_32K>;
++			clock-names = "apb", "cal", "32k";
++			resets = <&aoncrg JH7110_AONRST_RTC_32K>,
++				 <&aoncrg JH7110_AONRST_RTC_APB>,
++				 <&aoncrg JH7110_AONRST_RTC_CAL>;
++		};
 +
- STARFIVE JH7110 SYSCON
- M:	William Qiu <william.qiu@starfivetech.com>
- M:	Xingyu Wu <xingyu.wu@starfivetech.com>
+ 		csi2rx: csi@19800000 {
+ 			compatible = "starfive,jh7110-csi2rx", "cdns,csi2rx";
+ 			reg = <0x0 0x19800000 0x0 0x10000>;
 -- 
 2.43.0
 
