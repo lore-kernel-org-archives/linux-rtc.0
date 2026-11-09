@@ -1,56 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794239336;
-	b=V/XAJbBmy6Sc0/Rgk1v8zPafFIaj2KAgOUkTi9Tk/v/b8JmwBXiELCq57ZZsEjfvQ5iU
-	 YJ4WB2bIECVqEUvk+FES8iBLsk+rc3fwfG9L6x0Ga/NdcjkIjNIV54iK4kpguh3H7RHtK
-	 UGo0E3fc+eziNaceso+1kAe9YtvqsNygNpbaVN0arW6Jzr7QuFvDYQox3nzrlU02tf949
-	 r4kN1eWTKtrWb4Gu3ij8ObiJSPbC6nQUQmYL3LidcL4dAsVxl9xNDjCTU5BP6Akxfi5NE
-	 pFX9vg1VxKtwvv3JeTFT/FPvECZPwB2hatAobGXE/0LbjBfsL9JdEYJz54oU1RltVqQ==
+	t=1794239495;
+	b=XHWHyMzaja84txUvbLu1MsWmS9+6ZqvCNftT6CyG/JpofAyu2wwEqwH9TfzGgMOPQJoq
+	 K2tEGO2jDoduM9P74ZGdSn/JE0BDUZCjoSow9fZqoy1ufrgsdbV4mUtpKaOHxzfPAwCXr
+	 jXPO7OxQzUEXfVJq951mSGr+MBMGTXSTxSmJkKb/FYwG8x6u0AEsYrvgR1cFnfHIA72j3
+	 ishLV7N8OXwUmZAnoFLuD+6v/Z4H1w9kn4WrLdmUNbRlUKCI7aXAoZ7eEN+594dUpTPzx
+	 Sla4kkKYpwcV6V9S4uN2I4mqLR7jSgcbi2PKnjZWA+/bfULrZhDCpG67FK6Aw1bcWCQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794239336;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794239495;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=VFESuAfZcN+x2V4nHjaEMRfGeIcpw/CPHA2B5iCQ9tM=;
-	b=NWUA+2l7pLm+UXdEeskfI7cxE2X/5oOulC6UJAFfbMuS+Q9M8miUETh3KWuwXAcQ3Cmu
-	 l8R+k3nFgbXUXdHqefyvu9cKtnVQ49YV5+NbmtYHwnH6cs4/l3DolfiQBLSEuEVH9Qgnb
-	 3PjN9srDHnpF1JmPpUPPqGQufXzVrohXbxSqNnFEuEgTvxBSeAJAVgof2Q2fbU2OZngDj
-	 nf4AjkSHJGZOdu7RxkmnpFA1/CyA5JLtl+VjZltSUJHloD5TZWrIOlxlTBHNit/JoVkdA
-	 ImEMEeH7mgE20EIJ2R1aPHnBAvA+FnEfUSGgHqTjReVmPbVahVz1AVFPSsYrcvmda0A==
+	bh=bAGl24g4jZtcyVI9+pcWLhPu4GtIheswWj/sZ1XWiUI=;
+	b=GJAnzTdtFDxFTry2k+sB7mCvZGXyFdYDsa5om9iUGE3CZWfCBjDYtOcdgcoqmQ/fYD6z
+	 ws++XEi3JuPZT1qiu6tMv7MbHljmYiLIYV/mpjFJ/dPcnOLfrU4MkAshek5KvYINahPkf
+	 2tdzcQEqxVUUqWskZdwip0XpY8ZcRzFGHHwTkCBdOv+DhZQRCSYSfPNqCMNIHeD3OaYXi
+	 SQYrs0oZyzqwsLT5zUshR1PD1ou81t6/Mw+fRzWuqeh591HHZXprhmPZjvAooQ3xTgKN6
+	 eE/f+AgqISppX+Q2t95LlPv/2RJ+qCCAUV26Q5uuqQjo3qoasmrs6apebQLWB15bV1Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PPF5GfwU;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="hUJG/KBH";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FF61606A325
-	for <linux-rtc@vger.kernel.org>; Mon,  9 Nov 2026 15:48:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8940F606A321
+	for <linux-rtc@vger.kernel.org>; Mon,  9 Nov 2026 15:51:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PPF5GfwU
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BF431F0089F;
-	Mon,  9 Nov 2026 15:48:56 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hUJG/KBH
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB0E41F0089F;
+	Mon,  9 Nov 2026 15:51:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794239336;
-	bh=VFESuAfZcN+x2V4nHjaEMRfGeIcpw/CPHA2B5iCQ9tM=;
+	s=k20260515; t=1794239495;
+	bh=bAGl24g4jZtcyVI9+pcWLhPu4GtIheswWj/sZ1XWiUI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=PPF5GfwUmySud1ft0WAwaLOcHnvZgveQRhDuph99Up01/SAMoQleetpN/NbLZlYx4
-	 z5+gbRb+tRok6LX5cLdgFQ/HIQaDQzEam4rGMsdcj5hmZzoNvkI31A0hePTrcmNEGu
-	 u5pyhRTQBV5VChvDHCNTFaoommrGdkkgGH+BdA/KJzteBST/P+laTFdXGcMcp8Ygoq
-	 1adYWIuTm+FOh82dK4f5T/L1ySK1uL43vMZ2UU42wZqS4KnnRooPKvJ5ASSvEkj5Zn
-	 FZnQf4J9MFLshSdCzExga30p18ZrMDYe4O/HjYOSju7xWx0jeklJO0aMVgH3vA8IDU
-	 /LEi47AVKAbnw==
-Message-ID: <sashiko-outbox-205184@kernel.org>
+	b=hUJG/KBH+8NgQ26Qorm3NhoXSLeatjSxQpBx0zijN9hdBMWRUSdgET2bPH/mbmh76
+	 3X7sXzVJdE7Wshkx6i15fQs1s86Cxsg6jLx0EycEIaPz97OS9Fx97VQedEtVOeZSiV
+	 LoeIpPskK/tOWDWeA4vqIxH5gz1oYpRrJCu9eJYqNuo/X1nT/Yb9TsFPZY5jpoHHp0
+	 xqX3+ULiNR2Hj0To+PIxoW5zbP8/aKBhkCTxefJHLwFIGcA8kLEqjHMHtNV95vMdP8
+	 pk6e3VHkefSC1MZgRnuzanBd2pNPHWS1iDiQ7Y9bd10AJImEf+3xKlGl6GEw9aQsx0
+	 vjQCMjoH/G9AQ==
+Message-ID: <sashiko-outbox-205188@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 4/4] riscv: dts: starfive: jh7110: Add the RTC node
+Subject: Re: [PATCH v3 2/4] rtc: Add StarFive JH7110 RTC driver
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?T3dlbiBPJ0hlaGly?= <oo.hehir@gmail.com>, linux-rtc@vger.kernel.org
 Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20261109154501.63762-5-oo.hehir@gmail.com>
+In-Reply-To: <20261109154501.63762-3-oo.hehir@gmail.com>
 References: <20261109154501.63762-1-oo.hehir@gmail.com>
- <20261109154501.63762-5-oo.hehir@gmail.com>
+ <20261109154501.63762-3-oo.hehir@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 09 Nov 2026 15:48:55 +0000
+Date: Mon, 09 Nov 2026 15:51:34 +0000
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -60,13 +60,24 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 
-> Tested on a VisionFive 2 v1.3B.
+> From: "ziv.xu" <ziv.xu@starfivetech.com>
 >=20
+> Add a driver for the RTC in the always-on domain of the StarFive JH7110
+> SoC. It supports time, alarm with wakeup, and the frequency offset.
+>=20
+> Signed-off-by: ziv.xu <ziv.xu@starfivetech.com>
+> Signed-off-by: Hal Feng <hal.feng@starfivetech.com>
+> [Owen: rework of the StarFive vendor driver for mainline: drop hardware
+>  calibration & the default time set in probe, use the generic wake IRQ
+>  helpers, wait for the update bit in set_time, re-read a time that rolls
+>  over during the read, round the offset to the nearest step & follow the
+>  sysfs offset sign, enable the 32k counter clock]
+> Co-developed-by: Owen O'Hehir <oo.hehir@gmail.com>
 > Signed-off-by: Owen O'Hehir <oo.hehir@gmail.com>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261109154501.6376=
-2-1-oo.hehir@gmail.com?part=3D4
+2-1-oo.hehir@gmail.com?part=3D2
 
