@@ -1,79 +1,55 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=192.198.163.8
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=13.77.154.182
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794226832;
-	b=03JmE8FswWp48ZkmBPL6IyWPhBKppHRUj0aSKY6rwBIc23gXgb0HQzytX0uDesF1x1Xf
-	 kVbCB3V9qcHDEgAMtuubFAyfYJZngTQIWWotPEkksHJwMP/MKjJKMvKQk0bKsvrbrHNrY
-	 HGU5r7aLVzdacYiCDcjxLn1yecPGoMgrUe5I+uv++Bgujlchef6tRP4iBOn8g7eAAYSQw
-	 KAFC0VmV1j9e6U/pzYLXY+k2NP5ia8BSj5+/w1eR/XhcZRn8qWUfhVsJINqn2zmB2ub3K
-	 0nxkbgP/NGVfK47qf83E12uuHjAbWJQSFOiaDG3ROXxHohcCj3szxjTWmj9Q6kYKhRA==
+	t=1794233407;
+	b=mOhQFB3X4vyXrbXjwNGS8qs0K86NCd3oGkF7I4z8am/Ltng7Gr2CSVQK3MHB9a+TWrAi
+	 WIxMk1RUgT6HpBqUYy2edVljz6WY2Oa5tONcgMOk0WRPTtDCFPsGv4Zr3eGLm4M/F/0A5
+	 pOUdGtKRZDLF04EwfhDALKFsf7tFJcWFSj+vprKiPsJ+PMonm38fN+tRQCWbD6H8bXSYi
+	 VzaJy+7RrjIeAMKyrMnYUBInJWSRjMHWN0KipOAKV1M3TAc6fgQrIsre7ykf6cIJu+6aj
+	 Szg5vJmfX3yAjwX5A9v57GrDKjDdD1LQqSvOEAjdhOu05petMABSujIfhRqDzmj9deA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794226832;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Date:From:To:Cc:
+	a=rsa-sha256; c=relaxed/relaxed; t=1794233407;
+	h=DMARC-Filter:Received:DKIM-Filter:DKIM-Signature:Date:From:To:Cc:
 	 Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:Organization;
-	bh=kE0/ygUG6OzgulQ1EncC7piIzJkfHZsxcepIiOM66SY=;
-	b=i+T3taSCErKbq61MUKXMjtGgP8/mKbPi6ovg/vhm0cQwBzzQNL7+VNuMF12c2d2je5JG
-	 7CJFCf+eTs+i5Vxog2L9/WlpVWzwFFvE9bEj80vrfDb7SI7bKSbzZpb7JjpxTjG4uShwg
-	 EW+DAqhWdU4lj6gGoGDYkQHygFwMXHimv5PUrx4VDOlxPBf/6eOEKbi4vNTrRQWp7XZeG
-	 cHabBMg8x4QgBjrWPvtuQEVYVZjs1e3xBMqX981nHlR1CUcZOEpwfTtgzdoW6i1JXFTx+
-	 K8nkf82ubc0cJy2WTN94l9b0tePHlCSJYKEiMqRCUStAJPaiHpzQGZhV1RK13uSSozQ==
+	 Content-Disposition:In-Reply-To;
+	bh=/r36U/YZbO3NFa17bnpPbQOWChW1in8WcBpC5j5CceI=;
+	b=zhNuReXozpaW0x4Mv++bZT12VDS/hgsg9Q+b5MZSZ5K3ZqThS3YLDhVEBo6obKzYeso1
+	 47RSCVWy9VXlFC8KlP4pd4hjuwS9c6akc3NwM6tjGOUQiCtup9CYEmpH+EpdnoAjzNe17
+	 kNGlbo/gQXvo4CtTkzg9wWQJoOlOTo6TbJ5OK+9uS7x36thzWU8GUYM4sxsmeAIp2U0S7
+	 OKubmjiGua0YQoTPhs6NT0WfdtsNEqrTHbmODOp6amlp7FX3B5N0uEKpDV3jeJLe1LmnN
+	 q95ara7Neq6g/DZAz/PfAm8zgD1Hvx3HscXY89hllQ0LATKW3KezlHiZLR7j4CJA3Mw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=intel.com;
-	spf=pass smtp.mailfrom=intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=MgHoO1Y8;
-	arc=none smtp.remote-ip=192.198.163.8
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.8])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8C00606A338;
-	Mon,  9 Nov 2026 12:20:30 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A8C00606A338
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	dmarc=pass header.from=linux.microsoft.com;
+	spf=pass smtp.mailfrom=linux.microsoft.com;
+	dkim=pass header.d=linux.microsoft.com header.i=@linux.microsoft.com header.a=rsa-sha256 header.s=default header.b=LUTzsTCp;
+	arc=none smtp.remote-ip=13.77.154.182
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 47D2B606D83A;
+	Mon,  9 Nov 2026 14:10:06 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 47D2B606D83A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=MgHoO1Y8
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1794226831; x=1825762831;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=sAUoNYP2fqQVvNPq10oZ3ofWU7N+A2Mo3q9QoET+I0E=;
-  b=MgHoO1Y8UyLmba0u3FYxRNsDM8OAKhaQvn4rjq20IdE4jLPXsAHsocOH
-   0mseL6CzdDjp9raKHwoPdtbQwM3osWsSjUAOy1CEG/vUGJv6vj5kK+P8O
-   0eVXwH5BzXeUNxxvNvxBjAJkz6j2SEx8drboispyZ2V9ppzpBB+vzwnLW
-   dKVG/olDfxi/wrNixPjI+65iV2k1dRYlQEF6kOU88s3YjwCvl5F2QNclZ
-   IqbEXKshunsKf5nJQ0gYjRCpZ77efZdfCedBBOplzpkdOztkMmMgtju98
-   fwLRmiJ5hxqZUlYckIMhoan6If7paNeAUte3r6kXNJH5ym5vEZJuohEBX
-   w==;
-X-CSE-ConnectionGUID: f6yEzodlTSu7hcoVgdhRag==
-X-CSE-MsgGUID: 56HXQBUJSgeA01yalJgYxQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11960"; a="2828824"
-X-IronPort-AV: E=Sophos;i="6.27,203,1787036400"; 
-   d="scan'208";a="2828824"
-Received: from fmviesa012.fm.intel.com ([10.60.135.152])
-  by fmvoesa102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Nov 2026 04:20:30 -0800
-X-CSE-ConnectionGUID: L2GkJ3hlRCCgs9mkzPu5NQ==
-X-CSE-MsgGUID: ppIOps2dQbGIrJDpQXi7bA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,203,1787036400"; 
-   d="scan'208";a="9602986"
-Received: from amilburn-desk.amilburn-desk (HELO localhost) ([10.245.244.144])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Nov 2026 04:20:27 -0800
-Date: Mon, 9 Nov 2026 14:20:24 +0200
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: Akhilesh Patil <akhilesh.patil@linux.dev>
-Cc: jic23@kernel.org, dlechner@baylibre.com, andy@kernel.org,
-	robh@kernel.org, crofts@kernel.org, krzk+dt@kernel.org,
-	conor+dt@kernel.org, alexandre.belloni@bootlin.com,
-	linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-rtc@vger.kernel.org,
-	akhileshpatilvnit@gmail.com, akhilesh@ee.iitb.ac.in
-Subject: Re: [PATCH v2] MAINTAINERS: Update Akhilesh Patil Email address
-Message-ID: <avG6iHBBDp0ATTsi@ashevche-desk.local>
-References: <20261109063924.GA118887@u5ce4748bae3b54.ant.amazon.com>
- <20261109104443.GA531570@u5ce4748bae3b54.ant.amazon.com>
+	dkim=pass (1024-bit key, unprotected) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.a=rsa-sha256 header.s=default header.b=LUTzsTCp
+Received: by linux.microsoft.com (Postfix, from userid 1216)
+	id 701C920B7168; Mon,  9 Nov 2026 06:09:58 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 701C920B7168
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1794233398;
+	bh=/r36U/YZbO3NFa17bnpPbQOWChW1in8WcBpC5j5CceI=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=LUTzsTCpZLUWKfh0RXA4zyK6kypRKutk8i7c7EI8s7UDIzGaiv89NRHPiPVSmRo1b
+	 xyxjdvpfZZv9wd7oBxGGznU6oM/05Sr2aRt//9ag4O7IT3brrbNPvAa5oK/PtBCvpi
+	 qyS+MpqzTa1Ib58tXQgkWOHPtfVB7epFHgDwrqT8=
+Date: Mon, 9 Nov 2026 09:09:58 -0500
+From: Hamza Mahfooz <hamzamahfooz@linux.microsoft.com>
+To: linux-acpi@vger.kernel.org, linux-rtc@vger.kernel.org
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>, Len Brown <lenb@kernel.org>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Ard Biesheuvel <ardb@kernel.org>
+Subject: Re: [PATCH v4 0/2] rtc: efi: defer to the ACPI TAD if it can drive
+ the RTC
+Message-ID: <avHUNhepm/Qowd1E@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
+References: <20261027220537.3443104-1-hamzamahfooz@linux.microsoft.com>
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -85,29 +61,45 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261109104443.GA531570@u5ce4748bae3b54.ant.amazon.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+In-Reply-To: <20261027220537.3443104-1-hamzamahfooz@linux.microsoft.com>
 
-On Mon, Nov 09, 2026 at 10:44:43AM +0000, Akhilesh Patil wrote:
-> Move to my new linux.dev email address akhilesh.patil@linux.dev
-> I plan to use this email for kernel development going forward.
-> Also update email address in few yaml and driver source files.
+On Tue, Oct 27, 2026 at 06:05:34PM -0400, Hamza Mahfooz wrote:
+> On Microsoft C2141 and C4143 systems, the EFI GetTime() runtime service
+> faults when called by rtc-efi, which causes all EFI runtime services to
+> be disabled, even though the RTC can be driven via the ACPI Time and
+> Alarm Device (TAD) instead, which acpi-tad registers an RTC class device
+> for since commit 8a1e7f4b1764 ("ACPI: TAD: Add RTC class device
+> interface").
+> 
+> As suggested by Ard, add acpi_has_rtc() to the TAD driver (patch 1),
+> and make rtc-efi decline to probe if it returns true (patch 2).
+> 
 
-...
+Ping?
 
-> --- a/.mailmap
-> +++ b/.mailmap
-> @@ -1030,3 +1030,4 @@ Zhu Yanjun <zyjzyj2000@gmail.com> <yanjunz@nvidia.com>
->  Zijun Hu <zijun.hu@oss.qualcomm.com> <quic_zijuhu@quicinc.com>
->  Zijun Hu <zijun.hu@oss.qualcomm.com> <zijuhu@codeaurora.org>
->  Zijun Hu <zijun_hu@htc.com>
-> +Akhilesh Patil <akhilesh.patil@linux.dev> <akhilesh@ee.iitb.ac.in>
-
-It's not a rocket science to see the order in this file...
-
--- 
-With Best Regards,
-Andy Shevchenko
-
-
+> v2:
+> - Rename acpi_tad_rtc_available() to acpi_has_rtc(), move it to within
+>   acpi-tad (which allows us to simplify it quite a bit) and declare it
+>   in linux/acpi.h. (Ard)
+> - Add acpi_disabled check. (Ard)
+> - Make rtc-efi decline to probe instead of not registering the device in
+>   efisubsys_init(). (Ard)
+> - Make RTC_DRV_EFI depend on !ACPI || ACPI_TAD. (Ard)
+> v3:
+> - Make RTC_DRV_EFI depend on ACPI_TAD || !ACPI_TAD. (Sashiko)
+> v4:
+> - Move acpi-tad code to existing CONFIG_RTC_CLASS #ifdef. (Rafael)
+> - Add IS_ENABLED(CONFIG_RTC_CLASS) case to linux/acpi.h.
+> 
+> Hamza Mahfooz (2):
+>   ACPI: TAD: introduce acpi_has_rtc()
+>   rtc: efi: defer to the ACPI TAD if it can drive the RTC
+> 
+>  drivers/acpi/acpi_tad.c | 48 ++++++++++++++++++++++++++++++++++++-----
+>  drivers/rtc/Kconfig     |  5 +++++
+>  drivers/rtc/rtc-efi.c   |  4 ++++
+>  include/linux/acpi.h    |  6 ++++++
+>  4 files changed, 58 insertions(+), 5 deletions(-)
+> 
+> -- 
+> 2.56.0
