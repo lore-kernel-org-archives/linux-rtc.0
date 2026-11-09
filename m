@@ -1,55 +1,91 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=23.83.222.45
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794233407;
-	b=mOhQFB3X4vyXrbXjwNGS8qs0K86NCd3oGkF7I4z8am/Ltng7Gr2CSVQK3MHB9a+TWrAi
-	 WIxMk1RUgT6HpBqUYy2edVljz6WY2Oa5tONcgMOk0WRPTtDCFPsGv4Zr3eGLm4M/F/0A5
-	 pOUdGtKRZDLF04EwfhDALKFsf7tFJcWFSj+vprKiPsJ+PMonm38fN+tRQCWbD6H8bXSYi
-	 VzaJy+7RrjIeAMKyrMnYUBInJWSRjMHWN0KipOAKV1M3TAc6fgQrIsre7ykf6cIJu+6aj
-	 Szg5vJmfX3yAjwX5A9v57GrDKjDdD1LQqSvOEAjdhOu05petMABSujIfhRqDzmj9deA==
+	t=1794238476;
+	b=HT5yYKdk/TT+gFNYO+7lDh8bIwAEXtWas4Me03J3Zu9n3ibG2ElqCaRJcaxrvZrBc7Vu
+	 42n6F3XrsSLfZoEnCX9PlbA8Z45E68sgEM+GdU/uXxneaSny0hHF3oWh45cwffNbdcehI
+	 rIFucmaFIKcocfurgVGWmoOnytFZZ6a4unlGy6uEzAAFDPkQhK+lthJKsoMyRTfVD1tRG
+	 n9O3TsTfZldBzN5qC56bEfn2hpJmCDB5SXAGakGjjY6f3mM8zaeS6mgE2IqqIVrJtw0yW
+	 QIHhIkROsiUs4KTI+X6iT1T626W/PEpr2RJDRbtMTYvCsmjE7ahYGpB1TLY7M80RDnQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794233407;
-	h=DMARC-Filter:Received:DKIM-Filter:DKIM-Signature:Date:From:To:Cc:
-	 Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To;
-	bh=/r36U/YZbO3NFa17bnpPbQOWChW1in8WcBpC5j5CceI=;
-	b=zhNuReXozpaW0x4Mv++bZT12VDS/hgsg9Q+b5MZSZ5K3ZqThS3YLDhVEBo6obKzYeso1
-	 47RSCVWy9VXlFC8KlP4pd4hjuwS9c6akc3NwM6tjGOUQiCtup9CYEmpH+EpdnoAjzNe17
-	 kNGlbo/gQXvo4CtTkzg9wWQJoOlOTo6TbJ5OK+9uS7x36thzWU8GUYM4sxsmeAIp2U0S7
-	 OKubmjiGua0YQoTPhs6NT0WfdtsNEqrTHbmODOp6amlp7FX3B5N0uEKpDV3jeJLe1LmnN
-	 q95ara7Neq6g/DZAz/PfAm8zgD1Hvx3HscXY89hllQ0LATKW3KezlHiZLR7j4CJA3Mw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794238476;
+	h=DMARC-Filter:X-Sender-Id:Received:Received:X-Sender-Id:X-MC-Relay:
+	 X-MailChannels-SenderId:X-MailChannels-Auth-Id:X-Harmony-Descriptive:
+	 X-MC-Loop-Signature:X-MC-Ingress-Time:Received:DKIM-Signature:
+	 X-AuthUser:Received:From:To:Cc:Subject:Message-ID:X-Mailer:
+	 MIME-Version:Content-Transfer-Encoding:Date:X-CM-Envelope:
+	 X-CM-Analysis;
+	bh=yQwoPBeCHUKMfvtv8rItuG884TPpZYwKs9O31MI9oyo=;
+	b=nhOwGIRPye+W0IOT8vscw9V3wrUCZ+So3PBGKVp3e/CiWarl3GBrondYhwCm8PWUGOMM
+	 MQfaepl61hjrPwCeaZes3uCaqnKIjC3PtoDQ/rALAePdH5jgPoROBQs0W+EBlUvOTFk9H
+	 CwXd9hU8c0Is5Xi/4mUYeGIqndrDC69nYWOnTqh23UZT5Xz0TfEheC8MHP/HXiEiEEsFr
+	 W6MaWXbOVRPO4iO+Z7H31wwxpGMQNBHjcSPXbFvATg+P1h+nM14mn1L2FZywxUqoYTmUV
+	 5Ky4/r83TJB1U2OZiuPnamH2XxxCjxp//MFowoF7C6DFx+ZLbbqnB2Y4Az2b3BNnXtA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.microsoft.com;
-	spf=pass smtp.mailfrom=linux.microsoft.com;
-	dkim=pass header.d=linux.microsoft.com header.i=@linux.microsoft.com header.a=rsa-sha256 header.s=default header.b=LUTzsTCp;
-	arc=none smtp.remote-ip=13.77.154.182
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 47D2B606D83A;
-	Mon,  9 Nov 2026 14:10:06 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 47D2B606D83A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+	dmarc=pass header.from=marsrover.mx;
+	spf=pass smtp.mailfrom=marsrover.mx;
+	dkim=pass header.d=marsrover.mx header.i=@marsrover.mx header.a=rsa-sha256 header.s=hostingermail-a header.b=flv0Q25g;
+	arc=none smtp.remote-ip=23.83.222.45
+Received: from crocodile.ash.relay.mailchannels.net (crocodile.ash.relay.mailchannels.net [23.83.222.45])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C8BD606A31C;
+	Mon,  9 Nov 2026 15:34:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0C8BD606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marsrover.mx
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marsrover.mx
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.a=rsa-sha256 header.s=default header.b=LUTzsTCp
-Received: by linux.microsoft.com (Postfix, from userid 1216)
-	id 701C920B7168; Mon,  9 Nov 2026 06:09:58 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 701C920B7168
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1794233398;
-	bh=/r36U/YZbO3NFa17bnpPbQOWChW1in8WcBpC5j5CceI=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=LUTzsTCpZLUWKfh0RXA4zyK6kypRKutk8i7c7EI8s7UDIzGaiv89NRHPiPVSmRo1b
-	 xyxjdvpfZZv9wd7oBxGGznU6oM/05Sr2aRt//9ag4O7IT3brrbNPvAa5oK/PtBCvpi
-	 qyS+MpqzTa1Ib58tXQgkWOHPtfVB7epFHgDwrqT8=
-Date: Mon, 9 Nov 2026 09:09:58 -0500
-From: Hamza Mahfooz <hamzamahfooz@linux.microsoft.com>
-To: linux-acpi@vger.kernel.org, linux-rtc@vger.kernel.org
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>, Len Brown <lenb@kernel.org>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Ard Biesheuvel <ardb@kernel.org>
-Subject: Re: [PATCH v4 0/2] rtc: efi: defer to the ACPI TAD if it can drive
- the RTC
-Message-ID: <avHUNhepm/Qowd1E@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
-References: <20261027220537.3443104-1-hamzamahfooz@linux.microsoft.com>
+	dkim=pass (2048-bit key, unprotected) header.d=marsrover.mx header.i=@marsrover.mx header.a=rsa-sha256 header.s=hostingermail-a header.b=flv0Q25g
+X-Sender-Id: hostingeremail|x-authuser|rodrigo.rea@marsrover.mx
+Received: from relay.mailchannels.net (localhost [127.0.0.1])
+	by relay.mailchannels.net (Postfix) with ESMTP id 0B27943E3A;
+	Mon, 09 Nov 2026 15:24:15 +0000 (UTC)
+Received: from fr-int-smtpout20.hostinger.io (trex-green-0.trex.outbound.svc.cluster.local [100.99.188.114])
+	(Authenticated sender: hostingeremail)
+	by relay.mailchannels.net (Postfix) with ESMTPA id 8AC3D43DEC;
+	Mon, 09 Nov 2026 15:24:07 +0000 (UTC)
+X-Sender-Id: hostingeremail|x-authuser|rodrigo.rea@marsrover.mx
+X-MC-Relay: Neutral
+X-MailChannels-SenderId: hostingeremail|x-authuser|rodrigo.rea@marsrover.mx
+X-MailChannels-Auth-Id: hostingeremail
+X-Harmony-Descriptive: 23e1a62c7dc25c91_1794237853495_4285909119
+X-MC-Loop-Signature: 1794237853495:3014837285
+X-MC-Ingress-Time: 1794237853494
+Received: from fr-int-smtpout20.hostinger.io (fr-int-smtpout20.hostinger.io
+ [148.222.54.36])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384)
+	by 100.99.188.114 (trex/8.0.2);
+	Mon, 09 Nov 2026 15:24:13 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marsrover.mx;
+	s=hostingermail-a; t=1794237846;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=yQwoPBeCHUKMfvtv8rItuG884TPpZYwKs9O31MI9oyo=;
+	b=flv0Q25g/jwZUtHGTPEVITQCZ/njqOTmvNDgjnx49kgdiUQOrCKIgbWi6dtV2xgwQH+N11
+	mswmtN04NOCqfTH2iTO+KF5EsL3DgfkVWg8cuhhsVZwFmEInESzSkUR3QHiRJgMTvrD7Ci
+	FqyR9/uVgopa2GJxIfRYQfu/2GgEsEP4R2Uj9F07vF3yieNs0N/BRuvOe3Foi7PJOGa4zZ
+	riDN4imvRPmIeEFSNR3Enu5AmWH+v1PW/aPAhCThfz+eVFJ0BbuWN6Z6nmPTiF8hgSb+aL
+	CKtdLQ1Kv2qVLcvOmzBjyT5E35/EIOq4zhD/xduEopS8PfGUQTlvVDqDDB9fLA==
+X-AuthUser: rodrigo.rea@marsrover.mx
+Received: from 0-0.nxp.com (static-148-244-115-92.alestra.net.mx [148.244.115.92])
+	(Authenticated sender: rodrigo.rea@marsrover.mx)
+	by smtp.hostinger.com (smtp.hostinger.com) with ESMTPSA id 4jNYTt582Bz1xs1;
+	Mon,  9 Nov 2026 15:24:02 +0000 (UTC)
+From: Rodrigo Rea <rodrigo.rea@marsrover.mx>
+To: alexandre.belloni@bootlin.com,
+	robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org
+Cc: alexander.stein@ew.tq-group.com,
+	linux-rtc@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	rodrigo.rea@nxp.com,
+	daniel.aguirre@nxp.com
+Subject: [PATCH v2] dt-bindings: rtc: pcf85063: Add NXP PCA85074A
+Message-ID: <20261109152352.6335-1-rodrigo.rea@marsrover.mx>
+X-Mailer: git-send-email 2.56.0
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -59,47 +95,64 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261027220537.3443104-1-hamzamahfooz@linux.microsoft.com>
+Content-Transfer-Encoding: 8bit
+Date: Mon,  9 Nov 2026 15:24:02 +0000 (UTC)
+X-CM-Envelope: MS4xfMeZN/7QRoKChcDFlOCSxgT7J+iXITc72Hl9xVaDtYF63zK13hFUuSYftq4Pluc4adMW6rZpFiESSANvjVJ1cD/Y8D/dE2N0mKpgYe6Gt1pxOVFaCq5B rfytiRdglHCPfRQVkQ8aAtElKOGku9HOpIB5uOGEuYZ0xY/wac30+jV8B9VXWAhxUZnnH8ye1d/nc6KCxEmt1QzeMOKZzghr5ub1cHI2WXghSXfHfV7auHx1 fjl82Myxnsgbmzc1ilCfJUd5MCY4L6/JL4MJtjAlEEJPoF/RWjyNoiZFtCcUeRfCBlGRcTEy0YHpDwyg5F9hy2r/MIr6Mxi4+0OjIIItyOtce+WsaSV72deH aDAHu4hEsYfrFvZ4BbBzCmYKUl6PciRRPjVWl/rzxxIJcR78PwSaiXmWsQkjty8pD2dbN5tNpC4bMbGLdLKFyJk2zRszw86LOjC6v4knf2GRIEck8ctRjOQV jQ5tYjQS5v3NKJ5wlAIL4fD718DIbbBxmLLlhu10hnEjuT7cOInCnQwWWko=
+X-CM-Analysis: v=2.4 cv=UdEDS7SN c=1 sm=1 tr=0 ts=6af1e595 a=VnbrY5TOLAh+WZUOsuTEUw==:117 a=VnbrY5TOLAh+WZUOsuTEUw==:17 a=8AirrxEcAAAA:8 a=VwQbUJbxAAAA:8 a=1jgfiXo00Dv-OZUlPjkA:9 a=ST-jHhOKWsTCqRlWije3:22
 
-On Tue, Oct 27, 2026 at 06:05:34PM -0400, Hamza Mahfooz wrote:
-> On Microsoft C2141 and C4143 systems, the EFI GetTime() runtime service
-> faults when called by rtc-efi, which causes all EFI runtime services to
-> be disabled, even though the RTC can be driven via the ACPI Time and
-> Alarm Device (TAD) instead, which acpi-tad registers an RTC class device
-> for since commit 8a1e7f4b1764 ("ACPI: TAD: Add RTC class device
-> interface").
-> 
-> As suggested by Ard, add acpi_has_rtc() to the TAD driver (patch 1),
-> and make rtc-efi decline to probe if it returns true (patch 2).
-> 
+From: Rodrigo Rea <rodrigo.rea@nxp.com>
 
-Ping?
+Document the NXP PCA85074A real-time clock with nxp,pca85073a as a
+fallback compatible. Both devices have the same register layout for
+clock, calendar, alarm, offset, RAM and timer functions, allowing the
+existing PCA85073A driver support to be used without a new match entry.
 
-> v2:
-> - Rename acpi_tad_rtc_available() to acpi_has_rtc(), move it to within
->   acpi-tad (which allows us to simplify it quite a bit) and declare it
->   in linux/acpi.h. (Ard)
-> - Add acpi_disabled check. (Ard)
-> - Make rtc-efi decline to probe instead of not registering the device in
->   efisubsys_init(). (Ard)
-> - Make RTC_DRV_EFI depend on !ACPI || ACPI_TAD. (Ard)
-> v3:
-> - Make RTC_DRV_EFI depend on ACPI_TAD || !ACPI_TAD. (Sashiko)
-> v4:
-> - Move acpi-tad code to existing CONFIG_RTC_CLASS #ifdef. (Rafael)
-> - Add IS_ENABLED(CONFIG_RTC_CLASS) case to linux/acpi.h.
-> 
-> Hamza Mahfooz (2):
->   ACPI: TAD: introduce acpi_has_rtc()
->   rtc: efi: defer to the ACPI TAD if it can drive the RTC
-> 
->  drivers/acpi/acpi_tad.c | 48 ++++++++++++++++++++++++++++++++++++-----
->  drivers/rtc/Kconfig     |  5 +++++
->  drivers/rtc/rtc-efi.c   |  4 ++++
->  include/linux/acpi.h    |  6 ++++++
->  4 files changed, 58 insertions(+), 5 deletions(-)
-> 
-> -- 
-> 2.56.0
+Link: https://www.nxp.com/docs/en/data-sheet/PCA85074A.pdf
+Signed-off-by: Rodrigo Rea <rodrigo.rea@nxp.com>
+---
+Changes in v2:
+- Require nxp,pca85073a as the fallback compatible, as requested by
+  Conor Dooley.
+- Drop the driver patch: the existing fallback match provides DT support.
+- No runtime test of the new fallback DT has been performed.
+
+Link to v1:
+https://lore.kernel.org/20261105215204.2446733-1-rodrigo.rea@marsrover.mx/
+
+ .../devicetree/bindings/rtc/nxp,pcf85063.yaml  | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/rtc/nxp,pcf85063.yaml b/Documentation/devicetree/bindings/rtc/nxp,pcf85063.yaml
+index f7013cd8f..8ce965caf 100644
+--- a/Documentation/devicetree/bindings/rtc/nxp,pcf85063.yaml
++++ b/Documentation/devicetree/bindings/rtc/nxp,pcf85063.yaml
+@@ -11,13 +11,17 @@ maintainers:
+ 
+ properties:
+   compatible:
+-    enum:
+-      - microcrystal,rv8063
+-      - microcrystal,rv8263
+-      - nxp,pcf85063
+-      - nxp,pcf85063a
+-      - nxp,pcf85063tp
+-      - nxp,pca85073a
++    oneOf:
++      - enum:
++          - microcrystal,rv8063
++          - microcrystal,rv8263
++          - nxp,pcf85063
++          - nxp,pcf85063a
++          - nxp,pcf85063tp
++          - nxp,pca85073a
++      - items:
++          - const: nxp,pca85074a
++          - const: nxp,pca85073a
+ 
+   reg:
+     maxItems: 1
+
+base-commit: 05441d697f7f9a927264f4058cbbc6a03dfcac9d
+-- 
+2.56.0
+
