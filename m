@@ -1,56 +1,61 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=91.218.175.45
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794196127;
-	b=yu3LgzxGCmxijmkkzsTWfmOwRdlRqQvDDhCtc3KZx+iP6BAMiP+X+0r2bkeS57WqNkO9
-	 h1j/bzU4Jkr+HfJRMp9oyuKV8wHT0EoXuj5XZkIMXXUuUj/ygeHnaAETyww9VY5rKHj4t
-	 DC1c8X9dTmNpOs3pElbkxTQGLjESlfhJ4SzQr6ng8eV+vjSpMFvKprKRng2D/lGPJiVE+
-	 D4xJfXruFTje36IWyaHd4c/KUEYdJIHm17gKPYSBWhWSRt7exKaVO821UQxzfTYeFPS0+
-	 50fU/QNcsoJ2lG9WE517jvj4DLrZVA7Qxza329M2Hbvn2XByXA4cUqo0AVbifm7WKQQ==
+	t=1794221092;
+	b=TjGV9lCKM5oP8+t5d5EpY1kgZgfngzVkL2VMn/oIfdyff+89urSlnfNIDPwjFwLz/1/Z
+	 Xh0Bo/NMqkUZvSEQSorwi1czUMJ7ma6S0kw7PSVus+0Pf7E4BD5Efqo1hScxsqxoRFAqZ
+	 7PgwIPnTtHUA0msffy9EINCjcREGWMBYh4KGPX1G+iDwK+1CFV0D4eBXi1pRbibWn4QL9
+	 IGkHd5NXlaJ3B8trPUzXe7Gb9yhmEtOm2UTZREZRvIG7qNBaNi/HOFHUmD0UFagD0Pskg
+	 j1vCevP+G3rw4cVxg1BXR8UipIga5ztnZQa100CeRBh0h6+LFbBXkaxU4G7zfahhvog==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794196127;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=dPUI79ZTuYvyeGLw2oxosUBgSkuYkeg+QlasMFm1hio=;
-	b=XF/TLnxJWAMsWK2BMFSCYKKQqag27vpmSu2Wwt29nDfbi5FtuKe+pBDUgYZPzPWQVqti
-	 w26FQ0E0iUlvWTk8eBlcuHOFBSWJkar3hHtR+H3jUghDvC1uKW+YeBlEDH4AuRwKVUGLp
-	 zuk3+7/L8uoqGP+wJl6Q7vxEsWxNaSu+p6GLde+Jugj8woQ+5hJlRNBXAvlcZumCueFYE
-	 WEFWJ9VpqVp1JjVdBaobUOAIaOhzWM0DcOjjvPLJDpzbdJEpMnGyilT6XVaJl15D5cSVr
-	 s9dF/8ZspyCcOmgjFX6ALYcHjxihaXEriqMSmKFCXeQU6j3qCMr2hCM4hG6ZGFUJfRA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794221092;
+	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
+	 X-Mizu-Trace-ID:X-Migadu-Flow:Date:From:To:Cc:Subject:Message-ID:
+	 MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=jhRpB/3L64OWgVCzI6g0N4mh7LrBuRu768BeFhov7Os=;
+	b=hWTFNX60j0jSlDw3QmHqsdsPf3detFqvfgaFnQnFHKuZm+GKYBejlK5Fz9rY5Ji3xcJm
+	 EnfMB2wAtamTGrWjne0sTicDy+5GS/t6pyY5OwQtxaJvhEn1Cvryj/nGKKCcYb9fFyYC7
+	 ynRvGiKksZfZbVpPUzqNKp7PlKNj5iZ6fl4S6kIgcVtLXiKJJB9mwm0igGCxHyhi7Mh84
+	 WdbQCUVAlawIw7bmnn+n73IoBw94b0NK0BXS9FAhqP4TFFH+sdiaAWN8OVBjsC7aT/bZX
+	 t1sCJFhnrSgWSs2qzbaPkYp6zgNDNdqWHq8yjfTHYFcyVTfn9w+NyHah42344eADi5A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UdBzpZG1;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=linux.dev;
+	spf=pass smtp.mailfrom=linux.dev;
+	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=HOjhnVfY;
+	arc=none smtp.remote-ip=91.218.175.45
+Received: from mta0.migadu.com (out-45.mta0.migadu.com [91.218.175.45])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99833606A31C
-	for <linux-rtc@vger.kernel.org>; Mon,  9 Nov 2026 03:48:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73695606A31C
+	for <linux-rtc@vger.kernel.org>; Mon,  9 Nov 2026 10:44:51 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 73695606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UdBzpZG1
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2291F1F0089F;
-	Mon,  9 Nov 2026 03:48:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794196127;
-	bh=dPUI79ZTuYvyeGLw2oxosUBgSkuYkeg+QlasMFm1hio=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=UdBzpZG1u7CpPnhjDjl6AYvud49cUa8v6phVHgI7HFa1iAoscMY3llkbdqNtjcRTy
-	 jebCM4fuOOErObr32VgZEHs1AC3vcEbDhqcX0qTFRElGDNLHosxtwmwQmso9ebh03Q
-	 NSVyipYAiIYh7k0DU7oiRjOmwi24MGIPcs55LdgDKmTuHRD7kD2BPClPn23S/hezax
-	 qvY2+BlADkDDuI2LRtCs1D/Uv4mTDJkj13RK0JCY98Pkl1GJZul5WRhg15qCz2c9Tf
-	 FoW8Thj4b3Svf4Xz8yZ5QT+J+53yezRE4vIvWQjDnGXtB2vuslJ3e7BArgdo+DOOl9
-	 0jk/5Tcyo0xZQ==
-Message-ID: <sashiko-outbox-204383@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] rtc: ab-eoz9: fix negative temperature readings
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Yuehong Wu" <wuyuehong@cmss.chinamobile.com>, linux-rtc@vger.kernel.org
-Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20261109-rtc-ab-eoz9-neg-temp-v2-1-yuehongwu@cmss.chinamobile.com>
-References: <20261109-rtc-ab-eoz9-neg-temp-1-yuehongwu@cmss.chinamobile.com>
- <20261109-rtc-ab-eoz9-neg-temp-v2-1-yuehongwu@cmss.chinamobile.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 09 Nov 2026 03:48:46 +0000
+	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=HOjhnVfY
+X-Envelope-To: linux-rtc@vger.kernel.org
+DKIM-Signature: a=rsa-sha256; bh=n9yUochbuHx8y/anYILHlFK/BKbY5H9S/STmPJZqyQA=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1794221089; v=1; x=1794825889;
+ b=HOjhnVfYEClUjmyKsoac8lXoaH6LKyaEf/4JwcwlXSJOtwpIK1c83pIlmEymvLFacBUEh6R7
+ YZuXoZy01D81CK+EPNHqEDiV+U82Ai0/YJ1DO+zZayEIIvXj5Pg4DlANmpWrwLdNHCRO32BoKok
+ y9+TYo9cGtJND6iyEygCo5/0=
+X-Envelope-To: linux-rtc@vger.kernel.org
+Received: by smtp.migadu.com with ESMTPS id 941375bb5fe624cb;
+	Mon, 09 Nov 2026 10:44:49 +0000
+X-Mizu-Trace-ID: 941375bb5fe624cb
+X-Migadu-Flow: FLOW_OUT
+Date: Mon, 9 Nov 2026 10:44:43 +0000
+From: Akhilesh Patil <akhilesh.patil@linux.dev>
+To: jic23@kernel.org, dlechner@baylibre.com, andy@kernel.org,
+	robh@kernel.org, crofts@kernel.org, krzk+dt@kernel.org,
+	conor+dt@kernel.org, alexandre.belloni@bootlin.com
+Cc: linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-rtc@vger.kernel.org,
+	akhileshpatilvnit@gmail.com, akhilesh@ee.iitb.ac.in
+Subject: [PATCH v2] MAINTAINERS: Update Akhilesh Patil Email address
+Message-ID: <20261109104443.GA531570@u5ce4748bae3b54.ant.amazon.com>
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -59,32 +64,92 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261109063924.GA118887@u5ce4748bae3b54.ant.amazon.com>
 
-> The temperature register is coded with an offset of ABEOZ953_TEMP_MIN
-> (-60 degrees C), so the driver computes "raw + ABEOZ953_TEMP_MIN".
-> regmap_read() hands the raw value back in an unsigned int, which makes
-> that addition - and the multiplication by 1000 that follows - unsigned as
-> well: -60 becomes 0xffffffc4 and 1000 * (raw - 60) wraps around for every
-> raw value below 60.
->=20
-> On 64-bit systems the wrapped unsigned int is then zero-extended into the
-> long hwmon attribute, so every temperature below 0 degrees C is reported
-> as a huge positive value: raw 0 (the -60 degrees C code) becomes
-> 4294907296 instead of -60000, raw 30 (-30 degrees C) becomes 4294937296
-> instead of -30000.  This also contradicts temp1_min, which the same
-> driver reports as -60000, and consumers that only look for negative
-> values (thermal governors, monitoring daemons) do not discard the bogus
-> value.
->=20
-> Perform the arithmetic on a signed value.
->=20
-> Fixes: 67075b63cce2 ("rtc: add AB-RTCMC-32.768kHz-EOZ9 RTC support")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Yuehong Wu <wuyuehong@cmss.chinamobile.com>
+Move to my new linux.dev email address akhilesh.patil@linux.dev
+I plan to use this email for kernel development going forward.
+Also update email address in few yaml and driver source files.
 
-Sashiko has reviewed this patch and found no issues.
+Signed-off-by: Akhilesh Patil <akhilesh.patil@linux.dev>
+---
+ .mailmap                                                      | 1 +
+ .../devicetree/bindings/iio/pressure/aosong,adp810.yaml       | 2 +-
+ Documentation/devicetree/bindings/rtc/st,m41t93.yaml          | 2 +-
+ MAINTAINERS                                                   | 2 +-
+ drivers/iio/pressure/adp810.c                                 | 4 ++--
+ 5 files changed, 6 insertions(+), 5 deletions(-)
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261109-rtc-ab-eoz=
-9-neg-temp-v2-1-yuehongwu@cmss.chinamobile.com?part=3D1
+diff --git a/.mailmap b/.mailmap
+index 7fb33babc931..54238d2f04dd 100644
+--- a/.mailmap
++++ b/.mailmap
+@@ -1030,3 +1030,4 @@ Zhu Yanjun <zyjzyj2000@gmail.com> <yanjunz@nvidia.com>
+ Zijun Hu <zijun.hu@oss.qualcomm.com> <quic_zijuhu@quicinc.com>
+ Zijun Hu <zijun.hu@oss.qualcomm.com> <zijuhu@codeaurora.org>
+ Zijun Hu <zijun_hu@htc.com>
++Akhilesh Patil <akhilesh.patil@linux.dev> <akhilesh@ee.iitb.ac.in>
+diff --git a/Documentation/devicetree/bindings/iio/pressure/aosong,adp810.yaml b/Documentation/devicetree/bindings/iio/pressure/aosong,adp810.yaml
+index ad5f26ce5043..ca4d4210f609 100644
+--- a/Documentation/devicetree/bindings/iio/pressure/aosong,adp810.yaml
++++ b/Documentation/devicetree/bindings/iio/pressure/aosong,adp810.yaml
+@@ -7,7 +7,7 @@ $schema: http://devicetree.org/meta-schemas/core.yaml#
+ title: aosong adp810 differential pressure sensor
+ 
+ maintainers:
+-  - Akhilesh Patil <akhilesh@ee.iitb.ac.in>
++  - Akhilesh Patil <akhilesh.patil@linux.dev>
+ 
+ description:
+   ADP810 is differential pressure and temperature sensor. It has I2C bus
+diff --git a/Documentation/devicetree/bindings/rtc/st,m41t93.yaml b/Documentation/devicetree/bindings/rtc/st,m41t93.yaml
+index bdd995c5c1f4..837679dc01ac 100644
+--- a/Documentation/devicetree/bindings/rtc/st,m41t93.yaml
++++ b/Documentation/devicetree/bindings/rtc/st,m41t93.yaml
+@@ -7,7 +7,7 @@ $schema: http://devicetree.org/meta-schemas/core.yaml#
+ title: ST M41T93 RTC and compatible
+ 
+ maintainers:
+-  - Akhilesh Patil <akhilesh@ee.iitb.ac.in>
++  - Akhilesh Patil <akhilesh.patil@linux.dev>
+ 
+ description:
+   ST M41T93 is spi based Real Time Clock (RTC) with time, date,
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 222b7fc2c3aa..3aa8fa3c068f 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -4095,7 +4095,7 @@ F:	Documentation/devicetree/bindings/iio/chemical/aosong,ags02ma.yaml
+ F:	drivers/iio/chemical/ags02ma.c
+ 
+ AOSONG ADP810 DIFFERENTIAL PRESSURE SENSOR DRIVER
+-M:	Akhilesh Patil <akhilesh@ee.iitb.ac.in>
++M:	Akhilesh Patil <akhilesh.patil@linux.dev>
+ L:	linux-iio@vger.kernel.org
+ S:	Maintained
+ F:	Documentation/devicetree/bindings/iio/pressure/aosong,adp810.yaml
+diff --git a/drivers/iio/pressure/adp810.c b/drivers/iio/pressure/adp810.c
+index 82aa433548d2..832df6ba0ee3 100644
+--- a/drivers/iio/pressure/adp810.c
++++ b/drivers/iio/pressure/adp810.c
+@@ -1,6 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0-only
+ /*
+- * Copyright (c) 2025 Akhilesh Patil <akhilesh@ee.iitb.ac.in>
++ * Copyright (c) 2025 Akhilesh Patil <akhilesh.patil@linux.dev>
+  *
+  * Driver for adp810 pressure and temperature sensor
+  * Datasheet:
+@@ -219,6 +219,6 @@ static struct i2c_driver adp810_driver = {
+ };
+ module_i2c_driver(adp810_driver);
+ 
+-MODULE_AUTHOR("Akhilesh Patil <akhilesh@ee.iitb.ac.in>");
++MODULE_AUTHOR("Akhilesh Patil <akhilesh.patil@linux.dev>");
+ MODULE_DESCRIPTION("Driver for Aosong ADP810 sensor");
+ MODULE_LICENSE("GPL");
+-- 
+2.34.1
 
