@@ -1,99 +1,106 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.82.178
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794239104;
-	b=BteHwiipju9LCuMOrDRSXzD2KFR1Xed/RuBXSk4V7ehAJYoZyI/bhuLSgGx+pIa42Tn+
-	 14UZq8f/yAUp6XFLcXg2MzbV0jQ1xJjmKCf5X+oiyLeQGk9w7feEqHZfleLvYmoBUXQaz
-	 xD05Vo4PM/jB0D+cHnfyXM2f8dIipfTnJzZNghpGzc33eLus++RBC2slmG2OIzxdP3Nyg
-	 JlATriFPQ1OVqqOGN63Huthhwh+W7FAwl0AFBflDNWpAQ6aPpQEy/XEDRWuGZFq7eAu9Y
-	 QOtaG5BNbhiqAIy3/1KUKlhNmykPgVYH0j3q6stzRlac1uvoL2CxvliuKwWksEgQvkA==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794239104;
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.45
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1794239106;
+	b=qkyqOh+WD28RQz0zsupWi5dMUCpw7vS4efa9ocb7z4yxqPZXO21/fLcXPJ1Jrdnf/SRE
+	 aUIQ1dKPVkKR3WnbWiHYlZUvOGDEaC3jVi0UXiGTnO8KcLdkUV+uH7l/PID4lnEU5Nse+
+	 qsMEnknBVgUrLXg5k4qrixL5qYXsb/H9x105nXDY3ZOtS5/hS/Ninh3E71FPZHIKItEAr
+	 c3jSfvGzMS2iZFotwiYhrUvtTZCBdK2sd/atIInLHzCAdRu4YXOVR3YKwd3li6vGZ+A+4
+	 8ECEocPv6D2FPmp21ZS96/3KQ/oDPegD1ZJ2g+IgJp7O6AAgm4FusL8NzunOvqO0xag==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794239106;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type;
-	bh=ctMZmsxVPHwk1efT7mcbMQI5sey2JS1SJlSmKpoSEmA=;
-	b=i1nnQ0cFmQMzUsqqTOdhivNELH1d3ugiGzosCiM1YtlY8/fU2QekFiGaccy/zc8VaXKb
-	 0vlM/oJQnZabIUDV14IU3vEtp2UvFoisCUBo2mXYQBlYqcoY+JLtHiG/oyCac88xYMxSn
-	 W+T2vBvZlImpaf3dBorAZXOH6SC47JwkM3UWG0K22febQsRjdxt3nsyg5A20adFzUPwMN
-	 rcnv+jwSZk77O/T0z0GHdPufwO1SRsBbYkqMiIehb+AcnTu4C+gqD6R7VvfOw/GJ6hJ8p
-	 YxYGlg6ID2Al1oAjDr4weACOJmoyDTSWPN4te0bF3SvNvVhN/CgV5q9woFeHBKO12Lw==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=rKfLZbQgYUYCC33oLQtFHXrdM0UQjzaXcbXsbGQdHjk=;
+	b=KJX4ZOlzzNjOeQRl9JkXI4nSCTgQiOb0UqNQHzgfx1pijzuxf9Irdu29k81ROldIkxqg
+	 twK8e809m3qHi3nZkZjrKogTSE3y/gLtPrgbcw59WQul60GxC3rhigvhjDWZIoJ+nSr4m
+	 Wf+kqfSLykyHEEKVbARM2rVMRaqCJYZdtpBkfZXxNcNvr6E1d1ARpD/vB9VwUSRSCGlXY
+	 d4Ft/KHkBoWK13+nTt8mDkjWVz/Rbcl8V5ukEm0VoMADNGJu2Nt801+xz/XdYg56/JVc7
+	 LWXxQITD78lfiBQOtA2KybczSxKUmhuB2uszza65/lp5gB11Ry9+yaOKmJIrZQceIsw==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=aVg0Psww;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.82.178
-Received: from mail-dy1-f178.google.com (mail-dy1-f178.google.com [74.125.82.178])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="kSco/aPR";
+	arc=none smtp.remote-ip=209.85.128.45
+Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 490B2606A330
-	for <linux-rtc@vger.kernel.org>; Mon,  9 Nov 2026 15:45:03 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 490B2606A330
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8627606A33A
+	for <linux-rtc@vger.kernel.org>; Mon,  9 Nov 2026 15:45:05 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D8627606A33A
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=aVg0Psww
-Received: by mail-dy1-f178.google.com with SMTP id 5a478bee46e88-36e99cf7bb3so1689785eec.0
-        for <linux-rtc@vger.kernel.org>; Mon, 09 Nov 2026 07:45:03 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1794239103; cv=none;
-        d=google.com; s=arc-20260327;
-        b=sxsIcWjeN30IYnLn/y1C0xzU0hk/hCF5u//3nMR8PKuHLpssYRN3YQkkEe5QzFkaqq
-         y5WhO73R7Nz14x0lTpA76gOPnJHuhXCYepl8SNMtJ1gK1eGPzbhJOxTXz3UoA9MWmvpu
-         SaCN9wtcppFgZ63BGkPI5NdYr314YG+ZqVY2k4ZKj17OiPfFnJ18TGpgCP3Jxzx2Ln6D
-         iap4nHaslXhJXelRWsAhM2e9UGxD+QigMDrhiUB74SmH27q3iSBOZZ29CvdIsJa2t8Eh
-         dPpKPN/xNUCPelr8l5IW5QN+1jPGcY+ta+DhQZKtw4V0a3frMKAooX/CVRnJx7XUqzcb
-         jfNA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=ctMZmsxVPHwk1efT7mcbMQI5sey2JS1SJlSmKpoSEmA=;
-        fh=XvNL9hQL32E5gGt0juJxYB0QUDI9Nr4q81zHiZcyDeA=;
-        b=FxEh7F09brt/jkgldRh+R9jp1WcV2ADkis4FZLslrnHQm2nTTVNLTRtbyebIaMyieg
-         JpGV5FmoLvmEvUmPZYPkqIJGnmQxiSUJRD2pJsQXHMXdE7midS8002VZRzKLBsTO7n55
-         o2QBrJG60q1Ij0TZI1BtPEKv/TKPEzrgJ60W778fdILWOQ+f3UaMYDF7nCebXwFCxw3F
-         7Ykaea9GRgsnWk7yJBsmNkUBkc0F3RQYPwWJ/NKP0VQmmt1C/dc8McIohy5HeXJ2DD9v
-         9NkPmThb0Dc0q4MXEW8/hrQ0I+Vvj8oHnqoImYtrzx6qLAK4mPHWXMpMjLpeK64uDuHQ
-         ndDw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=kSco/aPR
+Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-4a207b02a2cso7026125e9.1
+        for <linux-rtc@vger.kernel.org>; Mon, 09 Nov 2026 07:45:05 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794239103; x=1794843903; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=ctMZmsxVPHwk1efT7mcbMQI5sey2JS1SJlSmKpoSEmA=;
-        b=aVg0PswwY53Y1ZbhOKWKHq6I+XVXF2v0WHXI2GLYAInyhgZSnU8LjDtFdZ0fwFLG2O
-         BbTWxNf9swnT9aecxdK4u+PqIeiGLDSG9E0ZsabQa6sVoxE/Yq1Wk8+VQHrZjpWX5yRD
-         kDTz47x/FAWWGk0lAw1jS3oxEXLYN7G6kB6JBR9SLxByxp2HIbvjOnLzR9mGs8M45TIz
-         qw5xrve968WQEkpFD8sR7lCRvqGmOy+7njy2OWI+YuM3P854nmGS3/GSrO0jglZMCQKq
-         uyfN+ExQWiOS3NN0qPVvh2PcqOEIE6LVw3qm6wy5oHPpwNOhE5teY005tZFWTdeO+Wpz
-         j4qA==
+        d=gmail.com; s=20260707; t=1794239104; x=1794843904; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=rKfLZbQgYUYCC33oLQtFHXrdM0UQjzaXcbXsbGQdHjk=;
+        b=kSco/aPRed7aKGpqjXFcYCWpeSXf4f6oONj5r25xKurUKJXNRTttgl000KMome1nia
+         DD6FfhhgoYOA/xuvx/Bnr4N5DWd622HmuNAtU8m9g8Wgh2c9KDhd+bFFW3cKLqMY9dAX
+         CG88pSgH+dBsguCWtNgsxdgLclbDp4TQwEngOXDN9+YLC0qkn6YKeQwzGkOQFs+yBmgg
+         mOtsq4OcVSo1/2OyXrdQa1wyHSkE4qJj02eRpY4hnjH6TldObpX4tVtZrIFtfQmd4S/I
+         CdKTqq8UfVdNxaA9b0FIklb5ZJwfj0r70HCVQ+K99o3VbVfH9+rwd244vJENKM1nvD/Y
+         WKeQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794239103; x=1794843903;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=ctMZmsxVPHwk1efT7mcbMQI5sey2JS1SJlSmKpoSEmA=;
-        b=EX+GkR8qngFs03LuWS16b22jMVYR7ZnWAkTT0Ow3YPPI9vz+bP7vPUl2ZYPTB2rplF
-         LmmvDjRoZUhJGJmwui8ZRmeSvLUOv56ghv7gqx6YP/iBsbWemF8npwtk5oE1OkqL8/yl
-         A8qyo9C67xV8HRccDIYR8yR46Lbn7BhsTSiYS4HQmKtesETfTNR60ugMfKhW94mqGCL1
-         /XO1duVmlrel6SvGmDqbWAIMGIES798PjB980qwCXOy2gNb4IZef8lTeHWGQ0pAd0Tis
-         IEtaNJCKJrjKtfip3PFqdQdGDBydJOsE+GB0lslzkuOG241i1wsvKspPjZRshVyvfQWK
-         /Hig==
-X-Forwarded-Encrypted: i=1; AL+hErFiyZJuoNR+4lR37FCZ/LtTqOwxjDFnT2U70UWjM7Cd2F2kU0UCDZ1eKqqmBcAKlUAZkoqFiicwolg=@vger.kernel.org
-X-Gm-Message-State: APuU4Z9HNVG+zpVWfZOcSNtO9aocIkmugYazrRMiq+xVZy8UVD/SBdJe
-	2b+rv8sG9ormQnVmK2fcXauWIF6GtVPefNl0XGtJ3JP+sVf1LCZV6oWOmoT2u3QpvqTiOQgvvOx
-	RAyKsiGegr279kxc/rBme55dcF6ao3as=
-X-Gm-Gg: AYBFou3wpynC5Za7dy1iZcU/NwiWNVvZjLJLoc6VA9clhm+9cBZtkraVngbOZpQo4q7
-	nzEP8vxg8WPngSxvx7dA0wZjDdF/ZgngZOf/DDz5xZaSb6V3UH0I/nyhvY/IyBLYtc8QG4IYl7x
-	4HniieSjIDZKT4VViwd+ScrSGdpFb/ieqJjaaJ7cjFpgcpSJJTlcoFfcHzk0jjRUOXx7pZYQXZR
-	mhncupbZPMnl3khMa9CKYlD0UhIHsZWZAzpQfPHCk1bP02txxd7wXu4hiXzo+3cTkZKDbaSWps3
-	Pn3OxFGUsN25oPtSoFmJmpUxjVTsUr7qfo0qdB6hSGiiZ18JBW5KzziSbF56o5OulStMOdnDRG3
-	tsGcIlErr2856LzpufSxn4NkoIXUeH/VXAC7tQw==
-X-Received: by 2002:a05:7301:7004:b0:36c:9b35:5d46 with SMTP id
- 5a478bee46e88-372571d9ac9mr8099191eec.26.1794239102976; Mon, 09 Nov 2026
- 07:45:02 -0800 (PST)
+        d=1e100.net; s=20260707; t=1794239104; x=1794843904;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=rKfLZbQgYUYCC33oLQtFHXrdM0UQjzaXcbXsbGQdHjk=;
+        b=bGxO4LZPEw63uJ6Qfyu8AGrQ+OEPNZNO0/7jo+GeU++As+CyNjBst4D/7qpNJGiNqE
+         HMHLHPZEsSE4DEgyKHbTVu8XRAM1AVCh3nlkV3zPqfZQnE50QsovNQFdBdoXuRNhIS2r
+         +Q+7VbNvEBeK9yfSHFARefAYdA9BDfxmPGY5+FUAtvjJWVb2cld2YIl0DlskHqV1MYda
+         Gx+3QQvdekavv92XiWDjJzU8NErHw5uqYEFAt4s9PYThyuhTNHT3kDDCxSS6x0ZTx+Yy
+         vsLJiSJIcJ0KAhJWPOMnquGwqEXGGmQcYkRC1fpXddQkIXZ2ikzxQs6ap4enNzWVhCoz
+         S57g==
+X-Forwarded-Encrypted: i=1; AL+hErHaihXCwJtomA5z7tY6XkDH9enrziKSlAyTHAAshnHXjZ+LHxcnk4dtLsuSjXii0FP78flNRdUWbqc=@vger.kernel.org
+X-Gm-Message-State: APuU4Z8vJXfJsJ2+/NcBVNoUxXGlEPx1gay0AUdiuEpros+9HZaRWQF5
+	rx3eG2Lib6qxoX4CGuKwbvdxQfV/OUxHoE9fKGFHhd6MYCLjJ7i0pItW
+X-Gm-Gg: AYBFou285i4jISFMHDb7LO09c+uCbnc6Ev8Xrb7V+qffP+J8McJO8PZxtsRa975MyA2
+	2i+W0hWYjfJEYM6AsGBPsy3PHMUvy3uBAODw6Da6n5YpNEBWxJP36Wqr/S0PoYh3qmzy/CsS/fF
+	wb0A1mGLV6vgL3MBcn1BcnVgQD/2a3uwiaF00Da1KzQ/MaF3gJEzC1lKHkmygUJa9ZdoFe8NGlh
+	15SB7Lv7vGIYq3k4u1K/SMNXqhi58h4J17hy9SGrk1PquiZ9ErHJGANiRdIVKOvf6Q0ir45uZAL
+	K3WnvD+lD056cdxRPJB65QYpG4gT47xbSjmR3i9GgKwe6fEa9r/vpBd9k6VZEep5kzPvCWIga4l
+	1WyBn0SczoOXv9FIjiT2IidwyF+SgJQthVH3FhE6eDWjakKKPK0sFFLN0AMqyYBDqGIk7/tDbgg
+	wpu558219pZDtCTcdQPdeSyIDXWklMFqDoC3e1nhoAlmcEqhd+6FEQAg0nb9ac7lCJPNv53f58U
+	iHWGUcwGCVRn47geIDngiKiyx75ZYnd0mKesJJXxeTVuqYBOXUi4EofLw4IA2K+igOBIZouOnrJ
+	fWOjJFy+IoS0DGOBvK8j3U4vKXt+DLYJPSblQ9UDAx9CpgozbIL3Thg=
+X-Received: by 2002:a05:600c:4505:b0:4a0:4a8:d444 with SMTP id 5b1f17b1804b1-4b963c85de8mr84815385e9.33.1794239104072;
+        Mon, 09 Nov 2026 07:45:04 -0800 (PST)
+Received: from hp-z640.fritz.box ([51.37.204.122])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4b7e32ad4d1sm257163645e9.5.2026.11.09.07.45.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 09 Nov 2026 07:45:03 -0800 (PST)
+From: Owen O'Hehir <oo.hehir@gmail.com>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	linux-rtc@vger.kernel.org
+Cc: Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Emil Renner Berthing <kernel@esmil.dk>,
+	Paul Walmsley <pjw@kernel.org>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Alexandre Ghiti <alex@ghiti.fr>,
+	Philipp Zabel <p.zabel@pengutronix.de>,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-riscv@lists.infradead.org,
+	Hal Feng <hal.feng@starfivetech.com>,
+	"ziv.xu" <ziv.xu@starfivetech.com>,
+	Conor Dooley <conor@kernel.org>,
+	=?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>,
+	E Shattow <e@freeshell.de>
+Subject: [PATCH v3 0/4] rtc: Add StarFive JH7110 RTC support
+Date: Mon,  9 Nov 2026 15:44:57 +0000
+Message-ID: <20261109154501.63762-1-oo.hehir@gmail.com>
+X-Mailer: git-send-email 2.43.0
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -103,64 +110,73 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261108212826.15890-1-oo.hehir@gmail.com> <20261108212826.15890-3-oo.hehir@gmail.com>
- <ff0906c3-478e-4ad6-ac30-1e0a7cc35a41@freeshell.de>
-In-Reply-To: <ff0906c3-478e-4ad6-ac30-1e0a7cc35a41@freeshell.de>
-From: "Owen O'Hehir" <oo.hehir@gmail.com>
-Date: Mon, 9 Nov 2026 15:44:25 +0000
-X-Gm-Features: AclHuK-AhO-ARD3koIln2PIQIf1KmWM7RSd3LNIFnaM6Tz5301_ColSop3oW-YQ
-Message-ID: <CALp3LZ61ZYcWz8CPQZJbJSDfAt7cgyyqA_bp+Gwhyr2peBVwKA@mail.gmail.com>
-Subject: Re: [PATCH v2 2/4] rtc: Add StarFive JH7110 RTC driver
-To: E Shattow <e@freeshell.de>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-rtc@vger.kernel.org, 
-	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Emil Renner Berthing <kernel@esmil.dk>, Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, 
-	Philipp Zabel <p.zabel@pengutronix.de>, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org, 
-	Hal Feng <hal.feng@starfivetech.com>, "ziv.xu" <ziv.xu@starfivetech.com>, 
-	Conor Dooley <conor@kernel.org>, =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@baylibre.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-Hi E,
+The JH7110 has an RTC in its always-on domain that mainline does not
+support. This series adds a binding, a driver, a MAINTAINERS entry and
+the SoC DT node.
 
-Thanks for the review.
+The driver is based on the StarFive vendor driver (rtc-starfive.c,
+commit ebac2b5 in the StarFive 6.12 tree), reworked for mainline:
+- hardware calibration and the default time set in probe are dropped
+- wakeup uses the generic wake IRQ helpers instead of the irq_desc hack
+- set_time waits for the counter to load the new time
+- read_time re-reads if the time rolls over between TIME and DATE
+- the offset rounds to the nearest step and follows the sysfs sign
+  convention (positive = slower)
+- the 32.768 kHz counter clock is described in the binding and enabled
 
-> Is this copyrighted work from previous year 2021 being imported without
-> modification?
->
-> If there is modification then I would assume it needs appended your
-> authorship and the current year 2026.
+Thanks to ziv.xu and Hal Feng at StarFive for the original driver.
 
-It is modified, so v3 adds my copyright line below StarFive's.
+Tested on a VisionFive 2 v1.3B with next-20261105 and v7.3.1: setting
+and reading the time across the 2000-2099 range (out-of-range years
+refused), leap day and century rollover, the alarm interrupt with
+cancel, the offset, the rate over 60 s, and setting the system clock at
+boot. Not tested: suspend wakeup, drift over hours, and keeping time
+across a power-off, as the board has no RTC battery connector.
 
-> Align 8-char tab stops per Linux coding style, and then tidy up the
-> extra junk clearspace on some of the defines
+Known behaviour: the RTC loses about the length of a reboot across a
+warm reboot; the counter appears to stop during reset. After the
+StarFive vendor kernel the first boot found an invalid time. I would
+appreciate an opinion on whether this is expected of the hardware or
+something the driver should handle.
 
-The values line up in the file; in the patch the leading '+' pushes a
-few of them (TIME, DATE, CFG_HOUR_24H, SW_CAL_VALUE, EVENT_UPDATE) one
-tab out. The extra space before some names marks them as bit fields of
-the register above; as it reads as noise, v3 drops it.
+Changes in v3:
+- dt-bindings: add Conor's Acked-by
+- driver: add my copyright line; drop the extra space before the
+  register bit field defines (as requested by E Shattow)
+- dts: rename the node label from rtc to soc_rtc, leaving rtc free for
+  a carrier board's RTC (as requested by E Shattow)
 
-> I note that JH7100 does not mention RTC in its datasheet. Does JH7110
-> RTC have any commonality with JHB100 and if so then would rtc-starfive
-> be a more suitable name for the code filename and module?
+Changes in v2:
+- dt-bindings: list myself as maintainer instead of the RTC subsystem
+  maintainer (as requested by Conor)
+- MAINTAINERS: new patch adding an entry for the driver & binding
+- driver: drop the <linux/mod_devicetable.h> include (as requested by Uwe)
 
-The JHB100 clock and reset bindings do name an RTC clock and reset,
-under its Peripheral-2 clock and reset generator alongside CAN and
-GMAC, whose inputs include no 32 kHz clock; the JH7110 RTC is in the
-always-on domain. I searched for JHB100 documentation but found nothing
-on its RTC beyond those names, so I cannot say whether the block is the
-same. I would keep the jh7110 name, after the first SoC supported; if
-the JHB100 turns out to use the same block, it can reuse the driver with
-its own compatible. That is what the pending JHB100 TRNG series does
-with jh7110-trng.c. I would appreciate advice from Hal or anyone who
-knows whether the JHB100 RTC is the same IP.
+v1: https://lore.kernel.org/r/20261106175600.3877614-0-oo.hehir@gmail.com
+v2: https://lore.kernel.org/r/20261108212826.15890-1-oo.hehir@gmail.com
 
-> Review use of authorship macros as appropriate. This may be okay as-is.
+Owen O'Hehir (3):
+  dt-bindings: rtc: Add StarFive JH7110 RTC
+  MAINTAINERS: Add entry for the StarFive JH7110 RTC driver
+  riscv: dts: starfive: jh7110: Add the RTC node
 
-The driver is derived from the StarFive one, so I kept its authors and
-will leave these as they are.
+ziv.xu (1):
+  rtc: Add StarFive JH7110 RTC driver
+
+ .../bindings/rtc/starfive,jh7110-rtc.yaml     |  85 +++++
+ MAINTAINERS                                   |   7 +
+ arch/riscv/boot/dts/starfive/jh7110.dtsi      |  14 +
+ drivers/rtc/Kconfig                           |  11 +
+ drivers/rtc/Makefile                          |   1 +
+ drivers/rtc/rtc-jh7110.c                      | 324 ++++++++++++++++++
+ 6 files changed, 442 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/starfive,jh7110-rtc.yaml
+ create mode 100644 drivers/rtc/rtc-jh7110.c
 
 
-Owen
+base-commit: ddfe51b0a0f5dc9e415cc2c8ad8db17532dd426b
+-- 
+2.43.0
+
