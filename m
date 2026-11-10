@@ -1,111 +1,63 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=103.168.172.142
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794327198;
-	b=LA1K0mcG24rLohV1R2FlMLcebEVEDNkwNn+2TVoe6awjbWcl/wkU5mTCtUY5ELwqjPZB
-	 dN7wRxq8l1ObIRIMikmglHvFaNpILuDTQYvodk4a1gmFG0Z/W536pTTmgw3KuMMOYcADD
-	 pXjV2IvMVDH0Ox8eLKsWh6On0qMzOg9WccXnqmHI6t8jOCXREAR1O8oDAy/Y4G3iX2Z1r
-	 w6kKU/rcX/CcMSNuwpcLNB43pnTaJMIdFQ9R6ZwB/thhrTHlPOef9PDo4WUIHEd+r8xA7
-	 7yXW6qxQznmEEqk8YyrSfauSFghUFk/pb39S+/z5h+YQ5OL+KEv5peed8I5CTLOH1pA==
+	t=1794352475;
+	b=x1nVURlFdrNPBhMuuZ1TIncFXOuVUUXGLCI85c2D9ayV/FJ1QD397CBy5woAShSXUmWI
+	 ZfWFHd5JBeum9ohfVB/eGUi+ZPlYKTSSs9+Fs6/QN7TQ8KZ/eyQ7M0ud+WBpZQOiLEH3L
+	 HIfWInc+SX7CMtwpZ6LJUsawdvZCA0aRL7WoTfG4JoNC93g6blwuDqerKK1NeVWHevmc0
+	 waaW5QW2j67m7ys40vxbjv/ZfcNTBfkYk3gQ7O5rQOd2ztb8lZR13HIdk51cfZOxNsoMF
+	 Sr+rI9lhky0x64PN+8vvFTPuSsIBomBixLTlRBXSOUj5WNyYwLqwZIZISgEPiqEFGaA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794327198;
-	h=DMARC-Filter:Received:Received:DKIM-Signature:DKIM-Signature:
-	 X-DKIM2-Info:DKIM2-Signature:X-DKIM2-Info:Message-Instance:
-	 X-ME-Sender:X-ME-Proxy-Cause:X-ME-Proxy:Feedback-ID:Received:X-Mailer:
-	 MIME-Version:X-ThreadId:Date:From:To:Cc:Message-Id:In-Reply-To:
-	 References:Subject:Content-Type:Content-Transfer-Encoding;
-	bh=4stWdQp7BpJLS0676322fsmeG4ymFjAT9IbMRkPmpp0=;
-	b=1fqSkXgaBTLBLte9y0H4RATzPH3+BFsCoCQ+JEC1/O1W1DG9SxSXtS+u0Uj6CtAjHcN0
-	 /G5m5X/lFh+U82hDDJmycsP1nbfByqiQ2dJkHNJQ9/y6wRbB9AKpUuvcIzJ0dkjojd+lc
-	 gdb5T7yR1R2gJWqExq0QCUV3aPLK8oTqHcY2c9c1lSmwkjHbSDGC6MRBeJ7z5lpf4pl4Z
-	 T8VgDzIcnxIOiWfVdxGBTNYhTkYolbKOMOKzFigjkPgvZDqH7ZTUjiffwE7oM7Nx6o+pI
-	 ozxcv/idHuZW3aHKXRnGe1Nq5q+fYaDkrhEzQ0PDG5DZ99U6yFOBWycUKnwfYIg0jkA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794352475;
+	h=Received:DKIM-Signature:From:To:Cc:Subject:In-Reply-To:References:
+	 Date:Message-ID:MIME-Version:Content-Type;
+	bh=GaRjxJLStAFn7kRkTlmoATlwOXPiUviJx+B8s4MFeng=;
+	b=k88euJRhQZxhMPiwTuYeXU1yVlxCtqZho8zM0/LO5NZB2tOuaoubJIU2QkMeEe4o1set
+	 xPEHjOCrCAveCVovNac/2ezVFEHDdZsRsexiil3xJKSlKK3hcSU5P3za7udIRAM2ZTCFN
+	 oZM0OCCO3sr+tUZs7ihq/wKozrg9RL2ODHg0ru5NmoGz+IAcGPRQR4P/Wu/FE0nyyIU7+
+	 g/cm0qteOsxDHNVTkeaSUz3IXL/MC+dP4Mq02QlfJRwCooN3FsTz6xzjzyLIrGZwXKG6y
+	 JdBaH8UHBVvkVJQbo2apWh4jhkinKWMGBCXZzRp7oc01Z1accY2iISlBUZmFW+PwtDg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=arndb.de;
-	spf=pass smtp.mailfrom=arndb.de;
-	dkim=pass header.d=arndb.de header.i=@arndb.de header.a=rsa-sha256 header.s=fm2 header.b=asQC+qHD;
-	dkim=pass header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=pjDZKFBW;
-	arc=none smtp.remote-ip=103.168.172.142
-Received: from flow-a7-smtp.messagingengine.com (flow-a7-smtp.messagingengine.com [103.168.172.142])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="V5/lSF5x";
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05B5560A2610
-	for <linux-rtc@vger.kernel.org>; Tue, 10 Nov 2026 16:13:17 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 05B5560A2610
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80F2C606A31C;
+	Tue, 10 Nov 2026 23:14:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=arndb.de header.i=@arndb.de header.a=rsa-sha256 header.s=fm2 header.b=asQC+qHD;
-	dkim=pass (2048-bit key, unprotected) header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=pjDZKFBW
-Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
-	by mailflow.phl.internal (Postfix) with ESMTP id 030B613813E8
-	for <linux-rtc@vger.kernel.org>; Tue, 10 Nov 2026 11:13:16 -0500 (EST)
-Received: from ams-imap-03 ([10.64.2.23])
-  by ams-compute-02.internal (MEProxy); Tue, 10 Nov 2026 11:13:17 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm2; t=1794327177;
-	 x=1794334377; bh=4stWdQp7BpJLS0676322fsmeG4ymFjAT9IbMRkPmpp0=; b=
-	asQC+qHDAv/I83EYngLJ0bkBe+uuEnPcLg0jrc2OX9kVtaPYAd/md3quox9jqmy4
-	S/jELTpXjA2k1IxJWtdK3HZW4IriVAHis0xufJR256BBPAzbfZ5QsGw2eqYq1k/I
-	S4qzaUtb3Ob4GAV2mxThnKp0r/zG0TfcXAK+eUmyQOHhHqtyGONG7gkgzRBQG2d0
-	/gzJT11LHsGNvLKSZnn9JL3iytYjrT3V7KZt2FZsHfjjQeZHywjaesrjJhD0e7vN
-	Y6/iN3Jg7w8xS8OVdYMBSUZOfxDnVhVfPJGqKe/oSxsAZXPn7y2e4GOOItdMLZ2R
-	LLVckhHoSzC+MGE1iJu5eg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1794327177; x=
-	1794334377; bh=4stWdQp7BpJLS0676322fsmeG4ymFjAT9IbMRkPmpp0=; b=p
-	jDZKFBWlX484yfO06iZThedU7MnSaqyMkXKHKaXomC5/xVavgZU65SsCjokZJWML
-	GjeTj8Lq4+LWeI1CWzzxuQj2m4isbVa0ssa9g7eZhXilCypVINe5kxTBiobUF6uZ
-	Gtle0jaTmJtlAyGlrtNmbTTDPt9uAjbADo1dgbyzsDA47ykOoKjYt1o87LKBSqHb
-	mP2YIbspjWDiF2EJOgZRHTKT7VhzsY0TtBEN2nWcPAnRSw5Q7HRlPmorpTONvfpP
-	auvP37j94bGeH1y2GQ4LwX12DjFEZi+3xGQave3kINRA2PBRPI5FXxcFzbhhhvXR
-	Tsc8Y3Jb1FgwsS6Y0dcjg==
-X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
-	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
-	action=sign d=arndb.de a=rsa-sha256;
-DKIM2-Signature: i=1; m=1; t=1794327177; d=arndb.de;
-	mf=PGFybmRAYXJuZGIuZGU+;
-	rt=PGxpbnV4LXJ0Y0B2Z2VyLmtlcm5lbC5vcmc+;
-	s=fm2:rsa-sha256:WDX9GGIfk/Pqva3NBk5soFoAjNirKkb3UT7gXWllAenF5e/
-	vIx+/ipeAp8T7DitqlIoVkW0Sf+fB8M43BNp3kVj7m8oLJm1A2Jao8p0FY1Olgv0
-	nCnRD5UCDweyAy8wAXGcfPQjdbgR12gHyBtXigPMInWlZ9ykzwmTU5iyz0S+SB3V
-	mmkgp1Rh3NWqPjKHsZJpso1h0Rh0z1cES+YCiCXwKMRenKNbe8G3NptO11uqrcC2
-	IzsZ5sB4wkda2fIX07i0USXuZ/4qiIWE9KSz1SZt4OR9ZthWeUdtxP3Aa1+Q2Wdh
-	AnoCpBQEp0LEbaePCa4hv2igEGfxa7LQaNZooig==;
-X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
-	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
-	action=mi-m=1; hc=12;
-	hn=cc,content-transfer-encoding,content-type,date,feedback-id,
-	from,in-reply-to,message-id,mime-version,references,subject,to;
-Message-Instance: m=1; h=sha256:NY+qH6VFe1gb9eaYka4u3Pju9dQg6z2rB5jHAxzea+M=:YUoKa4y1cAE3r8AhMFawDzVW7orX9AEZ4cmB97mmTGA=;
-X-ME-Sender: <xms:gELzat-KhdG49YOXD28knxP-wmxhvouurLuqg65ijoK_1PztTiM67w>
-    <xme:gELzashOw3MORHNRaj5VZYoHPjgRatChT2__Hps4-a7QS4ExIju8qL8_9B3SiDtB2
-    sGKQug7JFF_lfIFqrxv09JzfzrzZWKrRlvdLjWPWqavJafwb6XI9q0tBA>
-X-ME-Proxy-Cause: dmFkZTEwJqmeu88i0D1P4NSr1o0RdeyL0ncQrpwlZpsRiyH4mGhKK76jqiY9/AURvmAyKQ
-    Xh2LjT8fovpOgpIQnvH5QYWZs5UCg8lDhPsbwXo4GfEZeWp/aOvfLOYPWjqnmAFI1BwG/q
-    XyZG43p0HoLIgnysLFo6MzsLlgysOWgB08DJdha5yxDuEjeXR7MU6VvvNb4tgDJLpz9WaL
-    DOmlUn0Mje4CQssJm+pxYVCWPCE7uxZNBjliBSIc14Pa1+Q+euFKNdLxxVitjY9vJ+1g1T
-    +rig9iVkFuoti3t+qEcHMM2vh4+G+ag1IzrG3We9+FcQnC6cOfB1bItA6vAPi6A+u1KULf
-    wxoJ36bIqa+kM9OWApvgKo4MId3H8RRe0FCkMwp8Cj2i2hPzQqFijO+zALFklT7XBp4yQ4
-    D0Bsmvzif3sMMCJY2OSk1bwCPIIRPEFuJI4Mi/vpw7sfUa+jfrhN159tiieQQE7aztSV43
-    DlSawBFw+hJYm5oAPkD2NlBoL/gRh3vgmwf+Y/GbihlHM/o3EcsWCertLTOcD6iStWXR7G
-    LAS2aVSdVtxoGSiZj2/kYUSfLhEBFCn05KpxcrFYCW/FmzT2YT72YPVx3p0wR8sMiJ3lAW
-    x+8+3z8XttowLJjfinG9ew4R0xJsilSkEkmhmN5AqofFDl0uTCDo7P0ixMQQ
-X-ME-Proxy: <xmx:hkLzak2BPEyGi10FxxkrY3byRVHSjq_0wLclV2jUuSmkyRE3xcj4fw>
-    <xmx:hkLzakkySXPgYGwh_r1Ql-VHDAdYXcQ3p0tjVOV29OCOWQo8MbFMmw>
-    <xmx:hkLzavloJp1yUj6WriMMnPneQ8pVgU9Ew-sH84r-kdZ-OdXPheHDYw>
-    <xmx:hkLzarPnZB-B1EOixQtLefzjQeDp3wnHNrTbJ3SPpTKyjOvpO-EsFA>
-    <xmx:iULzajThipr-UxTyuQQEJ7jWDCsE73KlfzXTf41eZRpd8Rpi4a2MNCT2>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.ams.internal (Postfix, from userid 501)
-	id AC32432A0097; Tue, 10 Nov 2026 11:12:48 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=V5/lSF5x
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 751351F0093C;
+	Tue, 10 Nov 2026 23:14:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794352475;
+	bh=GaRjxJLStAFn7kRkTlmoATlwOXPiUviJx+B8s4MFeng=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date;
+	b=V5/lSF5xuJy9h6KtG9TjyDtMUcIPnz4sxpzpfG5rrGBBQkE1CGBxSi2QYYpoJvaJs
+	 Mr4y2cilW/JDPlOAAC3MvUZIT0vgktDnBY/jAnRqEfZYdk78zwyc4zAC8+w+134feY
+	 wjjEUVhB2w6JQSgadqVob0ESJLA4OSFjnNDGo6f15TbAaWe2aoR2JDQmqEstnfDyZT
+	 XcIKzeZgbGC2mqVWde4DkN4S4MnMQIkrVvr/H8a++mASLxTPkJoI7/kNp6wGXHL81k
+	 59pbwxr6MQZ/MJyhucvX/1NMkcCmPr3XIz9wrTo8q//CzBsNYdJwBTeG78bqem25+l
+	 ZstFC+cJu3gOg==
+From: Thomas Gleixner <tglx@kernel.org>
+To: Igor Velkov via B4 Relay <devnull+iav.iav.lv@kernel.org>, John Stultz
+ <jstultz@google.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>,
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Neil Armstrong
+ <neil.armstrong@linaro.org>, Kevin Hilman <khilman@baylibre.com>
+Cc: Stephen Boyd <sboyd@kernel.org>, Miroslav Lichvar <mlichvar@redhat.com>,
+ Jerome Brunet <jbrunet@baylibre.com>, Martin Blumenstingl
+ <martin.blumenstingl@googlemail.com>, linux-rtc@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org, Igor
+ Velkov <iav@iav.lv>
+Subject: Re: [PATCH RFC 2/3] alarmtimer: Choose the wakeup RTC by sleep
+ state and priority
+In-Reply-To: <20261104-b4-alarmtimer-rtc-priority-v1-2-e996681b8086@iav.lv>
+References: <20261104-b4-alarmtimer-rtc-priority-v1-0-e996681b8086@iav.lv>
+ <20261104-b4-alarmtimer-rtc-priority-v1-2-e996681b8086@iav.lv>
+Date: Wed, 11 Nov 2026 00:14:31 +0100
+Message-ID: <87qzgsth2g.ffs@fw13>
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -115,97 +67,376 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-X-ThreadId: AK-jVwBtQCQR
-Date: Tue, 10 Nov 2026 17:12:28 +0100
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: =?UTF-8?Q?Nuno_S=C3=A1?= <nuno.sa@analog.com>,
- "Jonathan Cameron" <jic23@kernel.org>
-Cc: "Svyatoslav Ryhel" <clamor95@gmail.com>,
- "Arnd Bergmann" <arnd@kernel.org>,
- "Alexandre Belloni" <alexandre.belloni@bootlin.com>,
- "Bartosz Golaszewski" <brgl@kernel.org>, "Mark Brown" <broonie@kernel.org>,
- "Conor Dooley" <conor+dt@kernel.org>, "Daniel Thompson" <danielt@kernel.org>,
- "Helge Deller" <deller@gmx.de>, devicetree@vger.kernel.org,
- "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
- dri-devel@lists.freedesktop.org, "Jingoo Han" <jingoohan1@gmail.com>,
- "Krzysztof Kozlowski" <krzk+dt@kernel.org>, "Lee Jones" <lee@kernel.org>,
- "Liam Girdwood" <lgirdwood@gmail.com>, "Linus Walleij" <linusw@kernel.org>,
- linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
- linux-fbdev@vger.kernel.org,
- "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
- linux-hwmon@vger.kernel.org, linux-iio@vger.kernel.org,
- linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-leds@vger.kernel.org, linux-media@vger.kernel.org,
- linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
- linux-sound@vger.kernel.org, linux-watchdog@vger.kernel.org,
- "Guenter Roeck" <linux@roeck-us.net>, linuxppc-dev@lists.ozlabs.org,
- llvm@lists.linux.dev, "Mauro Carvalho Chehab" <mchehab@kernel.org>,
- mfd@lists.linux.dev, "Michael Hennerich" <michael.hennerich@analog.com>,
- patches@opensource.cirrus.com, "Pavel Machek" <pavel@kernel.org>,
- "Rob Herring" <robh@kernel.org>, "Sebastian Reichel" <sre@kernel.org>,
- "Support Opensource" <support.opensource@diasemi.com>
-Message-Id: <991009b6-e62b-46bd-9a0b-43c3b7a6d10a@app.fastmail.com>
-In-Reply-To: <avM5EnC9yujUZcCO@nsa>
-References: 
- <CAPVz0n0ryOns2sCJE_jFana9MVzwEj1QZuPEa8FNhGbHXnMB+A@mail.gmail.com>
- <11652e5e-053e-45b0-98a0-0c1cb2aeedc4@app.fastmail.com>
- <20260912232047.19c4cb10@jic23-hlaptop> <avM5EnC9yujUZcCO@nsa>
-Subject: Re: [PATCH 08/14] mfd: remove unused aat2870 driver
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
 
-On Tue, Nov 10, 2026, at 16:39, Nuno S=C3=A1 wrote:
-> On Sat, Sep 12, 2026 at 11:20:47PM +0100, Jonathan Cameron wrote:
->> On Thu, 10 Sep 2026 20:14:15 +0200 "Arnd Bergmann" <arnd@arndb.de> wr=
-ote:
+On Wed, Nov 04 2026 at 05:54, Igor Velkov via B4 Relay wrote:
+> alarmtimer_rtc_add_device() registers a platform device under the first
+> RTC that has an alarm and a wakeup-capable parent, and alarmtimer_suspend()
+> programs that RTC. On ODROID-HC4 it is meson-vrtc, a register the firmware
+> reads when the application processors suspend, with no interrupt in
+> Linux, so an alarm set on it does not wake the board from s2idle; the
+> board's pcf8563 registers later and is never used.
 
->> > drivers/iio/adc/ad7793.c
->> Maybe. Analog devices ack needed.
->>=20
->> Production part but this one indeed fails to probe.  Analog
->> folk, do you want to fix this one up?
->
-> Given it's production we should fix. Looking at platdata seems to nice=
-ly
-> fir in DT. Issue is that I don't have HW with me to test. So I'll maybe
-> just remove platdata and assume some defaults.
+I'm impressed how creative hardware/firmware people can be...
 
-Sounds good. I already dropped my removal patch for this one.
+FYI, the patch fails to apply against
 
->> > drivers/iio/frequency/ad9523.c
->> Maybe. Analog Devices ack needed.
->>=20
->
-> Hmm we definitely use this one and we have OF support out of tree with
-> likely some DT abuse of what can be in DT or not. Not sure if I have
-> some HW around but we'll need to fix it.
->
-> In general for ADI parts, I think we can drop the ones that are not
-> recommended for new designs. All the others I tempted to say we should
-> keep. Naturally we need to fix all the drivers that do not compile
-> without platdata. And for the ones with defaults we can also just remo=
-ve
-> platdata and use the plain defaults.
+     git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git timers/core
 
-Ok, I'll leave it alone as well now.
+and violates the tip maintainer coding style requirements
 
-I currently still have patches to remove adp8860/8870 (backlight), ad7877
-(touchscreen), ad714x (touch) and adxl34x (input, not the iio one), which
-are currently unusable with DT but are all listed as in production.
+    https://docs.kernel.org/process/maintainer-tip.html
 
-I assume you want to fix all of these and keep them in the kernel,
-but possibly still remove the adxl34x and only keep the IIO driver for
-that part?
+all over the place.
 
-I also have patches to remove platform_data probing from ad5761, adf4350,
-ad5791, ad5421 and ad5504, these all have DT support.
+> +/*
+> + * Place for @ar in alarmtimer_rtcs, or NULL when an RTC ahead of it would be
+> + * chosen over it for every suspend state.
+> + */
+> +static struct list_head *alarmtimer_rtc_position(const struct alarmtimer_rtc *ar)
+> +{
+> +	struct alarmtimer_rtc *other;
+> +	struct list_head *pos;
+> +
+> +	lockdep_assert_held(&rtcdev_lock);
+> +
+> +	list_for_each(pos, &alarmtimer_rtcs) {
+> +		other = list_entry(pos, struct alarmtimer_rtc, node);
+> +		if (other->priority < ar->priority)
+> +			break;
 
-See=20
-https://git.kernel.org/pub/scm/linux/kernel/git/arnd/playground.git/log/=
-?h=3Dboard-remove-7.4
-for the updated series. I hope to slowly get through that. Let
-me know if you want me to skip any more of those patches.
+What's this priority check for? Nothing uses it and we are _not_
+designing for hypothetical use cases where a platform has a gazillion of
+RTCs. It's bad enough that we have to support per suspend state wakeup
+sources in the first place.
+
+> +	ar = kzalloc_obj(*ar);
+> +	if (!ar)
+> +		return -ENOMEM;
+> +
+> +	ar->rtc = rtc;
+> +	device_property_read_u32(parent, "linux,alarmtimer-priority",
+> +				 &ar->priority);
+> +	listed = device_property_present(parent, "linux,wakeup-states");
+> +	for (state = PM_SUSPEND_MIN; state < PM_SUSPEND_MAX; state++) {
+> +		ar->wakes_from[state] = !listed ||
+> +			device_property_match_string(parent, "linux,wakeup-states",
+> +						     alarmtimer_state_names[state]) >= 0;
+> +		wakes |= ar->wakes_from[state];
+> +	}
+
+This is unreadable garbage and list management is the completely wrong
+approach.
+
+You have three suspend states to care about (s2idle, standby, mem) and
+you ideally have a RTC device assigned to each state. Whether that's a
+single device or different ones does not matter:
+
+struct rtc_wakeup {
+	struct rtc_dev		*rtc[PM_SUSPEND_MAX];
+        struct rtc_dev		*active_rtc;
+        struct rct_timer	timer;
+        unsigned long		assigned;
+};
+
+static struct rtc_wakeup wakeup_ctl;
+
+register()
+	...
+        // Reads state list or returns STATES_ALL (0xE) if no list property available
+        unsigned long states = parse_wakeup_states(dev);
+
+        // Remove already assigned states
+        states &= ~wakeup_ctl.assigned;
+        if (!states)
+        	return -EBUSY;
+
+  	pdev = platform_device_register_data(dev, "alarmtimer",
+  					     PLATFORM_DEVID_AUTO, NULL, 0);
+
+	if (IS_ERR(pdev))
+        	return PTR_ERR(pdev);
+
+	if (!try_module_get(rtc->owner)) {
+	  	platform_device_unregister(pdev);
+        	return -ESRCH;
+        }
+
+        get_device(dev);
+	device_init_wakeup(&pdev->dev, true);
+
+        for_each_set_bit(state, &states, PM_SUSPEND_MAX)
+        	wakeup_ctl.rtcs[state] = dev;
+
+	WRITE_ONCE(wakeup_ctl.assigned, wakeup_ctl.assigned | states);
+        return 0;
+
+No allocations, straight forward comprehensible code.
+
+That requires to rework alarmtimer_get_rtcdev() to
+
+bool alarmtimer_has_rtcdev()
+{
+	return !!READ_ONCE(wakeup_ctl.assigned);
+}
+
+But that's fine because with that change nothing needs
+alarmtimer_get_rtcdev() outside of the core code anymore.
+
+>  static int alarmtimer_suspend(struct device *dev)
+>  {
+> +	struct rtc_device *rtc = to_rtc_device(dev->parent);
+>  	ktime_t min, now, expires;
+> -	struct rtc_device *rtc;
+> +	struct alarmtimer_rtc *ar;
+>  	struct rtc_time tm;
+>  	int i, ret, type;
+>  
+> +	scoped_guard(spinlock_irqsave, &rtcdev_lock)
+> +		ar = alarmtimer_rtc_for_state(pm_suspend_target_state);
+> +	if (ar && ar->rtc != rtc)
+> +		return 0;
+
+...
+
+> +	/* No RTC wakes the system from this state */
+> +	if (!ar)
+>  		return 0;
+
+In the upstream code this condition is bogus because if there is a
+platform device then there must be a rtc device as well.
+
+Though I understand that with multiple devices you need to somehow
+handle the freezer_delta/expires magic even if there is no RTC device
+for the current suspend state.
+
+But with the above that's truly incomprehensible and after reading it
+three times I still can't convince myself that it is even halfways
+correct.
+
+The other thing is that if there is a non-supported state your hackery
+fails (contrary to the current code which has the pointless condition
+for rtcdev) to evaluate whether there is an alarm armed at all.
+
+If there is an alarm armed then it's sensible to reject the suspend
+attempt for the unsupported state. You modeled this after your use case
+which does not use the non-supported states, but that's far from being
+generally correct, no?
+
+Trying to handle this with magic hacks is not going to fly, but this
+can be simply done by avoiding the multi-platform device creation and
+just creating one disconnected pseudo device:
+
+struct rtc_wakeup {
+	struct rtc_dev		*rtc[PM_SUSPEND_MAX];
+        struct platform_device	*pdev;
+        struct rtc_dev		*active_rtc;
+        struct rct_timer	timer;
+        unsigned long		assigned;
+};
+
+static struct rtc_wakeup wakeup_ctl;
+
+static bool wakeup_create_pdev(void)
+{
+	if (!IS_ERR_OR_NULL(wakeup_ctl.pdev))
+		return true;
+
+	wakeup_ctl.pdev = platform_device_register_data(NULL, "alarmtimer",
+							PLATFORM_DEVID_AUTO, NULL, 0);
+	if (IS_ERR(wakeup_ctl.pdev))
+        	return false;
+
+	device_init_wakeup(&wakeup_ctl->pdev->dev, true);
+        return true;
+}
+
+register()
+	...
+        // Reads state list or returns STATES_ALL (0xE) if no list property available
+        unsigned long states = parse_wakeup_states(dev);
+
+        // Remove already assigned states
+        states &= ~wakeup_ctl.assigned;
+        if (!states)
+        	return -EBUSY;
+
+	if (!try_module_get(rtc->owner))
+        	return -ESRCH;
+
+	if (!wakeup_create_pdev()) {
+        	module_put(rtc->owner);
+        	return -ENODEV;
+	}                
+
+        get_device(dev);
+
+        for_each_set_bit(state, &states, PM_SUSPEND_MAX)
+        	wakeup_ctl.rtcs[state] = dev;
+
+	WRITE_ONCE(wakeup_ctl.assigned, wakeup_ctl.assigned | states);
+        return 0;
+
+Then all of this falls into place:
+
+static int alarmtimer_suspend(struct device *unused)
+{
+	scoped_guard(spinlock_irqsave, &freezer_delta_lock) {
+		min = freezer_delta;
+		expires = freezer_expires;
+		type = freezer_alarmtype;
+		freezer_delta = 0;
+	}
+
+        // Evaluate the pending alarms
+        ...
+        
+      	if (!alarm_armed)
+               	return 0;
+
+	struct rtc_device *rtc = wakeup_ctl.rtcs[pm_suspend_target_state];
+
+        // Handle the case of an unsupported state
+	if (!rtc) {
+          	pm_wakeup_event(dev, ....);
+                return -E$TOBEDEFINED;
+        }
+
+        ....
+
+	wakeup_ctl.active_rtc = rtc;
+}
+
+and
+
+static int alarmtimer_resume(struct device *unused)
+{
+	if (!wakeup_ctl.active_rtc)
+        	return;
+
+	rtc_timer_cancel(wakeup_ctl.active_rtc, &wakeup_ctl.timer);
+	wakeup_ctl.active_rtc = NULL;
+}
+
+So this gets _ONE_ suspend() and _ONE_ resume() call and nothing more
+and everything falls in place and is comprehensible, no?
+
+One user space visible issue here might be that user space cannot
+determine which RTC device is responsible for wakeup. So this needs some
+investigation whether user space actually searches for
+/sys/.../alarmtimer.xxx
+
+I doubt it, but who the hell knows.
+
+Though the same problem exists when user space suddenly finds more than
+one alarmtimer device...
+
+While staring at that code long enough I really got disgusted by this
+freezer handling nonsense. That's a horrible hack and want's to be fixed
+up _before_ we add multi-rtc wakeup support. The proper thing to do is
+to integrate this into the wakeup_ctl infrastructure:
+
+struct freezer_wakeup {
+	struct alarm		alarm;
+        ktime_t			expires;
+};
+
+struct rtc_wakeup {
+	struct rtc_dev		*rtc[PM_SUSPEND_MAX];
+        struct platform_device	*pdev;
+        struct rtc_dev		*active_rtc;
+        struct rct_timer	timer;
+  	struct freezer_wakeup	freezer[ALARM_NUMTYPE];
+        unsigned long		assigned;
+};
+
+static struct rtc_wakeup wakeup_ctl;
+
+And obviously initialize that:
+
+static void alarmtimer_freezer_fn(struct alarm *alarm, ktime_t now) { }
+
+static __init ....()
+{
+	struct freezer_wakeup *f = wakeup_ctl.freezer;
+
+	for (unsigned int t = 0; t < ALARM_NUMTYPE; t++, f++)
+		alarm_init(&f->alarm, t, alarmtimer_freezer_fn);
+}
+
+But then this whole freezerset() thing boils down to:
+
+static void alarmtimer_freezerset(ktime_t absexp, enum alarmtimer_type type)
+{
+	if (WARN_ON_ONCE(type >= ALARM_NUMTYPE))
+        	return;
+
+	struct freezer_wakeup *f = wakeup_ctl.freezer + type;
+
+	guard(spinlock_irqsave)(&freezer_delta_lock);
+	if (f->expires > absexp)
+		f->expires = absexp;       
+}
+
+And the suspend path gets:
+
+static void alarmtimer_arm_freezer(void)
+{
+        guard(spinlock_irqsave)(&freezer_delta_lock);
+
+	struct freezer_wakeup *f = wakeup_ctl.freezer;
+
+	for (unsigned int t = 0; t < ALARM_NUMTYPE; t++, f++) {
+        	if (f->expires == KTIME_MAX)
+                	contine;
+                alarm_start_timer(&f->expires, f->alarm, false)
+                f->expires = KTIME_MAX;
+        }
+}
+
+static ktime_t alarmtimer_getnext(struct alarm_base *base)
+{
+	guard(spinlock_irqsave)(&base->lock);
+
+	struct timerqueue_node *next = timerqueue_getnext(&base->timerqueue);
+
+        return next ? next->expires : KTIME_MAX;
+}
+
+static int alarmtimer_suspend(struct device *unused)
+{
+	alarmtimer_arm_freezer();
+        ...
+
+	struct alarm_base *base = alarm_bases;
+	ktime_t expires_rel = KTIME_MAX;
+        enum alarmtimer_type type;
+
+	for (unsigned int t = 0; t < ALARM_NUMTYPE; t++, base++) {
+		ktime_t expabs = alarmtimer_getnext(base);
+
+		if (expabs == KTIME_MAX)
+                	continue;
+
+		ktime_t exprel = ktime_sub(expires, base->get_ktime());
+
+		if (exprel < expires_rel) {
+                	expires_rel = exprel;
+                        type = t;
+                }
+	}
+
+        // Remove the freezer timers from the queue
+	alarmtimer_disarm_freezer();
+
+	// Stop right here if no alarm set
+        if (expires_rel == KTIME_MAX)
+		return 0;
+        ...
+}
+
+I'm sure that I missed something there, but you get the general idea.
 
 Thanks,
 
-    Arnd
+        tglx
