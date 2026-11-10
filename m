@@ -1,47 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794313533;
-	b=myf9LpHz78mn06VUM9GfX++RTHklBJALeY+7/sTq/6p4lS3Q957p9hoLDycQUr9tc2m9
-	 LbVFytoxvhVvSfKTEdui8X7bjSh/TrEAqXzGeve6OB4L5R8SAGi8ghyYZJfFuL/PxuT0F
-	 5gv3+LgPKA2zibZ4ckqt4Ehjv9diNc4Uxm+UhMMidZHibgP5ilTOIPQESCtdW6+27q3kE
-	 7VEpRQBeA7+DzZj/ThtSgpJZhWv2TR0Gj7fH3I9NLBchdi/W1yin8YUmrRMqOSWnb9Xc4
-	 RWedDtYIf/NzkwtLwaFoNk6+u5bgvstQOQuk7qg1oAl4Y9ZP5faZ3ByoiW7OJjcsKBQ==
+	t=1794315164;
+	b=SMXQ9DEc3RZs9BVO/chDuFo3UXOTPr/7mfix8QC91XbcrgAYAmtMYZUzFQzp9IU6ODlS
+	 g1dzjwizBBLgF0bszmwpgFMmXIGEXigJWImaqnl6qx1wPR7A+Dg2pqrPQOlKu1adBk5YE
+	 9hggrmAiLHdp5bGFakYEIcFozUVWrGBcw7BUHcjTA3DRqS/Zgl1DTXbyeHyldEjo6qtop
+	 OfO/B8sIJq4heEPGE/N1OSV4+yR5oyq0EIkflHG/VuaRFu+3ykC1xNulnBxbBGyWJ7tAR
+	 cqINiiccHi3NyMpi327m8mgqUTuxjAMmt+aEaJl7PgqDDpaUGIlGiJrKjHYTvA0yM5g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794313533;
-	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:From:
-	 Subject:To:Cc:References:Content-Language:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=o8vOqPjQp+qIgT4SjBM1vuuP9NkLzsqzq4almCwh0ns=;
-	b=oFQ1RvRXS406PJsCj+QZ3nmxN4FQMJSwNxDmPp6y0MI4P1A5rNsJpOXT7zMx1yhYn1aW
-	 Ci3fTwyfSCCcjN+Ib0ST0u4abDM9kFBhWClJP9SipalzSk5A4awWWuN7lSY3tKe0M7lR0
-	 lCmQCCHc1ZiijrSbRRx8ph3E/tCsQd9NTnKuIuqMZ/rJifKpCus2ssalM55pkKz2k5pfZ
-	 uZFaEt4ZE3VcWZP/K76qrRY1b5QDNC90wsSWaMCo4F5Tr5q+ymQQ+aI6waPkb+wOeHxaJ
-	 Hte7eSR3a3y/++xAGCiYdTr2mYxDhyRQh6JRw8xK3vw6YIGSfCDJG2cCI2AJVW/+29A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794315164;
+	h=Received:DKIM-Signature:Received:X-Forwarded-Encrypted:
+	 X-Gm-Message-State:X-Received:MIME-Version:References:In-Reply-To:
+	 From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:Message-ID:
+	 Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=CskMbCuNN7TqHn8jl34uhXVVf0ggCo8k+jKpleHJs1s=;
+	b=x+x/JU0VJn7/RE40mkfTmvdsSY1IrMt1w8Q1QyiIWyZMh8Ja1/dOUVizP/0i6FDO/if+
+	 8P8XyGKfNtGcc5egAo1/i/ZXCd5HbgK47Wl54iTx3Y+A2CadRPa0UqH+LtrU87Phi4xhY
+	 bqb7vjVerrplAkyIYKnK51KlsXAELH2/bl1p/kvyvKzvt3FNtFdfe5zhlfLmmSkl2g58t
+	 1vWII6EzNxw8KPPEjylRkje6jMg2qbVkeiFOqXpj2kOrXn7H7iC2IWejq4tEsWUKWf8Gs
+	 qMWZ0bYAso8QtyugbEQQ3os3SPbBa806hhc0Bv64ieKbL6feSRzkDqnNPOvquCCoJwQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Gr5nohgX;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kAldbC00;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF9AC606A32A;
-	Tue, 10 Nov 2026 12:25:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13710606A31C
+	for <linux-rtc@vger.kernel.org>; Tue, 10 Nov 2026 12:52:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Gr5nohgX
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2A651F008A2;
-	Tue, 10 Nov 2026 12:25:24 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kAldbC00
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E47681F008A2
+	for <linux-rtc@vger.kernel.org>; Tue, 10 Nov 2026 12:52:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794313532;
-	bh=o8vOqPjQp+qIgT4SjBM1vuuP9NkLzsqzq4almCwh0ns=;
-	h=Date:From:Subject:To:Cc:References:In-Reply-To;
-	b=Gr5nohgXHm1YYyj6tvLEZ2lSM8AwTngl7Y9YhcAEKBH+Qk95txebAZ9NtKzrDhbMu
-	 /kcVhI4wBuCa61a001FzAROnBPqNtiO/ytzlzOWo7XJ5chQlrrTZ0jAur7hkGa2Dea
-	 9e8VcncC+5ovHWHZPm9Udas/YhDeQJz+/Hw/DgiFOKQphYC3tCbIwtuUfnQDwnkr0A
-	 NlkNf0d03csKo9TcHJmIS39u4zkv/CzH2xeQIMrUlC8N+o3OuHRReJJo3cYKVKlsnW
-	 Ok7Bxat5Tx0PnCcbiQSm1rkYigOOsx53IhuLC4CVONUmhMnelBCuvRRROviPHPq5B4
-	 hzmGl2iyPjB0A==
-Message-ID: <69a3552e-1fca-49e9-a9c0-66963319d2a9@kernel.org>
-Date: Tue, 10 Nov 2026 13:25:23 +0100
+	s=k20260515; t=1794315163;
+	bh=CskMbCuNN7TqHn8jl34uhXVVf0ggCo8k+jKpleHJs1s=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc;
+	b=kAldbC00mztx1i8pl3G5nZs7nDPsS4PvILq8PeAblAoN+Ptmwlxv5v6P9F9gCQieX
+	 8a8NqGsIz8rJET9FpN76RDMMvcXmBhLQHhM6KMaGy7kaHEq2R+UfBwcpxiwZe7dL8T
+	 WMhQeXUtwH7GA86l4eExPEgIoWGZahgf4CI9IPMwIYAbl1gbUHlbX1XeTwPaRtmRKy
+	 dttDtK/5tgtcHKfJa1N5jXEif+kCtYmXhoeCt5twsregVPIzi5isn/2gOy1a+10nb0
+	 D6SMKayVqmsH2XnHeggiX7txfF8TCtJjcegVNtLv5lEp/P8nbvkIR7F/PMofA1gaJc
+	 p61TM2IbfLIQA==
+Received: by mail-lj1-f171.google.com with SMTP id 38308e7fff4ca-3adff684a52so16840271fa.1
+        for <linux-rtc@vger.kernel.org>; Tue, 10 Nov 2026 04:52:43 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AL+hErH/OuEu8aODPk9oO23+ZHE5s7XOhAs3dPyWrj1kXqNh1io1bj1rKevDZyePuOq2+2hrgWMmv41YKRI=@vger.kernel.org
+X-Gm-Message-State: APuU4Z+q8Rxrh77n+fgcc5N3IOlYpDCw9ngsjidgRYUyeowzMLhZlFL4
+	FifoJoqM0GM2r8xeUqR3EvQHaUjPvOIDp7s+eoMnl0rWv3pfRby+eML0lMjythUp7vbegOtrbfe
+	2iERajYVtMb+AvOX93TN/0rs5Du2Lm7A=
+X-Received: by 2002:a2e:bc17:0:b0:3ad:fc9d:3b94 with SMTP id
+ 38308e7fff4ca-3ae0907341amr5487881fa.2.1794315162358; Tue, 10 Nov 2026
+ 04:52:42 -0800 (PST)
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -51,89 +59,65 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-From: Hans Verkuil <hverkuil+cisco@kernel.org>
-Subject: Re: [PATCH 03/14] mfd: remove unused si476x driver
-To: Arnd Bergmann <arnd@kernel.org>, Lee Jones <lee@kernel.org>,
- mfd@lists.linux.dev
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- Arnd Bergmann <arnd@arndb.de>, Daniel Thompson <danielt@kernel.org>,
- Jingoo Han <jingoohan1@gmail.com>, Mauro Carvalho Chehab
- <mchehab@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>,
- Mark Brown <broonie@kernel.org>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Guenter Roeck <linux@roeck-us.net>,
- Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>,
- Jonathan Cameron <jic23@kernel.org>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, Pavel Machek
- <pavel@kernel.org>, Michael Hennerich <michael.hennerich@analog.com>,
- Support Opensource <support.opensource@diasemi.com>,
- Sebastian Reichel <sre@kernel.org>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>,
- Helge Deller <deller@gmx.de>, dri-devel@lists.freedesktop.org,
- linux-doc@vger.kernel.org, linux-media@vger.kernel.org,
- devicetree@vger.kernel.org, linux-hwmon@vger.kernel.org,
- patches@opensource.cirrus.com, linux-watchdog@vger.kernel.org,
- linux-gpio@vger.kernel.org, linux-iio@vger.kernel.org,
- linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
- linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
- linux-fbdev@vger.kernel.org, linux-sound@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, llvm@lists.linux.dev
-References: <20260909132153.1596191-1-arnd@kernel.org>
- <20260909132153.1596191-4-arnd@kernel.org>
-Content-Language: en-US, nl
-In-Reply-To: <20260909132153.1596191-4-arnd@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+References: <20261027220537.3443104-1-hamzamahfooz@linux.microsoft.com> <avHUNhepm/Qowd1E@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
+In-Reply-To: <avHUNhepm/Qowd1E@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
+From: "Rafael J. Wysocki (Intel)" <rafael@kernel.org>
+Date: Tue, 10 Nov 2026 13:52:29 +0100
+X-Gmail-Original-Message-ID: <CAJZ5v0jNE6Xhc92GzWbT=9BW8RPJngQ7j1NBSB4gp+K8q=4_3Q@mail.gmail.com>
+X-Gm-Features: AclHuK-uoeQ0E_-nUisIdYMUibomSXOZhN5eRvtOBjENGti_PIKDQZxAp0xrhVY
+Message-ID: <CAJZ5v0jNE6Xhc92GzWbT=9BW8RPJngQ7j1NBSB4gp+K8q=4_3Q@mail.gmail.com>
+Subject: Re: [PATCH v4 0/2] rtc: efi: defer to the ACPI TAD if it can drive
+ the RTC
+To: Hamza Mahfooz <hamzamahfooz@linux.microsoft.com>
+Cc: linux-acpi@vger.kernel.org, linux-rtc@vger.kernel.org, 
+	"Rafael J. Wysocki" <rafael@kernel.org>, Len Brown <lenb@kernel.org>, 
+	Alexandre Belloni <alexandre.belloni@bootlin.com>, Ard Biesheuvel <ardb@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 09/09/2026 15:21, Arnd Bergmann wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
-> 
-> The si476x driver was added in linux-3.9 without devicetree
-> support, and has always failed the probe function in the
-> absence of a si476x_platform_data definition.
-> 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+On Mon, Nov 9, 2026 at 3:10=E2=80=AFPM Hamza Mahfooz
+<hamzamahfooz@linux.microsoft.com> wrote:
+>
+> On Tue, Oct 27, 2026 at 06:05:34PM -0400, Hamza Mahfooz wrote:
+> > On Microsoft C2141 and C4143 systems, the EFI GetTime() runtime service
+> > faults when called by rtc-efi, which causes all EFI runtime services to
+> > be disabled, even though the RTC can be driven via the ACPI Time and
+> > Alarm Device (TAD) instead, which acpi-tad registers an RTC class devic=
+e
+> > for since commit 8a1e7f4b1764 ("ACPI: TAD: Add RTC class device
+> > interface").
+> >
+> > As suggested by Ard, add acpi_has_rtc() to the TAD driver (patch 1),
+> > and make rtc-efi decline to probe if it returns true (patch 2).
+> >
+>
+> Ping?
+>
+> > v2:
+> > - Rename acpi_tad_rtc_available() to acpi_has_rtc(), move it to within
+> >   acpi-tad (which allows us to simplify it quite a bit) and declare it
+> >   in linux/acpi.h. (Ard)
+> > - Add acpi_disabled check. (Ard)
+> > - Make rtc-efi decline to probe instead of not registering the device i=
+n
+> >   efisubsys_init(). (Ard)
+> > - Make RTC_DRV_EFI depend on !ACPI || ACPI_TAD. (Ard)
+> > v3:
+> > - Make RTC_DRV_EFI depend on ACPI_TAD || !ACPI_TAD. (Sashiko)
+> > v4:
+> > - Move acpi-tad code to existing CONFIG_RTC_CLASS #ifdef. (Rafael)
+> > - Add IS_ENABLED(CONFIG_RTC_CLASS) case to linux/acpi.h.
+> >
+> > Hamza Mahfooz (2):
+> >   ACPI: TAD: introduce acpi_has_rtc()
+> >   rtc: efi: defer to the ACPI TAD if it can drive the RTC
+> >
+> >  drivers/acpi/acpi_tad.c | 48 ++++++++++++++++++++++++++++++++++++-----
+> >  drivers/rtc/Kconfig     |  5 +++++
+> >  drivers/rtc/rtc-efi.c   |  4 ++++
+> >  include/linux/acpi.h    |  6 ++++++
+> >  4 files changed, 58 insertions(+), 5 deletions(-)
+> >
+> > --
 
-For drivers/media/radio, include/media/drv-intf/si476x.h,
-Documentation/admin-guide/media and include/uapi/linux/v4l2-controls.h:
-
-Acked-by: Hans Verkuil <hverkuil+cisco@kernel.org>
-
-Regards,
-
-	Hans
-
-> ---
->  .../admin-guide/media/radio-cardlist.rst      |    1 -
->  Documentation/admin-guide/media/si476x.rst    |  160 --
->  .../admin-guide/media/v4l-drivers.rst         |    1 -
->  drivers/media/radio/Kconfig                   |   17 -
->  drivers/media/radio/Makefile                  |    1 -
->  drivers/media/radio/radio-si476x.c            | 1523 ----------------
->  drivers/mfd/Kconfig                           |   13 -
->  drivers/mfd/Makefile                          |    3 -
->  drivers/mfd/si476x-cmd.c                      | 1543 -----------------
->  drivers/mfd/si476x-i2c.c                      |  861 ---------
->  drivers/mfd/si476x-prop.c                     |  233 ---
->  include/linux/mfd/si476x-core.h               |  532 ------
->  include/linux/mfd/si476x-platform.h           |  256 ---
->  include/linux/mfd/si476x-reports.h            |  154 --
->  include/media/drv-intf/si476x.h               |   28 -
->  include/uapi/linux/v4l2-controls.h            |    4 +-
->  sound/soc/codecs/Kconfig                      |    5 -
->  sound/soc/codecs/Makefile                     |    2 -
->  sound/soc/codecs/si476x.c                     |  263 ---
->  sound/soc/fsl/fsl-asoc-card.c                 |    8 -
->  20 files changed, 2 insertions(+), 5606 deletions(-)
->  delete mode 100644 Documentation/admin-guide/media/si476x.rst
->  delete mode 100644 drivers/media/radio/radio-si476x.c
->  delete mode 100644 drivers/mfd/si476x-cmd.c
->  delete mode 100644 drivers/mfd/si476x-i2c.c
->  delete mode 100644 drivers/mfd/si476x-prop.c
->  delete mode 100644 include/linux/mfd/si476x-core.h
->  delete mode 100644 include/linux/mfd/si476x-platform.h
->  delete mode 100644 include/linux/mfd/si476x-reports.h
->  delete mode 100644 include/media/drv-intf/si476x.h
->  delete mode 100644 sound/soc/codecs/si476x.c
-> 
+Both patches applied as 7.5 material, thanks!
