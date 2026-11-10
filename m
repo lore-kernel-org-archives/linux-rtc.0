@@ -1,78 +1,75 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.175.65.9
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.214.198
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794304995;
-	b=FO7kKonUon8PSRMMouvqd//MMP3XkfjbIobZuBv85rOXCigOBD17vMOdajb6BdoDOMRW
-	 HUU0GGgMT5PK9vCvEgbm32tCxs80fJLhsXPi9SQwP5sZZiIb3mq067zEY3KqBcp6859IU
-	 Qy4P54z6QQNO0VWRemPqcSlbMdXhGHY2Y8frCixzZrUDZXRIbWGsjSxf1vgQwDW2bIqmO
-	 OV1E9P9GPPMX6XnZnMGft7DCpn1ryCGV68CwnfwqeOkz4cwbx69XSyUserM+z3sKb/S32
-	 Bx1g2v56ohyZj1EncEH9AotYsEWUOzbVt9VIOdfC4Yi72JjX98HRcQ6clH6pnmhWYfQ==
+	t=1794307924;
+	b=0Q2/iJ63KgzifRNieRb2sW/FgtK7ux+GU3fXi4MFmZkkdJnZF8/mG4zXqTbcgM9BbPei
+	 1Ugk36UGwXFut5rGTjdaO08Gdbnjn8bMp1T/ds+VURmcdm6Iu+koIVBNjGMJytdFIpFDz
+	 b30GJ634nZOr4HEYlRqjctrG0Qq0qxzw5M2ZPOQYx8LBT4N1+CkKkjhiaoi9GDbkPYx9H
+	 Ew12ZUO1tfuJbWDaYXhQVSfWJYuGW7clFDf2LCpSQGgx/dH85brHWnSL/izqZMjaqxDhF
+	 d+/4eggr9lnwWQzzpookoaKy/WB2oX8kCuvd8hesNWiIODJ90YJUD/K66Nl2JJmFNWw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794304995;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Date:From:To:Cc:
-	 Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:Organization;
-	bh=6HF1e9lepwhm1oE7j1dSMudJRnOrQXs2jFeaqj+2q6I=;
-	b=SAxl0ciolzx+41PkGAwzNPnRmMpPdPe6+g+pxEpaVqpHJiPSTawIOvm0Kl/z0mF480r8
-	 xT7U/plPBjyKHuSMNQH0TpzMlaL1qgP9ihXDZfdTsYxHmX5iiuASmG2NUZCcx5Zb0uL8x
-	 Dp3f+rhaNM7pxdPwJVqfGFj77U5w4/bxgrfPiBEGVz/aI1hyXvMgsnoWhWD+TqpLT96Y/
-	 FDDiRtsLITNrx8+cxUoziUXrZBhcntIsZl5pPskY+kpcfE5Wcj2ndyTDEZkGmmRaSgIVP
-	 ftwnJZE3OJgJCGiyc9J9ekn2joCTf0RoNz11Nuw3szM4FZd5FhcoFxFX+3U1nIbt9vg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794307924;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Received:Date:In-Reply-To:
+	 Mime-Version:References:X-Mailer:Message-ID:Subject:From:To:Cc:
+	 Content-Type;
+	bh=luY53rQnSHqOmqiVXG3ojpIoE98d8W8aTwUr99JyWqc=;
+	b=ET1L5pvQiFzRjj/VcEe1rrLJ0ZhQnT5i5qw/pKAtMlabnnJUGgHfnBY8ivoE44m8lCbC
+	 VhUrXxBOYEVqDUueqcpkpmYGcWxJnxTJpxeTo+TJHw7nwGmZWV+CLOCkejHM2t7+TmcwI
+	 xTAU4TH2JgdW6xyAmiRBRpM+k5IkTGrk3497hqONND+zAaIh7O+l76VZy3lBknREyCgkP
+	 nGkPF9QqKjIgfEIvzYe37/A8cEZiYQLLVeEMnGWmTEFELaONO7Q7ErDJdHwWXFQjsdCv/
+	 dUSKxlc4qJEjllzNCZo2GLUWIrHy3gvDkOicJOjc7zI8kKtP2jmyGDCcDXzofgrytGg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=intel.com;
-	spf=pass smtp.mailfrom=intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=B9xJj9KR;
-	arc=none smtp.remote-ip=198.175.65.9
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=pass header.from=google.com;
+	spf=pass smtp.mailfrom=flex--wakel.bounces.google.com;
+	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=NcRlXcf5;
+	arc=none smtp.remote-ip=209.85.214.198
+Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com [209.85.214.198])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52CB8606A31C;
-	Tue, 10 Nov 2026 10:03:13 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 52CB8606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5868B606A325
+	for <linux-rtc@vger.kernel.org>; Tue, 10 Nov 2026 10:52:03 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5868B606A325
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--wakel.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=B9xJj9KR
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1794304993; x=1825840993;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=SW0TvQEc6Yt3Uny33u1kgn0MUL8IkLv6JB5i6nB7eEs=;
-  b=B9xJj9KRDXed/TIiLtywANYQT8apNIErtfmiIf7weJeJMjorBDux+3fK
-   X5NBNw1Tavm1sicgvWWWxxnaifULQKBpt8VZYysdcPiWkc+WKniJalQ+p
-   x2iKvDiQKYzEI4yIce33am4hYMU73fxyWRHPElAtRhLqW70qG3RkPri5I
-   qrjBMoe5jw0Xxn5U4HodoGvCcDd9SZCGbsMe6zpzDBgdawMOgh8P70cwm
-   Y5Vi7ABI53fvPBXrQJqoe4hQ3Tqq0E/uvYbr6e5Tds92zoVZyh3rjIXv1
-   39u1CFDGo8o2q0JQ9u37oRjhEO0ACwQ+SyBc397E9FtCXKhOfSlIR1ARE
-   A==;
-X-CSE-ConnectionGUID: 2xkQFPVKRNSMgIY4PtU5tA==
-X-CSE-MsgGUID: FqMweGwfR8Ol+4sdgQuLog==
-X-IronPort-AV: E=McAfee;i="6800,10657,11961"; a="2950786"
-X-IronPort-AV: E=Sophos;i="6.27,205,1787036400"; 
-   d="scan'208";a="2950786"
-Received: from fmviesa008.fm.intel.com ([10.60.135.148])
-  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Nov 2026 02:03:13 -0800
-X-CSE-ConnectionGUID: /BglLhclScWTLf4GGUpTtA==
-X-CSE-MsgGUID: eYcR2an0SdarUAmISfnQ+Q==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,205,1787036400"; 
-   d="scan'208";a="8436949"
-Received: from kniemiec-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.244.244])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Nov 2026 02:03:09 -0800
-Date: Tue, 10 Nov 2026 12:03:07 +0200
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: Akhilesh Patil <akhilesh.patil@linux.dev>
-Cc: jic23@kernel.org, dlechner@baylibre.com, andy@kernel.org,
-	robh@kernel.org, crofts@kernel.org, krzk+dt@kernel.org,
-	conor+dt@kernel.org, alexandre.belloni@bootlin.com,
-	linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-rtc@vger.kernel.org,
-	akhileshpatilvnit@gmail.com, akhilesh@ee.iitb.ac.in
-Subject: Re: [PATCH v3] MAINTAINERS: Update Akhilesh Patil Email address
-Message-ID: <avLr27SlZWwFnpYY@ashevche-desk.local>
-References: <20261110052942.GA2505113@u5ce4748bae3b54.ant.amazon.com>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=NcRlXcf5
+Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-2eb2437d752so29772215ad.0
+        for <linux-rtc@vger.kernel.org>; Tue, 10 Nov 2026 02:52:03 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20260707; t=1794307923; x=1794912723; darn=vger.kernel.org;
+        h=content-type:cc:to:from:subject:message-id:references:mime-version
+         :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=luY53rQnSHqOmqiVXG3ojpIoE98d8W8aTwUr99JyWqc=;
+        b=NcRlXcf58L5cAm85xdwcRMP8p/gxpVW0B3VFJ8usn+Fv0oeYo7gKsPhzp/NOm7FFfn
+         F1frWF9UacFCIYy7+uO6/e3rXu0yXIbTev4FjE7N+3HYbWJn4T4jIYrpcj6hnLZQXqcD
+         jZrM4Qm0pFmQoIlaMiuFv8uGsuVg04jHZY7RhgYpcCuEjJLBc5WnZVvR1l4JwQpN4wGO
+         MjDcz6jZyUQLEqfqbWV5Oo4YooBz2Fl0qruAepfk2QuGXsfwE5RQ0HYYHCTaLWyVGb71
+         wAuCJniDC+kHUH+nYhYKdX0yTEpBkUgSKrIH2Z9vImolTGiPLvVHDmHpNz2QrAkeqRSk
+         C5mQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794307923; x=1794912723;
+        h=content-type:cc:to:from:subject:message-id:references:mime-version
+         :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=luY53rQnSHqOmqiVXG3ojpIoE98d8W8aTwUr99JyWqc=;
+        b=nXkf0n2SENLZn+glxSQX6fDCziZWci23AZM/9gE+oK5SjfovM56cPA2jibHPgFxREg
+         Osb0yPPp1oul0UsmBH1w054eOYvGt7+LqPY3+0/6BctNnQ+LPHa0Rpg1MFJ7woqSsxCn
+         uza34Z1xMw1MiN9bpEyOApWnY6oEgO13ehWCvwEGMLC9+H0tXb1u1KdiWZDcsAMYfXPN
+         OhPyDcu42aI9zHR4GC4Df9AoyMpXXjroWc2RM+rZsJn1l112nREXO7qa2AMBd6aSMzMQ
+         2/JKMGYmr4d7oPdPzPRhrxMPzy5uxw+pmQmjxLq9tqZA66hmRasqxfvX4K0av+sfI1Pc
+         Mx/Q==
+X-Forwarded-Encrypted: i=1; AL+hErFAAkLySnT/9+SHe4fdJCubJ4Eu0ua4S9IbRko0KhwkbXavNstQQwBX8ISomsimBLSDDmB8MAuK/Mk=@vger.kernel.org
+X-Gm-Message-State: APuU4Z8dS2hXlCZ3T4X92IEfxOQCANjaGHsJvXC4jNo1AZhCqBuMQjiv
+	DyALKQl1eBqJg+ftHytoRXVtFwlGdV1BUlo2lEYzpbk0c1j5M94E3xw7A6h2tBGzdQ0AetujuBm
+	ADw==
+X-Received: from pldt9.prod.google.com ([2002:a17:903:40c9:b0:2e5:a015:564e])
+ (user=wakel job=prod-delivery.src-stubby-dispatcher) by 2002:a17:902:f686:b0:2ec:ed58:2062
+ with SMTP id d9443c01a7336-2edb9278fa6mr19990085ad.35.1794307922487; Tue, 10
+ Nov 2026 02:52:02 -0800 (PST)
+Date: Tue, 10 Nov 2026 10:51:58 +0000
+In-Reply-To: <20261105030834.3318480-1-wakel@google.com>
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -81,28 +78,133 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261110052942.GA2505113@u5ce4748bae3b54.ant.amazon.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+Mime-Version: 1.0
+References: <20261105030834.3318480-1-wakel@google.com>
+X-Mailer: git-send-email 2.56.0.506.g506a7eabc5-goog
+Message-ID: <20261110105158.975652-1-wakel@google.com>
+Subject: [PATCH v3] selftests: rtc: Support harness test filtering and arguments
+From: Wake Liu <wakel@google.com>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>, Shuah Khan <shuah@kernel.org>
+Cc: Shuah Khan <skhan@linuxfoundation.org>, linux-rtc@vger.kernel.org, 
+	linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Wake Liu <wakel@google.com>
+Content-Type: text/plain; charset="UTF-8"
 
-On Tue, Nov 10, 2026 at 05:29:42AM +0000, Akhilesh Patil wrote:
-> Move to my new linux.dev email address akhilesh.patil@linux.dev
-> I plan to use this email for kernel development going forward.
-> Also update email address in few yaml and driver source files.
-> 
-> Signed-off-by: Akhilesh Patil <akhilesh.patil@linux.dev>
-> ---
+rtctest implements its own main() function with a rigid switch (argc)
+check that only accepts an optional single argument for the RTC device
+node path. This prevents kselftest_harness standard arguments from
+working properly:
 
-> Link to v2: 
-> https://lore.kernel.org/all/20261109104443.GA531570@u5ce4748bae3b54.ant.amazon.com/ 
+1. Passing filter options like -t <name> or -T <name> triggers a usage
+   error because argc is greater than 2.
+2. Passing -l or -h causes rtctest to treat "-l" or "-h" as the device
+   node path and fail with access() errors before ever reaching the
+   harness argument checker.
 
-And where is changelog?
+Parse command line arguments with getopt() to pass all kselftest harness
+options (such as -t, -T, -v, -V, -f, -F, -r, -d, -h, and -l) through to
+test_harness_run(), while preserving the ability to specify an optional
+RTC device node path as a non-option argument. Only reset optind once
+all options have been parsed, so the harness re-parses them from a clean
+getopt() state, and bypass device accessibility checks when help or test
+listing is requested.
 
+Signed-off-by: Wake Liu <wakel@google.com>
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+v3:
+- Don't call test_harness_run() from inside the getopt() loop for -h
+  and -l. getopt() keeps its position inside grouped options, so with
+  e.g. "-ld" the harness resumed at 'd', missed -l/-h and ran the whole
+  suite without the device check. Record -h/-l instead and reset optind
+  only after all options have been parsed. Reported by Sashiko AI
+  review.
+- Kept Alexandre's Acked-by as the change is limited to the -h/-l
+  handling. Alexandre, please let me know if you'd rather re-check.
+
+v2: https://lore.kernel.org/all/20261105030834.3318480-1-wakel@google.com/
+- Rebased onto v7.4-rc1, no code changes.
+- Added Alexandre's Acked-by.
+
+v1: https://lore.kernel.org/all/20260910034821.2935214-1-wakel@google.com/
+
+Alexandre, if you're still fine with it, could you queue this via the
+RTC tree along with the other rtctest changes? Shuah, please let me know
+if you would rather take it via kselftest.
+
+ tools/testing/selftests/rtc/rtctest.c | 54 ++++++++++++++++++++++-----
+ 1 file changed, 45 insertions(+), 9 deletions(-)
+
+diff --git a/tools/testing/selftests/rtc/rtctest.c b/tools/testing/selftests/rtc/rtctest.c
+index 552191fe1ca0..21c37764f9d3 100644
+--- a/tools/testing/selftests/rtc/rtctest.c
++++ b/tools/testing/selftests/rtc/rtctest.c
+@@ -487,18 +487,54 @@ TEST_F_TIMEOUT(rtc, alarm_wkalm_set_minute, 65) {
+ int main(int argc, char **argv)
+ {
+ 	int ret = -1;
++	int opt, i;
++	int non_opt = 0;
++	bool skip_dev_check = false;
++
++	while ((opt = getopt(argc, argv, "dhlF:f:V:v:t:T:r:")) != -1) {
++		switch (opt) {
++		case 'h':
++			fprintf(stderr,
++				"Usage: %s [-h|-l|-d] [-t|-T|-v|-V|-f|-F|-r name] [rtcdev]\n\n",
++				argv[0]);
++			skip_dev_check = true;
++			break;
++		case 'l':
++			skip_dev_check = true;
++			break;
++		case '?':
++			fprintf(stderr,
++				"Usage: %s [-h|-l|-d] [-t|-T|-v|-V|-f|-F|-r name] [rtcdev]\n",
++				argv[0]);
++			return KSFT_FAIL;
++		default:
++			break;
++		}
++	}
+ 
+-	switch (argc) {
+-	case 2:
+-		rtc_file = argv[1];
+-		/* FALLTHROUGH */
+-	case 1:
+-		break;
+-	default:
+-		fprintf(stderr, "usage: %s [rtcdev]\n", argv[0]);
+-		return 1;
++	for (i = optind; i < argc; i++) {
++		if (non_opt == 0) {
++			rtc_file = argv[i];
++			non_opt++;
++		} else {
++			fprintf(stderr,
++				"Usage: %s [-h|-l|-d] [-t|-T|-v|-V|-f|-F|-r name] [rtcdev]\n",
++				argv[0]);
++			return KSFT_FAIL;
++		}
+ 	}
+ 
++	/*
++	 * Rewind getopt() so test_harness_run() can parse the options again.
++	 * Only do this after the loop above has consumed every option, as
++	 * getopt() keeps its position within grouped options (e.g. "-ld").
++	 */
++	optind = 1;
++
++	/* -h and -l are handled by the harness and need no RTC device */
++	if (skip_dev_check)
++		return test_harness_run(argc, argv);
++
+ 	/* Run the test if rtc_file is accessible */
+ 	if (access(rtc_file, R_OK) == 0)
+ 		ret = test_harness_run(argc, argv);
+
+base-commit: 6628e7d4c6b25c8d18f1345e3a20d21829aae7e4
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.56.0.542.g3ef89b7020-goog
 
