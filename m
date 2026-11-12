@@ -1,55 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794475119;
-	b=SUd70Og6MhfZed0r3rmhNhnj/0TVpRLrzGxpJcnNgrtRMDV6I9hqIQk6H/YJNh5rsOsq
-	 dmycr7b+hi0orIma81zsLnF69iukjNx6XDJqj6s2VXlkOuRV4BPUZoxlLHUwyqijlJz1/
-	 bNsp19DP2Qnx9yQAI+mBdR8KObCV8FwLRAe9zl8ml0uiZKHomrNiXxMQlv4f7f5oNZB7G
-	 IXtX4lHSY7vN81upRMh2HRLJhnxdggLhmwNgbwZ5IavkWhTz+kEITThVj5zGceigxHwXw
-	 tSFKK/3gbr2mXe5eyQ2idFMHZQRCbOEdXtL3TqGKfFbbBdY/tQ1aT9+XNqaPQAELv8g==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794475119;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=SyiKFSYNBIayw2D4mE3/Cmxuo0t8eYrEEnmtU6117Yg=;
-	b=QNIlLJZ8A+JMV6UHzgguKzEx1ZE6qlQAB56zVBIyXtPiENDLqCLTQwon4LYn3bu6StJX
-	 piPTqanFl1fTUERluJBNEkLBeYGTsUpGhqq9Apl4ZpnYeffE1Q0N0zq3YhbINEneyeXAv
-	 +BIFUxi93F/nEa4tE1rOT/Egr9IXq7heHkwg9N5L3f/BD1dpaXygh0PPbwmDbwlnck7KA
-	 1og8WdP5vgkLskGyqU8O4CnRm8EYFmOh48feLMa5psqGWkXxE1ekRYPvBTJy5PfnM0VNE
-	 odql36p6W5yY5VibQXQc6q8G8h+VEUlDbN+j1yEL4txSEWAs1EFvh8CEygJXXKbCcIg==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HpF3CjQR;
-	arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794475503;
+	b=I66zgJM8W6d+p+mVKTP4Bk7DmDRRXSeXaCC6Tk3pf4UQ19LR3INIrcqptk2i09vQLFMd
+	 ndD83wL+R/IL913ZjhVxN0geJlC5hipzmgOGH8vAmt04PL5vgGEJtANdFHyVJ+FYZNipD
+	 zm2173hZPO8gvROOpctqxosrbujPBkmHhR8w9VxRgiXQLR4SgJEYwRZ7nyHWvZftQAgBk
+	 IGnPu3uyRftqpjk+jsSwTIZ3p2rw7a0uTNjbl1MeeWm2lu4abugHlVR4cE4jNZstw+H4Z
+	 Qy03+a0LhZHTL3Ps0PM2OewAPPMikK3uTcdyYpZPCRRPTr9ztuGv6Zv8g4MFjgpmJrw==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794475503;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 In-Reply-To:References:X-Mailer:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=IWXvVUCKSmZLHb2fEiIv4nMaSQa+eIkiYQCoUrncRak=;
+	b=HUKgVIxfAkck0tHXsQbiEsRFJMe5Z3x2kqK2wJBCEXVPRgiqqtTPCnLpCYD4KaNXCXhw
+	 IWTsdpff7Q3NyVKlecBQxHlWVKnGP09WNXvbRkKrF6htqpolcS7wgHcj2rktR4N2OjyTp
+	 hFtpcJzZt8W9qa15xXryECR47ISscxyiX4hAQcn/PtAY3OtTFVZb55u6SQRBwjEhTkO7y
+	 E0MM3H12ehN8qODuXsZJ+y8MTsVJilbNbIRHHzg7VHRY07pbIzoVQc6dNoH6WJ+CeOgRP
+	 iNatREICvMORSbeAALUJi2LrZT0gcIaag6hLkH1ci7Ea3sEobQbjB08rVOkNuqfOC5w==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ESzsZ0U3;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3E02606A321
-	for <linux-rtc@vger.kernel.org>; Thu, 12 Nov 2026 09:18:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5444606A330;
+	Thu, 12 Nov 2026 09:25:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HpF3CjQR
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 534B01F00A05;
-	Thu, 12 Nov 2026 09:18:38 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ESzsZ0U3
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=90.182.112.124
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1794475503;
+	b=okXx4v2fAhoRm6rIFPkKPFWCJyMDnQ3lmu4Jv58J65y++BpGTGXX0314mpKBhVjh+z3K
+	 qsMwNEEMKmHZH+tIu8LUUrjgyc9KXL/YqW6F43FN1ekToHjimUoa9/DcS8D9RquT3Er3F
+	 jwAUDf+XoI9eqiDkcWWolNgoUqeMNGgDtRqXsLnd5TjfBpjyM83U4tN4BzfKHHA8ay+Z4
+	 CH1z1AvDH6DHORUbHQBcaeInQ8hmprZbHLdLa+a4AZP1mc5WBsup0gnkBDl44fE80wx/X
+	 f2uh8ZVu0SYs1BKDGvIV06Vlqad9VWYWmqxvIQpr+TwKLqchBXd4ojd1sBjPzYjZs4Q==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1794475503;
+	h=DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:In-Reply-To:
+	 References:X-Mailer:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=IWXvVUCKSmZLHb2fEiIv4nMaSQa+eIkiYQCoUrncRak=;
+	b=WdQdd6i2c7Q+JwC/h/4rPT0R+5odWxDn3fK1XigVDzWaiseL2q2ar2ZG18pXyp+WiOp+
+	 U11JUR3zpVFMep4kzQq3sscmqlDFLDlxhIrGSVHn9IJjc42DcMzKrInYLTe/zIJ0vgtNn
+	 kEE3/cYwUv7vhTOsZLl6648LFof9O8qOXlQa08XcKVrlefZvYObGjP7Tq8dNrYUw6Jnt5
+	 kL4bCAj9USdb+B7YyuJyZ9s/qeO9vRWyWoUC1UQ27K+AE7cCqIzpmEtTO7Y/KuaEOP2rs
+	 WvEtqLuuFOacqUmgCCcLrqThSAV+iDkT29A8U1eKQnx4Peu9OIdt9mpOm28OnDyh7gw==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=90.182.112.124
+Received: from localhost (90-182-112-124.rcp.o2.cz [90.182.112.124])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	(No client certificate requested)
+	by smtp.kernel.org (Postfix) with ESMTPSA id 0D4811F00A07;
+	Thu, 12 Nov 2026 09:24:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794475118;
-	bh=SyiKFSYNBIayw2D4mE3/Cmxuo0t8eYrEEnmtU6117Yg=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=HpF3CjQRPkcv361OrIKrrywy66W/307iJMZKhcZG5wduey4Qpo22ynPtNB7VnHxHR
-	 cbnA8wMzb1OFe1bhm1H2M1CGGMD1OgXGQtPB69QpXuHDQ3r4+azXRgGCjRDn1zlLRZ
-	 EkRVPwnAKdB2zw/mFvq9sM1V8YRq86EdJkfY4EwGXm0muFmjaFEecOF5sNF99xjATM
-	 M6c5cXhjw0FvsDRpmWBiV0aPEvKPgJa7kx7PmaM+C6p31NbY4i8bxrvv7QjyJ25xcC
-	 yajA9N2nF6+j+uhT99UPDEHvc32bJzZAzrwEP5q6PSfV13sL6mae4KdddI7HaD5vFj
-	 BAd2l/OWBAa9Q==
-Message-ID: <sashiko-outbox-210860@kernel.org>
-From: sashiko-bot@kernel.org
+	s=k20260515; t=1794475503;
+	bh=IWXvVUCKSmZLHb2fEiIv4nMaSQa+eIkiYQCoUrncRak=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=ESzsZ0U3cv5yQAPJ5JKMLDJKbgpCaU79A6eWV33eUTvanPg7/vKJRs56LIz9ugHpd
+	 Omg6qb5HUuQMrP767+jV6SZVghez0czWsH0WOPQiZYmXvQBsSgn4UWSzLaSemEmVPv
+	 T22FYACCTtN2udiDQ530n57e3skP+gUsCIT3j+ezV2m96gguOzVe0zr/ZPE6zoqP4V
+	 G33r2EWtiydWLClb/xtCfQb2eVimCd7GPM667a8PTfyJRnViODaRTTRWydsHb8xoSM
+	 ReVYqK3sOTVDiQ+N0Y80Z8z7EGy8cM5WZ8lqWOgA7T6gzYIrBZbpQ+V1dAh7bRQgd3
+	 joyyAShzift7Q==
+Date: Thu, 12 Nov 2026 10:24:56 +0100
+From: Joshua Crofts <crofts@kernel.org>
+To: Akhilesh Patil <akhilesh.patil@linux.dev>
+Cc: jic23@kernel.org, andy@kernel.org, krzk+dt@kernel.org,
+ dlechner@baylibre.com, robh@kernel.org, conor+dt@kernel.org,
+ alexandre.belloni@bootlin.com, linux-kernel@vger.kernel.org,
+ linux-iio@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-rtc@vger.kernel.org, akhileshpatilvnit@gmail.com,
+ akhilesh@ee.iitb.ac.in
 Subject: Re: [PATCH v4] MAINTAINERS: Update Akhilesh Patil Email address
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Akhilesh Patil" <akhilesh.patil@linux.dev>
-Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
+Message-ID: <20261112102456.00001158@kernel.org>
 In-Reply-To: <20261112091641.GA3643677@u5ce4748bae3b54.ant.amazon.com>
 References: <20261112091641.GA3643677@u5ce4748bae3b54.ant.amazon.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 12 Nov 2026 09:18:37 +0000
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.51; x86_64-w64-mingw32)
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -58,16 +87,22 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+
+On Thu, 12 Nov 2026 09:16:41 +0000
+Akhilesh Patil <akhilesh.patil@linux.dev> wrote:
 
 > Move to my new linux.dev email address akhilesh.patil@linux.dev
 > I plan to use this email for kernel development going forward.
 > Also update email address in few yaml and driver source files.
->=20
+> 
 > Signed-off-by: Akhilesh Patil <akhilesh.patil@linux.dev>
+> ---
 
-Sashiko has reviewed this patch and found no issues.
+Reviewed-by: Joshua Crofts <crofts@kernel.org>
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261112091641.GA36=
-43677@u5ce4748bae3b54.ant.amazon.com?part=3D1
-
+-- 
+Kind regards,
+Joshua Crofts
