@@ -1,62 +1,55 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=95.215.58.250
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794475010;
-	b=1oj48zvhK1jVbiVkPcInfcxme5JUY5gzmzr6WoJxp9Lu3de2qdR1s06Clrhev6S7uXey
-	 6zjEt5bMlBzXWhGqFc4y/VRfDT8anEKQre+WLP/Y9k6l4XePRu2WCs4LbnhEvYl7pMxOc
-	 1bPT+xq1KHDnzrI3vpx2FtkVRXBi9Hwoc4zkdcBeMkkXHBTcO1pQD5j36o3gXVr+pVS3V
-	 6vmbTh48a4OhdmzSK/JT/5KaVu6KGuQWmcf7WY7idNbkqhbrqIac8U8j+6reLyHxY1h9W
-	 SOEA8wiYIpNFYG6uRXApPguRxUpIBxxQ3TbgHc4V5oaOEJHkGiTN4033dpthzOI21VQ==
+	t=1794475119;
+	b=SUd70Og6MhfZed0r3rmhNhnj/0TVpRLrzGxpJcnNgrtRMDV6I9hqIQk6H/YJNh5rsOsq
+	 dmycr7b+hi0orIma81zsLnF69iukjNx6XDJqj6s2VXlkOuRV4BPUZoxlLHUwyqijlJz1/
+	 bNsp19DP2Qnx9yQAI+mBdR8KObCV8FwLRAe9zl8ml0uiZKHomrNiXxMQlv4f7f5oNZB7G
+	 IXtX4lHSY7vN81upRMh2HRLJhnxdggLhmwNgbwZ5IavkWhTz+kEITThVj5zGceigxHwXw
+	 tSFKK/3gbr2mXe5eyQ2idFMHZQRCbOEdXtL3TqGKfFbbBdY/tQ1aT9+XNqaPQAELv8g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794475010;
-	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
-	 X-Mizu-Trace-ID:X-Migadu-Flow:Date:From:To:Cc:Subject:Message-ID:
-	 MIME-Version:Content-Type:Content-Disposition;
-	bh=RcXvCoMdLJYi6GmDhM4JTvoDN/7C+KjmozZsvv6/OHc=;
-	b=1juLPYMb3fS9K5cTpouEh1/BOP9NHphYyMhNz8mN4SSI1jc4jjjL+H8aqUmzbn4p0PQS
-	 5dP0WUDc7V46XJo0SIqV9vQZsZiR6vo1Hw2Q91yDG1h5qbYpGtTo027MvRx9eYVqUBZa5
-	 jlCsV5X+0tJAUg5QrkLmgipzrP2En1qtXah4v9gIlTcRzft8N1/6QgxRXAallMYZk2tPL
-	 XIza1+CV7SWXiRiDs75eSekX5oRqxAfu4Du0y4lQucVn3oi3UC52dOVu5pogwP843tOo1
-	 yY1YVPl0Vq4wpb/ZTbbaDDCQKxstiqfn3VYlyLOJfx74cn/Hrru928QYezWzBsAMoOg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794475119;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=SyiKFSYNBIayw2D4mE3/Cmxuo0t8eYrEEnmtU6117Yg=;
+	b=QNIlLJZ8A+JMV6UHzgguKzEx1ZE6qlQAB56zVBIyXtPiENDLqCLTQwon4LYn3bu6StJX
+	 piPTqanFl1fTUERluJBNEkLBeYGTsUpGhqq9Apl4ZpnYeffE1Q0N0zq3YhbINEneyeXAv
+	 +BIFUxi93F/nEa4tE1rOT/Egr9IXq7heHkwg9N5L3f/BD1dpaXygh0PPbwmDbwlnck7KA
+	 1og8WdP5vgkLskGyqU8O4CnRm8EYFmOh48feLMa5psqGWkXxE1ekRYPvBTJy5PfnM0VNE
+	 odql36p6W5yY5VibQXQc6q8G8h+VEUlDbN+j1yEL4txSEWAs1EFvh8CEygJXXKbCcIg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.dev;
-	spf=pass smtp.mailfrom=linux.dev;
-	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=qc4WOB9b;
-	arc=none smtp.remote-ip=95.215.58.250
-Received: from mta1.migadu.com (out-250.mta1.migadu.com [95.215.58.250])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HpF3CjQR;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF645606A32A
-	for <linux-rtc@vger.kernel.org>; Thu, 12 Nov 2026 09:16:49 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DF645606A32A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3E02606A321
+	for <linux-rtc@vger.kernel.org>; Thu, 12 Nov 2026 09:18:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=qc4WOB9b
-X-Envelope-To: linux-rtc@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=fMZgcVx/gcqBs5iDs68FHCDKO3Houx0xKhQ1tRogK+s=;
- c=simple/simple; d=linux.dev;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1794475008; v=1; x=1795079808;
- b=qc4WOB9bqPVEjur+ulSuYqOZKcp2spHIzPpibMya6ZJN3vRdIbeRPAHBWycljEIy/c2OEyEN
- Xc1HiIiSmXSpmLy8aYeBK0ZaIF6k9H3mEXtUnmUZDG4h/yTxrJ+VnrjOq0rIZNgmMrAEdyt/oZa
- i02NPe/SNWlA8j4YlFJkt5u8=
-X-Envelope-To: linux-rtc@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id 4b26efd512e022c3;
-	Thu, 12 Nov 2026 09:16:47 +0000
-X-Mizu-Trace-ID: 4b26efd512e022c3
-X-Migadu-Flow: FLOW_OUT
-Date: Thu, 12 Nov 2026 09:16:41 +0000
-From: Akhilesh Patil <akhilesh.patil@linux.dev>
-To: jic23@kernel.org, andy@kernel.org, krzk+dt@kernel.org,
-	dlechner@baylibre.com, robh@kernel.org, crofts@kernel.org,
-	conor+dt@kernel.org
-Cc: alexandre.belloni@bootlin.com, linux-kernel@vger.kernel.org,
-	linux-iio@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-rtc@vger.kernel.org, akhileshpatilvnit@gmail.com,
-	akhilesh@ee.iitb.ac.in
-Subject: [PATCH v4] MAINTAINERS: Update Akhilesh Patil Email address
-Message-ID: <20261112091641.GA3643677@u5ce4748bae3b54.ant.amazon.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HpF3CjQR
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 534B01F00A05;
+	Thu, 12 Nov 2026 09:18:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794475118;
+	bh=SyiKFSYNBIayw2D4mE3/Cmxuo0t8eYrEEnmtU6117Yg=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=HpF3CjQRPkcv361OrIKrrywy66W/307iJMZKhcZG5wduey4Qpo22ynPtNB7VnHxHR
+	 cbnA8wMzb1OFe1bhm1H2M1CGGMD1OgXGQtPB69QpXuHDQ3r4+azXRgGCjRDn1zlLRZ
+	 EkRVPwnAKdB2zw/mFvq9sM1V8YRq86EdJkfY4EwGXm0muFmjaFEecOF5sNF99xjATM
+	 M6c5cXhjw0FvsDRpmWBiV0aPEvKPgJa7kx7PmaM+C6p31NbY4i8bxrvv7QjyJ25xcC
+	 yajA9N2nF6+j+uhT99UPDEHvc32bJzZAzrwEP5q6PSfV13sL6mae4KdddI7HaD5vFj
+	 BAd2l/OWBAa9Q==
+Message-ID: <sashiko-outbox-210860@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v4] MAINTAINERS: Update Akhilesh Patil Email address
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Akhilesh Patil" <akhilesh.patil@linux.dev>
+Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
+In-Reply-To: <20261112091641.GA3643677@u5ce4748bae3b54.ant.amazon.com>
+References: <20261112091641.GA3643677@u5ce4748bae3b54.ant.amazon.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 12 Nov 2026 09:18:37 +0000
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -65,111 +58,16 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-Move to my new linux.dev email address akhilesh.patil@linux.dev
-I plan to use this email for kernel development going forward.
-Also update email address in few yaml and driver source files.
+> Move to my new linux.dev email address akhilesh.patil@linux.dev
+> I plan to use this email for kernel development going forward.
+> Also update email address in few yaml and driver source files.
+>=20
+> Signed-off-by: Akhilesh Patil <akhilesh.patil@linux.dev>
 
-Signed-off-by: Akhilesh Patil <akhilesh.patil@linux.dev>
----
+Sashiko has reviewed this patch and found no issues.
 
-Changes in v4: 
-- No source change.
-- Added entire change log for all versions.
-- Link to v3: 
-https://lore.kernel.org/linux-iio/20261110052942.GA2505113@u5ce4748bae3b54.ant.amazon.com/
-
-Changes in v3: 
-- Fixed order of entry in .mailmap
-- Link to v2: 
-https://lore.kernel.org/all/20261109104443.GA531570@u5ce4748bae3b54.ant.amazon.com/ 
-
-Changes in v2:
-- Updated email ID in relevant device tree source files and driver source files.
-- Link to v1: 
-https://lore.kernel.org/linux-iio/20261109063924.GA118887@u5ce4748bae3b54.ant.amazon.com/
-
- .mailmap                                                      | 1 +
- .../devicetree/bindings/iio/pressure/aosong,adp810.yaml       | 2 +-
- Documentation/devicetree/bindings/rtc/st,m41t93.yaml          | 2 +-
- MAINTAINERS                                                   | 2 +-
- drivers/iio/pressure/adp810.c                                 | 4 ++--
- 5 files changed, 6 insertions(+), 5 deletions(-)
-
-diff --git a/.mailmap b/.mailmap
-index 7fb33babc931..d09fd3708023 100644
---- a/.mailmap
-+++ b/.mailmap
-@@ -27,6 +27,7 @@ Adrian Bunk <bunk@stusta.de>
- Ajay Kaher <ajay.kaher@broadcom.com> <akaher@vmware.com>
- Akhil P Oommen <akhilpo@oss.qualcomm.com> <akhilpo@codeaurora.org>
- Akhil P Oommen <akhilpo@oss.qualcomm.com> <quic_akhilpo@quicinc.com>
-+Akhilesh Patil <akhilesh.patil@linux.dev> <akhilesh@ee.iitb.ac.in>
- Alan Cox <alan@lxorguk.ukuu.org.uk>
- Alan Cox <root@hraefn.swansea.linux.org.uk>
- Aleksandar Markovic <aleksandar.markovic@mips.com> <aleksandar.markovic@imgtec.com>
-diff --git a/Documentation/devicetree/bindings/iio/pressure/aosong,adp810.yaml b/Documentation/devicetree/bindings/iio/pressure/aosong,adp810.yaml
-index ad5f26ce5043..ca4d4210f609 100644
---- a/Documentation/devicetree/bindings/iio/pressure/aosong,adp810.yaml
-+++ b/Documentation/devicetree/bindings/iio/pressure/aosong,adp810.yaml
-@@ -7,7 +7,7 @@ $schema: http://devicetree.org/meta-schemas/core.yaml#
- title: aosong adp810 differential pressure sensor
- 
- maintainers:
--  - Akhilesh Patil <akhilesh@ee.iitb.ac.in>
-+  - Akhilesh Patil <akhilesh.patil@linux.dev>
- 
- description:
-   ADP810 is differential pressure and temperature sensor. It has I2C bus
-diff --git a/Documentation/devicetree/bindings/rtc/st,m41t93.yaml b/Documentation/devicetree/bindings/rtc/st,m41t93.yaml
-index bdd995c5c1f4..837679dc01ac 100644
---- a/Documentation/devicetree/bindings/rtc/st,m41t93.yaml
-+++ b/Documentation/devicetree/bindings/rtc/st,m41t93.yaml
-@@ -7,7 +7,7 @@ $schema: http://devicetree.org/meta-schemas/core.yaml#
- title: ST M41T93 RTC and compatible
- 
- maintainers:
--  - Akhilesh Patil <akhilesh@ee.iitb.ac.in>
-+  - Akhilesh Patil <akhilesh.patil@linux.dev>
- 
- description:
-   ST M41T93 is spi based Real Time Clock (RTC) with time, date,
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 222b7fc2c3aa..3aa8fa3c068f 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -4095,7 +4095,7 @@ F:	Documentation/devicetree/bindings/iio/chemical/aosong,ags02ma.yaml
- F:	drivers/iio/chemical/ags02ma.c
- 
- AOSONG ADP810 DIFFERENTIAL PRESSURE SENSOR DRIVER
--M:	Akhilesh Patil <akhilesh@ee.iitb.ac.in>
-+M:	Akhilesh Patil <akhilesh.patil@linux.dev>
- L:	linux-iio@vger.kernel.org
- S:	Maintained
- F:	Documentation/devicetree/bindings/iio/pressure/aosong,adp810.yaml
-diff --git a/drivers/iio/pressure/adp810.c b/drivers/iio/pressure/adp810.c
-index 82aa433548d2..832df6ba0ee3 100644
---- a/drivers/iio/pressure/adp810.c
-+++ b/drivers/iio/pressure/adp810.c
-@@ -1,6 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0-only
- /*
-- * Copyright (c) 2025 Akhilesh Patil <akhilesh@ee.iitb.ac.in>
-+ * Copyright (c) 2025 Akhilesh Patil <akhilesh.patil@linux.dev>
-  *
-  * Driver for adp810 pressure and temperature sensor
-  * Datasheet:
-@@ -219,6 +219,6 @@ static struct i2c_driver adp810_driver = {
- };
- module_i2c_driver(adp810_driver);
- 
--MODULE_AUTHOR("Akhilesh Patil <akhilesh@ee.iitb.ac.in>");
-+MODULE_AUTHOR("Akhilesh Patil <akhilesh.patil@linux.dev>");
- MODULE_DESCRIPTION("Driver for Aosong ADP810 sensor");
- MODULE_LICENSE("GPL");
--- 
-2.34.1
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261112091641.GA36=
+43677@u5ce4748bae3b54.ant.amazon.com?part=3D1
 
