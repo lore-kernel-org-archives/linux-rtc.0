@@ -1,91 +1,56 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.182
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794442888;
-	b=AwCV2lRpj+1ecvnIiWbMeaPrX3JsNeO472y8t2Ib+JJq3JkbfNvZRyMVtsLpu3IlEqnq
-	 Kv9ZEAtP8Ln46eJNNwMJFDUCTYwMIwkm+8xHDklAVMx/9s2t+SkZIidL63hPim3G1Nwac
-	 EcBBu7/ApMoPcC/iwEsN+HOJJv/bsV9+gIRSlzswYKQ4Now0e0VjMUDL4x6TRt3I69+nM
-	 oo23huvb+ruk5fvpKVLwGg3RyEnqum5w+xzPHBpTVI/vIkFJBM4crTSCZ/1RvKnUb2DFj
-	 WOgGBHtc4Ey6qysTf/W/KD6/WF0VCraha6LKx7zTHm7bM6VEAhw5TrRE+PJAk+rA2IQ==
+	t=1794444359;
+	b=eMre+zhbagAIov3sIEZujwCoUVGRuaxEHj5C0bCd51dZbzc6rW582VJrrsXHCY4Fs+Jh
+	 +2Bi+4ZfaRtQr5vrK6NHcICq7OmplHNkAygQQLd+4o+Ulp8HaEuWT0yMj+RXUkfjrDC6s
+	 eLXhxIbzdqvT3YYPpyzLNuLb/11ppXc1zlwDnWgSSUSk5XA8qdlt2v/lA2mqUGjUsK6q1
+	 FDaHSPIrc1ywOSXX99jF+AoOE+GlGiy8st5HfVNVvXhWyGS7AGkTVwPHnPSIJvu3X526p
+	 YdF7NuGru8Q2qNsL4RYOJ0E88c6j1zAXZPWxRTNT3PoNv5IlZxEXZOhNJtNz555yL7w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794442888;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
-	bh=LI9uvWE3IMO5HhS0brzUkXza2vMATY/vaZhZVTquYOg=;
-	b=TMMCXrOq3Ur8y0lilKKvW90iRuniNLx0P1gA1QJYnh0Lq83deEv38VCU7ocOodcX3924
-	 ARe7704sxo+sljYepya17aTFr5yjGW0Pj+TLWLlbCIAMGPYHHDcPPm6+h/AUJs1R2dGnn
-	 d6ExkKg+NV8vMDeqY0jTSGAFbsM7GdIaErXMvonu38EXFoe/PxxF1EPjLXpFCA9JO70ID
-	 0tdw8GCXQgjEQvz9QI+/KlO2G6BLpctzJAxRbaefhE43U6/OgAAnlv/O7NvuuXupPMxQH
-	 Fep8GCG5dpbrd1N7V4zMMi9kCxVLkk9nEpd8PZ0SnRsVU/s5gDNL+08x0sKgbtHI5rQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794444359;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=5XXSMu8maMZ5nqUNHDQL8vXfVPzm7zilcNvMh1o+A0k=;
+	b=hs24X+gKMLxfqiMF86DGqc/fNkhnw14qLk6+cs+igLAkVxhyvROGZg6hJ0k25fbSu3fD
+	 cLSd4XBS9Gw12EB8vTfTrhYINnM8EpZxKztHO1zHt6Kt4An3EyrDL59ZfCUyhsdTRocGh
+	 Zn9EtoiTKYu8V64f7j+qhDX/VpCHh3av/FZa9O++KgA2wexK2tq8fpmZPARBO00IDeQdl
+	 nIzbqeigf9fclJc6zuZocARWaqaRvpsA5BSnYmqAKXsenaIo6+0SRowaf2pw2tY46avi+
+	 +pG10NQJ2uRiXXKSG4c8pEkk2mF1AOnEUB4Zd0YRbeJMSxyeuPgGfHuQwvSpEgcNPWQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=qS2Sl6nP;
-	arc=none smtp.remote-ip=209.85.222.182
-Received: from mail-qk1-f182.google.com (mail-qk1-f182.google.com [209.85.222.182])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bSSqD7gm;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D6EF606A31C
-	for <linux-rtc@vger.kernel.org>; Thu, 12 Nov 2026 00:21:27 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0D6EF606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38FEA606A31C
+	for <linux-rtc@vger.kernel.org>; Thu, 12 Nov 2026 00:45:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=qS2Sl6nP
-Received: by mail-qk1-f182.google.com with SMTP id af79cd13be357-94937a33cfbso9191885a.0
-        for <linux-rtc@vger.kernel.org>; Wed, 11 Nov 2026 16:21:27 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794442887; x=1795047687; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=LI9uvWE3IMO5HhS0brzUkXza2vMATY/vaZhZVTquYOg=;
-        b=qS2Sl6nPQC5yLWfuX9EiEwpuykjbfjbJ8ngdKlOkuPx70wrphU8cXRLnTBk3RoeWOD
-         uJ6UFsYSO/JGPFJXQVLMdAcV+0wyCWFkPuQ+1Cm6nB1eSp6amMxJkohOWRYGgQjiKaK2
-         BAYBDRSCgAy3YAM9kSDLdzMQzttS7EiA5lO9iNlwPcwf8QjDnj1C6hTAfVY03dQuebR3
-         5jL4nuiZj5BMmqTDGyxRZ5vw6l3hwAlenCA8YJJHFjLEglV/B/7fipcn6Ff0PkqJ49Ex
-         qSCOD1ROK0Q4q9fZQb9VidPP8aB+QqAThnXSJDMf0EHpxhsikcQn7K+yczhRIOblcw47
-         6N3A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794442887; x=1795047687;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=LI9uvWE3IMO5HhS0brzUkXza2vMATY/vaZhZVTquYOg=;
-        b=NYQQMD1NlTVEqFLvQmvprNYwZc+isZq2mBEdgHBPOlURK4i1Hv1U55c4gPSU+JYLNF
-         UpnvmZb1OQiGM2BwXC2nrOShhR7x2Nz+zTSObpMIyi2FFUyEF2iZYVXz6ljxRKpzfvDY
-         bG6Vb94jhDYY4dipoRc0Rfn6JDjJ5bwvnxkkvh7N2TsusixsjdWyADgRwdNK14CCUf1I
-         mf2poeIJghyBJd8Kg0uiSa+tbXcGfnS2rw1mM81uTv5cRJnOokgjzDZPW/QW4kQiT9qI
-         OxHWaw/ITLS8m5/5jIHxUtMgQO2qjDpcvqW/6aMn66hTDCx02dIyDc1OsMfsOKLbT95E
-         dXdA==
-X-Gm-Message-State: APuU4Z/vH+WtXNvAR5uW1rufwymP0Ncp0FcCm8ifvPzKFTqTtLxaCsMb
-	IoIPKpJ/OqBsaXueFLN1TuYXjmFwzNXwSvbzGSYgbutOndnSIpCEeuxQ
-X-Gm-Gg: AYBFou3Zm0j/sbF8LNq4WbTPmHYBAjbzpRhk5MUYMofoimDdM2ojI1wWFSiDaEWY2cz
-	s3nb7dO7Jv4t4fSbaFB/bo1L4alCjp0/SLj7MZaMr7WRyFA5kwnvjgRJuqD/ZP7jpd5ovuYMXJF
-	O1NzqTuOxMOCEKLNqXUX/OkUU0MVl8vzdZvx3bOp3syiTdcGuXBRoEwiGjBH/0ozt1WfuU1nviG
-	JPv70a0v7vJInseimp3L5Nv+GbMKeY+uxDphQip/8TEyGntwXQhX6SBqC8IdJgzUyzo/awp6Ti6
-	8oZovInhMGmOi41pw4psaL3I0ZZuE29+vYB21KYa6ri0XBZhQztWvNnyKOrV2vs9Ao3hSP7x0tE
-	OwpT7yCufrM8xXEaTs9FsA6WnZDdIfmrcoka4HayC8e/nfApWTtMAEF5fVDeXEJmiTnUmWlXcRy
-	TZbwpPCAlYM11AEOIEJZBeJ0Rzh+tYoB03eCzHfZkGcvwFkxhzTwrlIUEZq1T1SxPtqAXs3r55v
-	iBZduufJY4tW+Fjy8Zr2k2a4smkgHlnBs5SxZHG/1Fq3/GJ4UCWnEvfdZ6sFz5U6xUkldIn9flG
-	uXRSGaImWBFeT6Wv5x6u1VMOGCmSBIS4RhpmPalltE0W1RvCplFwBMvF3NXb7MuzZvRfrpPEZxZ
-	ryZb5xEqpKKhlhpQKrZg3p/YtPitFVg9yFaT2u8q+wJd25++hEfIwTOhVKRWX82v+l0EidY+QTC
-	7Yu95U7snnP47ZMJueiR05XYg7AUuHM0gDm4Las/yuTNs28tskOKrKeS3rig8GF6S2GWL0WzFYp
-	niKWNJfZHqsmq9HTkHdeaTUKcSFua0/pdOL1nHjPIUvJw==
-X-Received: by 2002:a05:620a:1b9a:b0:943:b019:f011 with SMTP id af79cd13be357-947aff97216mr622570085a.28.1794442886869;
-        Wed, 11 Nov 2026 16:21:26 -0800 (PST)
-Received: from LRMS.tailf8556c.ts.net ([2600:4041:5024:4b00:c182:d409:44ac:104f])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-9479e7a7aebsm602111585a.28.2026.11.11.16.21.25
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Wed, 11 Nov 2026 16:21:26 -0800 (PST)
-From: Jesse Casco <jesse.casco@gmail.com>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: linux-rtc@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] rtc: interface: fix wakeup source leak in rtc_timer_do_work()
-Date: Wed, 11 Nov 2026 19:21:25 -0500
-Message-ID: <20261112002125.24566-1-jesse.casco@gmail.com>
-X-Mailer: git-send-email 2.56.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bSSqD7gm
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A91FF1F00A05;
+	Thu, 12 Nov 2026 00:45:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794444358;
+	bh=5XXSMu8maMZ5nqUNHDQL8vXfVPzm7zilcNvMh1o+A0k=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=bSSqD7gm4JCSGyzPS88Ao9lO3FchtgBcNQobbUmQVosQasE1lfAJKtP9KMsz5/H/c
+	 mO2ZnNojjUS63hULJ9wp2vWmtP+ZA7Aclo8AD501QztCmF3PcfCItZG2uW2WMoDHpa
+	 EpjwfxwfE9r27FeTHQ8u/EDQw1BsxKhstYHgII9wOdn/yEsMBkN9Fly5l8UP20f8MG
+	 GaZVuu2lnK2AmhJr1bZuB+R7az976oBByQmTnsl0Gkb9zpCXXDPhqPoJY2bbEafakz
+	 IlNSDaDMryFFKPCHmdH4iebPgWleHaCRHP1xoPHrPpUo/MnDClx0vHbuEuBFyv54wS
+	 7LrWm5XeNPApA==
+Message-ID: <sashiko-outbox-209985@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] rtc: interface: fix wakeup source leak in
+ rtc_timer_do_work()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Jesse Casco" <jesse.casco@gmail.com>
+Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
+In-Reply-To: <20261112002125.24566-1-jesse.casco@gmail.com>
+References: <20261112002125.24566-1-jesse.casco@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 12 Nov 2026 00:45:58 +0000
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -94,46 +59,31 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-rtc_update_irq(), rtc_set_time() and the -ETIME paths of
-rtc_timer_enqueue() and rtc_timer_remove() call pm_stay_awake() on the
-RTC parent device before scheduling rtc->irqwork, and
-rtc_timer_do_work() balances that with pm_relax() when it is done.
+> rtc_update_irq(), rtc_set_time() and the -ETIME paths of
+> rtc_timer_enqueue() and rtc_timer_remove() call pm_stay_awake() on the
+> RTC parent device before scheduling rtc->irqwork, and
+> rtc_timer_do_work() balances that with pm_relax() when it is done.
+>=20
+> Since commit e8ba8a2bc4f6 ("rtc: check if __rtc_read_time was successful
+> in rtc_timer_do_work()"), a failed time read returns early without
+> calling pm_relax(). A single read error then leaves the wakeup source
+> active, reads of /sys/power/wakeup_count block and suspend cannot
+> proceed.
+>=20
+> Seen on an ASUS Zenbook A16 (UX3607OA), where reads of the PMIC GLINK
+> RTC time out and the pmic_glink.rtc-glink.0 wakeup source stays active
+> from boot. With this change the source is released after each failed
+> read.
+>=20
+> Fixes: e8ba8a2bc4f6 ("rtc: check if __rtc_read_time was successful in rtc=
+_timer_do_work()")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Jesse Casco <jesse.casco@gmail.com>
 
-Since commit e8ba8a2bc4f6 ("rtc: check if __rtc_read_time was successful
-in rtc_timer_do_work()"), a failed time read returns early without
-calling pm_relax(). A single read error then leaves the wakeup source
-active, reads of /sys/power/wakeup_count block and suspend cannot
-proceed.
+Sashiko has reviewed this patch and found no issues.
 
-Seen on an ASUS Zenbook A16 (UX3607OA), where reads of the PMIC GLINK
-RTC time out and the pmic_glink.rtc-glink.0 wakeup source stays active
-from boot. With this change the source is released after each failed
-read.
-
-Fixes: e8ba8a2bc4f6 ("rtc: check if __rtc_read_time was successful in rtc_timer_do_work()")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jesse Casco <jesse.casco@gmail.com>
----
- drivers/rtc/interface.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-index 96626f8068f9..ba4f92ac0f89 100644
---- a/drivers/rtc/interface.c
-+++ b/drivers/rtc/interface.c
-@@ -980,6 +980,7 @@ void rtc_timer_do_work(struct work_struct *work)
- again:
- 	err = __rtc_read_time(rtc, &tm);
- 	if (err) {
-+		pm_relax(rtc->dev.parent);
- 		mutex_unlock(&rtc->ops_lock);
- 		return;
- 	}
-
-base-commit: 6628e7d4c6b25c8d18f1345e3a20d21829aae7e4
--- 
-2.56.0
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261112002125.2456=
+6-1-jesse.casco@gmail.com?part=3D1
 
