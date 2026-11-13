@@ -1,79 +1,78 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
 	t=1794609214;
-	b=SFgrQN8DknnmdLxHPdghslYeaPHne7dEhb2Oip0zZE7K+8ZTT030rF8+eOEk2ZuYR54I
-	 j01C7iLSRnHta9J3HZR7jEOuvNHIePmZq4bfQy1PDn9xViXwPYQwQOiFMD5v3b/ZOibt3
-	 DN7QTLMYwtKNXhkN1+t6hFuAsxFzWY+gF9wJAn3aIZdz/l7XFMOf9TRuFF7NYdHjpj7Lu
-	 hOjqgukh5SIoWNWK15f+LKkQtfTEqtw+NMZ4gxxCS9lGd5RtOmu5UHDbxoJoH0MmVmEwK
-	 5dgfcHglpg4TC5cdHTiFB0+vYqSozFOpgPQllAmVwFmPfLW7xudGLuKG+jr+D8DALqw==
+	b=i2H7mwS1p7sa34lKw1gp0mvonhmk2tz3XcoEdJ8cLhYvrmxnA6kJyhENPiDju1n2BibI
+	 gHRErpWglcdQbkktnANUpdJwK0X2YWpieQaO9nyBK/3hjcAQ5mjMny9sVP7Vnb6xLMIF/
+	 UvGNxZyeDdxfVyLChrtfqGYzvjMvNgbip+xKZzWA7S3/dkWvT68b4XyHExBFEsGcvklqE
+	 3YzVq8x09L8g6BsawDdwDkYwuTaHG4sPq47yvv1FmP1j1mo0sso43k+kjkLTaLLu5+Po7
+	 VQk/uutCioOdR1813Df/KlXMthxfEvunG++ya6cfKJmRs9xH7XtwCCMbrJ6MoKRJGSw==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1794609214;
 	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
 	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=HyiTVbeXPQu8fkPfhfD3gHjXLJEZSVzM7qOeO91NGRg=;
-	b=ko5hGJ61DsjZ77irB5L/IeGWmi6m6wus3oYCu4Dh6lWouwMl/PaxzRzKg7TbjEUy77fc
-	 ZrnKqMnTiUOQktp/Zxmf1hI4XmF6/LUPRqzHXw8EcrDi/ulG4W/7x8eTmKa/n/SY+czhK
-	 MrKIS7g6KOM3qgwOG0vta+613riN3M/TcBt7KT3vnzG/R2DuLkiktjRVPhk+L++T67aQE
-	 xfY2EKdkLIlMbSixuC9q59IgmgjnEqGOEiglCrkcfC0HMhTwvgr90HIICmsVreA2OUoEv
-	 l8SYPesk69K0jGIGxvdpLSijN7hk2x/zCBeUZyvZfNzQsQSNpaq8WYnT+AqmAIl6iLQ==
+	bh=TOlclL4YMcO1403e1qiCF3GU/nuLdoHldjlrv0LH3a8=;
+	b=3dSc/hKeQJt0YGZiJr0PBmtIhfYw9JejBoNHp6F5jee1qRhtd+QXP0lowRqBa4xfMbQL
+	 psPo+W1jktEJb6imM+TijXt0OuyGtMfxi4R9/UDih94A3IVDrHtF+ugPRoxNsd3PH5lNr
+	 db/K6wu47YUBNyl1pnvg+J3c3ddWIdm8Iy//JWwXj2Lna5QPUInqmUZpaFhDkdyBx5hna
+	 6dTeq950BwgC1GMzdyhaz4EUQS3YHiJBixqklLi61zq5a4Dyi3W0JIvbFh+d/P8GOjiTO
+	 j29sEwDU6ZYiwEelssd46byqIrpQRlaqexDdMX6HBmlRFLP7evWlJQm0c/av70fGedA==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UtZMtRuy;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NkfHNVQ2;
 	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5262C606A883;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87150606A8A4;
 	Fri, 13 Nov 2026 22:33:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UtZMtRuy
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NkfHNVQ2
 Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
 ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1794609213;
-	b=rx6seLmVjtfP07fRicajwW4gcx5wTTRbDzYT/2gEVSZRGbyPFLYvc4JlMdzz9wPMVm1a
-	 o4Wuma0RFECZuk23+K6yj7gf8Gz4WLeCKlH9CFfJRe/GPpNr7vJAr2eg1TMTpEDUpRwtP
-	 Za15H9KpVjHzMgQf/1l1/k7d+3haLKmyom/SUlFVrTA2UVxDndp5dK0N95zUePAVTdB/S
-	 V1VBxMJkp8/OknttbjsfI6FY2z2RxQXnPDWU95byeomE+1lRfskkZn5dAWF4SYPIJ77Zg
-	 0Vx41wCqd0Q+oY5pTh1jUq4nKJ6Q2NJDfYwYRZyIFRbk9Opx9y7y/aqdldWRRIir2Mw==
+	t=1794609214;
+	b=X7Nk/tZ7GonNx2KBw/8y4OaHJ5i7FCx8F7Vj1hsZFRhpxGtoYW59w76uQgBX493EgOCd
+	 mD87NDzx6MTRA9HakTlPL0MpVUgtKBofSunRxLAkVv4BVHyryv3IAFgmQ2aiauMZjMmqK
+	 B1oAgi/gO0Jn5zoQkb5hxY/EUVZ3J/H/lAcwYFr/dHkG5tcr0yRCTrlAyEM1Nj2o+sjiL
+	 GRADLAPwSr70itdqlRIQilL0GFehQ1QnDQefOA+0FdMsGuHh7baLdd5fGisnmsorRd/AR
+	 +lBLlGDJP/nJXSYptVvEr2aCOOfOtUyz9l9Vpwf08x5O1AL+WYEsvrdQkfzSSkRQCBA==
 ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1794609213;
+	c=relaxed/relaxed; t=1794609214;
 	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
 	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=HyiTVbeXPQu8fkPfhfD3gHjXLJEZSVzM7qOeO91NGRg=;
-	b=VWI/WkEdcF2Xlv6G3k41B0/FezxAS/CfJTmpL2XNORrf1xYrtNvDP1vaZnlCf1iqvuKY
-	 scjDd2YAE39vLXSGev5jkdeMhGTU7sQvOTxr6OgIFyJV+vO4L5PBb7s2Ly8ozZVSDcYlO
-	 otUPDdpbO8cuphtgIPD9st5EG0kcXb3XghlZ6Mc0FpjXYjXMzOFS69zUeCsL+yFZHpvo2
-	 mes6Lea+P/yUQT5WV4GlpqlTenXCVCLSQArjsIoo+Bf1J67BEdQUMhug6NZwxixaHzrhu
-	 IIgylUwAxaEqud62qoLY5JfYgGpECXS3FlMHizW6NqYEQwSDENqmBfSs2Z+SFxiCReQ==
+	bh=TOlclL4YMcO1403e1qiCF3GU/nuLdoHldjlrv0LH3a8=;
+	b=d0GE6jupYk62y2sKYS/5FpGJDkn42D0xd7bDk5SFe65Vv4ghP6InG7lhVSEBgjaaVVaK
+	 /1vcSRm5xlZvFjRi5dzKWUuUYOYUqn1DA15py6vxIxD+fm+mfL85lHj7hP4+gH7Rj32rG
+	 oUq6qz/I8ffNvPbgiQyYImr94+tbK4tigRXWAM3aDCJXfN3EuiPIsUzSzM2AlEDc6TqRg
+	 W1/dMSKvKdcl2vVmpteLEVFzGzip4NwKtomYPir7B48thsIMPAh/mCb9aHkgbMAslElBO
+	 nr4VKmdPJUvInZc2GBIs90JF+tPCcxbqPkjUMCuj77yUmgRC3rqg3xFPPIoyovmlxIg==
 ARC-Authentication-Results: i=1; smtp.kernel.org; 
 	arc=none smtp.remote-ip=100.80.115.77
 Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id 314461F000C4;
+	by smtp.kernel.org (Postfix) with ESMTPS id 3286A1F000C5;
 	Fri, 13 Nov 2026 22:33:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794609213;
-	bh=HyiTVbeXPQu8fkPfhfD3gHjXLJEZSVzM7qOeO91NGRg=;
+	s=k20260515; t=1794609214;
+	bh=TOlclL4YMcO1403e1qiCF3GU/nuLdoHldjlrv0LH3a8=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
-	b=UtZMtRuy2RreIXnt6Vk6e1sTpBtQ42hqFvY/BLiBEfGCx4AjqmVAkYmV1ALjqjy9F
-	 VGgIrQa6TV9iILRc4ZtrjGqseyIhml3nkASLmeYP36fJvdWR9LL9EBW+VzRgV3yO3x
-	 jq2yE/dyD/YyOHwxa4uhfZ4X1693xNj+zD3+JrYHaY1Fm8ztHfdJ8/60mc6XnXjYCu
-	 K0aeGfZZd7k9Qbb2illPSJSUWJ5vfFBIl6K07SLfMHdo1VKv17IiphIZoIWI+kxZK3
-	 8UlXv/aS3/U+0yePxo51ddZFjPOJPCuM4iGO8axqUf3gSXu9ph6wYw8O7tc5eDeV7I
-	 wK9bQSwv3aBVA==
+	b=NkfHNVQ2TMvbmMXE6fHwvBl9xcmpq9ky0p9rvXKU8tCScCglkZl3L/h/IS23zeIgj
+	 4WlapfQCcG63cdRxJkgHoUa5ta94XtV1YB0VFKL9QwsIp5QJ+dERlhTaFOxLamvr7G
+	 +6DTAQpTDl4xbvdR9Ts/X3fBIEtNJRg6CVdQDuGSuuKUHOFj6sbeUk8caDwbC/65Cd
+	 JGsdB/alXmyDqQpNl5OphsA9VvGmaJ+qZiAcBKqCQkRTOvNC6MdY6FWiI8N+N6Hhhb
+	 J10jihh2o7g0l0tzyewbVoYhZEyQh9DqYYNC6DHFWtEhFNQxipo7I7UdmqmJz9D0Vz
+	 S2OJKXYUweEzg==
 Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 9E3E349B58;
+	by lkml.kernel.org (Postfix) with ESMTP id B1FFB49B5C;
 	Fri, 13 Nov 2026 22:33:32 +0000 (UTC)
 From: Han Gao via B4 Relay <devnull+gaohan.iscas.ac.cn@kernel.org>
-Date: Sat, 14 Nov 2026 06:33:27 +0800
-Subject: [PATCH 01/19] riscv: sunxi: describe the wider Allwinner SoC
- family
+Date: Sat, 14 Nov 2026 06:33:28 +0800
+Subject: [PATCH 02/19] dt-bindings: riscv: cpus: add the XuanTie C907
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -84,7 +83,7 @@ List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261114-v861-v1-1-eb71ec3ee523@iscas.ac.cn>
+Message-Id: <20261114-v861-v1-2-eb71ec3ee523@iscas.ac.cn>
 References: <20261114-v861-v1-0-eb71ec3ee523@iscas.ac.cn>
 In-Reply-To: <20261114-v861-v1-0-eb71ec3ee523@iscas.ac.cn>
 To: Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
@@ -111,11 +110,11 @@ Cc: Han Gao <rabenda.cn@gmail.com>, linux-riscv@lists.infradead.org,
  linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org, 
  linux-gpio@vger.kernel.org
 X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1794609209; l=987;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1794609209; l=986;
  i=gaohan@iscas.ac.cn; s=20261021; h=from:subject:message-id;
- bh=iIMXHW4ncH9rYCfV6gqeS1VFiDJbleuDtC++QacYRuM=;
- b=1qagKD3rCKA24HqW1EY7WOksbBJolj6tNk+/fSKplFvFfQFmuICjc/3HRPonNK6YXjTtHCQMd
- k+l2SiI9Az4DbHj5RDb1WJdE+MlgzAKOR89f9hwcRwjPTczallY0Cjt
+ bh=Cm+aoOEvEdfEXFBW81kE8hGffN29ckzRUH816nQCB7k=;
+ b=mWoK/d3s7E1yljsgEDG5AOvjeGoZNBwoSoucC5cXcDHH1Ezvl8ge/m6Rc2ZMX+fXR9/JUk6Cd
+ sgDp+kyX4ikACJQQaTT68CWvbDPAa7lgh8Bv3nSSLDGn7sHbxhQnbqQ
 X-Developer-Key: i=gaohan@iscas.ac.cn; a=ed25519;
  pk=J8WHEK3filS86QaCaIHDGafqhxKyQ4K7+vFgRirTIiY=
 X-Endpoint-Received: by B4 Relay for gaohan@iscas.ac.cn/20261021 with
@@ -126,35 +125,32 @@ Content-Transfer-Encoding: 7bit
 
 From: Han Gao <gaohan@iscas.ac.cn>
 
-ARCH_SUNXI is about to cover the V861 as well. Update its prompt and
-help text instead of adding another option.
+Add the XuanTie C907, used in the Allwinner V861.
+
+XuanTie is a brand of C-SKY Microsystems [1], whose JEP106 ID 0x5b7 [2]
+is what the C907 reports in mvendorid, so use the csky prefix rather
+than thead.
+
+[1] https://www.xrvm.com/declaration
+[2] https://www.jedec.org/standards-documents/docs/jep-106ab
 
 Signed-off-by: Han Gao <gaohan@iscas.ac.cn>
 ---
- arch/riscv/Kconfig.socs | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ Documentation/devicetree/bindings/riscv/cpus.yaml | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/riscv/Kconfig.socs b/arch/riscv/Kconfig.socs
-index cecbce0c4983..4cf3b24467e8 100644
---- a/arch/riscv/Kconfig.socs
-+++ b/arch/riscv/Kconfig.socs
-@@ -61,13 +61,13 @@ config SOC_STARFIVE
- 	  This enables support for StarFive SoC platform hardware.
- 
- config ARCH_SUNXI
--	bool "Allwinner sun20i SoCs"
-+	bool "Allwinner SoCs"
- 	depends on MMU
- 	select ERRATA_THEAD
- 	select SUN4I_TIMER
- 	help
--	  This enables support for Allwinner sun20i platform hardware,
--	  including boards based on the D1 and D1s SoCs.
-+	  This enables support for Allwinner SoC platform hardware,
-+	  including boards based on the D1, D1s and V861 SoCs.
- 
- config ARCH_TENSTORRENT
- 	bool "Tenstorrent SoCs"
+diff --git a/Documentation/devicetree/bindings/riscv/cpus.yaml b/Documentation/devicetree/bindings/riscv/cpus.yaml
+index 0da219ae6769..bdb119ab8ee0 100644
+--- a/Documentation/devicetree/bindings/riscv/cpus.yaml
++++ b/Documentation/devicetree/bindings/riscv/cpus.yaml
+@@ -48,6 +48,7 @@ properties:
+               - amd,mbv64
+               - andestech,ax45mp
+               - canaan,k210
++              - csky,c907
+               - nuclei,ux900
+               - sifive,bullet0
+               - sifive,e5
 
 -- 
 2.55.0
