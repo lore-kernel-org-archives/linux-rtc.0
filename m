@@ -1,79 +1,78 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794609219;
-	b=I6dqtygWSm52sZmnRuPisB9fUeP9nBjUt6P2RetSs6XRUrNZYpfGEMjsbXVKQp/BzZ4e
-	 p+3Np1JjXMI5x69fu231i/Soi8tp9pY8uWKQe3cgVvUqv/woO0rw7iUpb+fl7JPeQCWeY
-	 vWhY6ReDT6X2G5bJnmTpMHwbktI6EjCEJGvyN1irC48OwKzYPPlcZMAwKmANyXtl6LGwC
-	 KgGygjrFP5kA+V6WWCQ4mvXZmbd1fQXlv5LbwkqRryAfrGY4aQDRdEnfHSPv7f4J/p3hq
-	 l2Gt+qTAvWGlyPFbwWU8mgq/IOeauaWcZnB8owpvPqbEBaSLcfQcjBCJrrSom7R2wVg==
+	t=1794609226;
+	b=oCwrW3Ngh1ByUtn/7O6vDMhFhOlK9exikFEcHrr0/OGVWikgOmRh+Y88t3deClHAPaV9
+	 rjymdsWF8WsjzHsfLQNxOYUGcRQbr73d7pdHmvQkE5o3+SWGUUccmPr0vVykQWEjiFM/c
+	 PhiOHZ35ddHkdHRDT13eUYD33x47swkVDNH7xx0CLhBO4EcWTsDHqqBcJuYq9fqFRa+AJ
+	 jKifFr8Fp8X87/GzDcd2PcuA9tImgKcPDK8KsGy0wxrAbhSG3cDHtNO+97KvO8YnMh/9g
+	 heDVyO3IoAY+QJLbPp6DUYwlR/qH41PsqHv2uHUg2ghx4IQ40yqQFU2/nlQNSdRqq0A==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794609219;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794609226;
 	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
 	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=EgUvpuSxsCb2CVpHCi5y8cb6KO60R3POtoPlWNrlOYE=;
-	b=VV5f0Slyb4sgFhl/qVEUHRoQKrW5h/bFwcKDTclcJKo88Kg7KXSv9+dE3OZdN07+xBcT
-	 hBZwHgw5LCFuycKKH+8ES0ImzkFw8PMNuRLwVnSnHZr1f8bm+kkOIWs0/3GS8HW9h7aMQ
-	 iBMiGCWYxBbk0TXaWHtvT2GrZRxLvYxQ4/MYORdkuZYjWat4uRVqpo3UalExP+kEwdGpW
-	 R/5XMlgl4KsFMpc2DX7GIXxlLy3sDXUd3L6RDUbgIN/sW6XDxt8gGqeweiYMLUmUg1ZNr
-	 YABCYY63ywCdtgFxWiBei4FX5zXSxIfH48XwX7AsYI32juPo03buwHsCkiDusAl4pXA==
+	bh=DOxML222XmvL+DQT7TqgyzdlYBmAoo3ZeZbVK+z7caI=;
+	b=hR658QStzH3WlG5mxWp1Q42q8ATetQ0ooYlXp2MiKeuRfN9y8DV+Kehx37qqyiSRqeU1
+	 /PLEQF3AQz0g0BoESrd8rtMwcev4cQcybqzp/ZOtHMS702yB7ecI85rOd37O0L7gHC8lI
+	 NwHOqONafuVfb/Gho9Ck8pTcwfmXZP6KSn/bWihLR8BbpxeKTGxy8+4XdJM9o2ZhLLsqb
+	 yAPUHbZHxy+TTA7DfeFw4tQni/iiMuaQIb0OLUViEEO1ogPT2faAz+S48Ghps5IvD91P1
+	 iShwOBOsxZI9dulVZKafQhdnPzasTwqv//W++MPZTAOiiwMbiahDsr31Fk+O6k4OV1A==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="ivEX/fHO";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Si1YQPIi;
 	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE4D460A3835;
-	Fri, 13 Nov 2026 22:33:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B6DB606B7BF;
+	Fri, 13 Nov 2026 22:33:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ivEX/fHO
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Si1YQPIi
 Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
 ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1794609219;
-	b=Ijm9WCd+janV06o+3FG+qeipfIrOUuPSs4HDrU96MNmoG6azproJ4DTN2LbVOXTXIlO3
-	 r233Uq2iwXtCMk3NHkyMLVTdOPP3gU7PHILie5v64MSmsgysbkCJ8Ad+unzf81eiLF5NK
-	 60xrY/TD+saSlzKlA06cTPILsITgZFiIvg7sa9SVyjkGqjh3X9XWhg8zs672gTXpFZmKy
-	 R1msmwjC4YAhM/9ruEK7O8O6Tjqhcq0GU2tYoa5pQBsZaoFXh0vm57M9SyFiGXJgTAG+M
-	 Bslcx6Z8+CnsI1leWRVlnC+NeyxLhPU/HQORIZ+VDtsAhbKrdcLslSTjg6yzCQfoVMw==
+	t=1794609226;
+	b=u7WsHHvDdl5qnZDs26Flt1iIg5HOYE1yBSHu6Pc6OUKdRn0/fKVSn7Rn1jdrNr4cxMxH
+	 jQ/t9Ft+c7E1Q+lcE1lHmP+91Om5KpSRaGyq/dC9aS0L2XqiGFUwVAoHHOXd6VAYq1a8G
+	 vBUEys45q6r3lsM9jQeYPvJdJjXnWbc7YruZvXinlfBjntN/BT0RFczSXCMZuD1ZT2EPW
+	 Fszq+52RfBJq24ZnvfME34cMpcu/d6v1hLm6TzNZa/TJWLDLGzHkX57U3moPGTvsQweV2
+	 xn2zIH5PeBC6EbInCnaZ0L7M+zsSjvg5H+Ut0M2f04q0oGNE9//3QhyBni9nyVVIIhg==
 ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1794609219;
+	c=relaxed/relaxed; t=1794609226;
 	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
 	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=EgUvpuSxsCb2CVpHCi5y8cb6KO60R3POtoPlWNrlOYE=;
-	b=l91O3aYTxkKM3r6G5zYrTqBI8e9XX8j4eLNgSOQFiTRhkrsgdEgYvoegA6BqeZHDZBmW
-	 n3A/p3FREQPeLHFsmBHq5lhAZ8msPWyrw8SVrzdNLNs+aG3C7SqggE5hZYRaAAf6T9GqL
-	 VOCJchzF6/75e5OabtBRaZHXvaiGB1KjIiMjbCPqosBWqH24AOCyqPIueGWZVbwR8EUkJ
-	 NtiCdLueuejLB5oZXMEOl8KAeMZ/d3XJ9U3v1gE1d2Iw8rMVZtof0h3kC58T4/a518XDe
-	 JGFVuOuc6P6GURlrcrw9ntCiDqmxzRIN3WBYdgjsxF5b30v9/lQtYFF5eUoaz0lGscA==
+	bh=DOxML222XmvL+DQT7TqgyzdlYBmAoo3ZeZbVK+z7caI=;
+	b=FQRuxepSbIC65jGX6U0m2sE34mjW5sKjSWo+lFOYl0qwMEOp7aIbu7wV0p+1GEL1KUl6
+	 peU8M/qy+umHKnQq8DkU5dN8z0DyldSL73kWje3PMn1fq/QQMvBlP+RZi5wmj4CsaN1/t
+	 vSESao+4O7/8QBuJiuIxHYjwq0me9BnLUfHY8m9uBDcDH/S15oG+jtDc06/J/b6umQecY
+	 HonamVyD6xfz3fJZjriAs2hTsWzR3gNNYYvU0le+yn/A7HDJ4uTCXaUd7SWpCeKAptQyu
+	 qHeDY89IBRTk5vUAQsTFC72mjs0Tos3wyzWhGIany4GERyNOg844F7SrbFaQksZYomA==
 ARC-Authentication-Results: i=1; smtp.kernel.org; 
 	arc=none smtp.remote-ip=100.80.115.77
 Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id EB8601F000CB;
-	Fri, 13 Nov 2026 22:33:34 +0000 (UTC)
+	by smtp.kernel.org (Postfix) with ESMTPS id E8BDF1F0182C;
+	Fri, 13 Nov 2026 22:33:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794609219;
-	bh=EgUvpuSxsCb2CVpHCi5y8cb6KO60R3POtoPlWNrlOYE=;
+	s=k20260515; t=1794609225;
+	bh=DOxML222XmvL+DQT7TqgyzdlYBmAoo3ZeZbVK+z7caI=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
-	b=ivEX/fHOyPQQRW4Azf26Wlui4mcCo9kqNUY2/xrZITdvvTclojv6QHsHj9s88uS5Q
-	 bgCT/QN7oNUZWa7Jxb6VRpkPrOyPE+vC5WtD6QAallvf7tMgHnt4dusmGJLQ0b+jjz
-	 Q9E/FwTwHcmEYoum0feeWmFBzYkM58b1JK8OGG6BXu4JGWchAf2kag3EpaObZ3FaZI
-	 l+GBGCRet3aj7MCKftdA/EIlHUHspSvdAKwkKWHBeSz99WpxwN+qGZNzRcpIJItWxG
-	 Fo2CRusM2R/HYZX1oVz22EzTNyTr4AIrrKQoq5n4tBsUG/Hk3TbhFb5ip53AGObelv
-	 he1Z9ZEVqCaSA==
+	b=Si1YQPIiFo35Y4t5bymDfMNz84lejIvPobizIkdyRlboRMXCBmVo3l2ed2EQg5wB+
+	 PpFyJKbnjHErVW/Iytdm42aVqpZytIQgUh8QJ33OpMb/4/W7XD6+IcPW6V+BSPuStJ
+	 nSP9Plk4Z59vk9LsErhygovdY0lTPUBkJrAZQUQBv1zY0tVG3xaWOr4cAh45l2cCy8
+	 XZ71SrAl6Pl8OcQtJVnujFfCebDGjsYTlmKWhJfiBFYoBf8r0VPlPtTtvWdgFJC0MS
+	 FFbBrtDNsXNBIkKzc147UvoR8pfHYpVxttNTV2uQiv4y6raqVJ+TtyVssJxulKcY7M
+	 KzSCuUhC7NjaQ==
 Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 2828449B70;
+	by lkml.kernel.org (Postfix) with ESMTP id E7F9C49B93;
 	Fri, 13 Nov 2026 22:33:33 +0000 (UTC)
 From: Han Gao via B4 Relay <devnull+gaohan.iscas.ac.cn@kernel.org>
-Date: Sat, 14 Nov 2026 06:33:33 +0800
-Subject: [PATCH 07/19] clk: sunxi-ng: add support for the Allwinner V861
- PRCM CCU
+Date: Sat, 14 Nov 2026 06:33:42 +0800
+Subject: [PATCH 16/19] riscv: dts: allwinner: add the Allwinner V861 SoC
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -84,7 +83,7 @@ List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261114-v861-v1-7-eb71ec3ee523@iscas.ac.cn>
+Message-Id: <20261114-v861-v1-16-eb71ec3ee523@iscas.ac.cn>
 References: <20261114-v861-v1-0-eb71ec3ee523@iscas.ac.cn>
 In-Reply-To: <20261114-v861-v1-0-eb71ec3ee523@iscas.ac.cn>
 To: Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
@@ -111,11 +110,11 @@ Cc: Han Gao <rabenda.cn@gmail.com>, linux-riscv@lists.infradead.org,
  linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org, 
  linux-gpio@vger.kernel.org
 X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1794609209; l=5653;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1794609209; l=10397;
  i=gaohan@iscas.ac.cn; s=20261021; h=from:subject:message-id;
- bh=8ySeNhscsjE5lze4jiyfha0KHf5aua/JAy1/q0k9bZM=;
- b=TUadDnW1nSz95FL9u8UFpESvcvkyAkDXY799PTWKc+MXz3CL2hJ0MgSfa4fzi/wKzEafTyb2z
- 1/aDVehaxXpD1nxwJWLfn2Jd/OTURblJG5gI4w8XxFdtTqbkeAH1XjH
+ bh=I8wnVF/DxQ+OwPzKUk/zbleMxuzgspwkeJdPCkKcyAI=;
+ b=XbE5JqKc/+xicVaxMpURs2OAsP30uKgCVuEGNLvpjV1/qMGyJEQsGJqL5Vkjv64UiYtdMrdQk
+ kfuyEydjd9YB+W+cJRNAlUu2rx9g6dTgHRTPm2wELTS4q3j4Bl+DDc0
 X-Developer-Key: i=gaohan@iscas.ac.cn; a=ed25519;
  pk=J8WHEK3filS86QaCaIHDGafqhxKyQ4K7+vFgRirTIiY=
 X-Endpoint-Received: by B4 Relay for gaohan@iscas.ac.cn/20261021 with
@@ -126,173 +125,295 @@ Content-Transfer-Encoding: 7bit
 
 From: Han Gao <gaohan@iscas.ac.cn>
 
-Add the PRCM CCU driver for the V861. It provides the R-AHB and R-APB0
-bus clocks and the PPU and RTC gates and resets.
+Add the V861 SoC with its two C907 harts, PLIC, CLINT, clock
+controllers, RTC, pin controllers and UART0.
+
+The cache geometry and PMU events come from the V861 and C907 manuals.
+Zcb, Zbkc and Zvfh were also checked to work on the hardware.
 
 Signed-off-by: Han Gao <gaohan@iscas.ac.cn>
 ---
- drivers/clk/sunxi-ng/Kconfig              |  10 +++
- drivers/clk/sunxi-ng/Makefile             |   2 +
- drivers/clk/sunxi-ng/ccu-sun252i-v861-r.c | 110 ++++++++++++++++++++++++++++++
- 3 files changed, 122 insertions(+)
+ arch/riscv/boot/dts/allwinner/sun252i-v861.dtsi | 272 ++++++++++++++++++++++++
+ 1 file changed, 272 insertions(+)
 
-diff --git a/drivers/clk/sunxi-ng/Kconfig b/drivers/clk/sunxi-ng/Kconfig
-index 890a0cbb45b6..0c591b24f085 100644
---- a/drivers/clk/sunxi-ng/Kconfig
-+++ b/drivers/clk/sunxi-ng/Kconfig
-@@ -32,6 +32,16 @@ config SUN252I_V861_CCU
- 	  reset lines of most peripherals, so it is required on boards
- 	  based on this SoC.
- 
-+config SUN252I_V861_R_CCU
-+	tristate "Support for the Allwinner V861 PRCM CCU"
-+	default ARCH_SUNXI
-+	depends on RISCV || COMPILE_TEST
-+	help
-+	  Support for the PRCM clock control unit of the Allwinner V861
-+	  SoC. It provides the bus clocks and reset lines of the always-on
-+	  blocks, such as the RTC and the power management unit, so it is
-+	  required on boards based on this SoC.
-+
- config SUN50I_A64_CCU
- 	tristate "Support for the Allwinner A64 CCU"
- 	default ARCH_SUNXI
-diff --git a/drivers/clk/sunxi-ng/Makefile b/drivers/clk/sunxi-ng/Makefile
-index 01869330dc4e..851c5ae6dc21 100644
---- a/drivers/clk/sunxi-ng/Makefile
-+++ b/drivers/clk/sunxi-ng/Makefile
-@@ -28,6 +28,7 @@ obj-$(CONFIG_SUNIV_F1C100S_CCU)	+= suniv-f1c100s-ccu.o
- obj-$(CONFIG_SUN20I_D1_CCU)	+= sun20i-d1-ccu.o
- obj-$(CONFIG_SUN20I_D1_R_CCU)	+= sun20i-d1-r-ccu.o
- obj-$(CONFIG_SUN252I_V861_CCU)	+= sun252i-v861-ccu.o
-+obj-$(CONFIG_SUN252I_V861_R_CCU)	+= sun252i-v861-r-ccu.o
- obj-$(CONFIG_SUN50I_A64_CCU)	+= sun50i-a64-ccu.o
- obj-$(CONFIG_SUN50I_A100_CCU)	+= sun50i-a100-ccu.o
- obj-$(CONFIG_SUN50I_A100_R_CCU)	+= sun50i-a100-r-ccu.o
-@@ -57,6 +58,7 @@ suniv-f1c100s-ccu-y		+= ccu-suniv-f1c100s.o
- sun20i-d1-ccu-y			+= ccu-sun20i-d1.o
- sun20i-d1-r-ccu-y		+= ccu-sun20i-d1-r.o
- sun252i-v861-ccu-y		+= ccu-sun252i-v861.o
-+sun252i-v861-r-ccu-y		+= ccu-sun252i-v861-r.o
- sun50i-a64-ccu-y		+= ccu-sun50i-a64.o
- sun50i-a100-ccu-y		+= ccu-sun50i-a100.o
- sun50i-a100-r-ccu-y		+= ccu-sun50i-a100-r.o
-diff --git a/drivers/clk/sunxi-ng/ccu-sun252i-v861-r.c b/drivers/clk/sunxi-ng/ccu-sun252i-v861-r.c
+diff --git a/arch/riscv/boot/dts/allwinner/sun252i-v861.dtsi b/arch/riscv/boot/dts/allwinner/sun252i-v861.dtsi
 new file mode 100644
-index 000000000000..9c8de9643722
+index 000000000000..7a18b973ee32
 --- /dev/null
-+++ b/drivers/clk/sunxi-ng/ccu-sun252i-v861-r.c
-@@ -0,0 +1,110 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * Copyright (c) 2026 Han Gao <gaohan@iscas.ac.cn>
-+ *
-+ * Based on the A523 PRCM CCU driver:
-+ *   Copyright (C) 2024 Arm Ltd.
-+ */
++++ b/arch/riscv/boot/dts/allwinner/sun252i-v861.dtsi
+@@ -0,0 +1,272 @@
++// SPDX-License-Identifier: (GPL-2.0-only OR MIT)
++/* Copyright (c) 2026 Han Gao <gaohan@iscas.ac.cn> */
 +
-+#include <linux/clk-provider.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+
++#include <dt-bindings/clock/sun252i-v861-ccu.h>
 +#include <dt-bindings/clock/sun252i-v861-r-ccu.h>
++#include <dt-bindings/clock/sun6i-rtc.h>
++#include <dt-bindings/interrupt-controller/irq.h>
++#include <dt-bindings/reset/sun252i-v861-ccu.h>
 +#include <dt-bindings/reset/sun252i-v861-r-ccu.h>
 +
-+#include "ccu_common.h"
-+#include "ccu_reset.h"
++/ {
++	#address-cells = <2>;
++	#size-cells = <2>;
 +
-+#include "ccu_gate.h"
-+#include "ccu_mp.h"
++	cpus {
++		#address-cells = <1>;
++		#size-cells = <0>;
++		timebase-frequency = <24000000>;
 +
-+static const struct clk_parent_data r_ahb_apb_parents[] = {
-+	{ .fw_name = "hosc" },
-+	{ .fw_name = "losc" },
-+	{ .fw_name = "iosc" },
-+	{ .fw_name = "pll-periph" },
++		cpu0: cpu@0 {
++			compatible = "csky,c907", "riscv";
++			device_type = "cpu";
++			reg = <0>;
++			d-cache-block-size = <64>;
++			d-cache-sets = <64>;
++			d-cache-size = <16384>;
++			i-cache-block-size = <64>;
++			i-cache-sets = <64>;
++			i-cache-size = <16384>;
++			mmu-type = "riscv,sv39";
++			next-level-cache = <&l2_cache>;
++			riscv,isa-base = "rv64i";
++			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "b", "v",
++				"zicbom", "zicbop", "zicboz", "zicntr", "zicond",
++				"zicsr", "zifencei", "zihintntl", "zihintpause",
++				"zihpm", "zawrs", "zfa", "zfbfmin", "zfh",
++				"zca", "zcb", "zcd", "zba", "zbb", "zbc", "zbkc",
++				"zbs", "zkt", "zvfbfmin", "zvfbfwma", "zvfh",
++				"sscofpmf", "sstc", "svinval", "svnapot", "svpbmt";
++			riscv,cbom-block-size = <64>;
++			riscv,cbop-block-size = <64>;
++			riscv,cboz-block-size = <64>;
++
++			cpu0_intc: interrupt-controller {
++				compatible = "riscv,cpu-intc";
++				interrupt-controller;
++				#interrupt-cells = <1>;
++			};
++		};
++
++		cpu1: cpu@1 {
++			compatible = "csky,c907", "riscv";
++			device_type = "cpu";
++			reg = <1>;
++			d-cache-block-size = <64>;
++			d-cache-sets = <64>;
++			d-cache-size = <16384>;
++			i-cache-block-size = <64>;
++			i-cache-sets = <64>;
++			i-cache-size = <16384>;
++			mmu-type = "riscv,sv39";
++			next-level-cache = <&l2_cache>;
++			riscv,isa-base = "rv64i";
++			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "b", "v",
++				"zicbom", "zicbop", "zicboz", "zicntr", "zicond",
++				"zicsr", "zifencei", "zihintntl", "zihintpause",
++				"zihpm", "zawrs", "zfa", "zfbfmin", "zfh",
++				"zca", "zcb", "zcd", "zba", "zbb", "zbc", "zbkc",
++				"zbs", "zkt", "zvfbfmin", "zvfbfwma", "zvfh",
++				"sscofpmf", "sstc", "svinval", "svnapot", "svpbmt";
++			riscv,cbom-block-size = <64>;
++			riscv,cbop-block-size = <64>;
++			riscv,cboz-block-size = <64>;
++
++			cpu1_intc: interrupt-controller {
++				compatible = "riscv,cpu-intc";
++				interrupt-controller;
++				#interrupt-cells = <1>;
++			};
++		};
++
++		l2_cache: l2-cache {
++			compatible = "cache";
++			cache-block-size = <64>;
++			cache-level = <2>;
++			cache-sets = <128>;
++			cache-size = <131072>;
++			cache-unified;
++		};
++	};
++
++	osc24M: osc24M-clk {
++		compatible = "fixed-clock";
++		#clock-cells = <0>;
++		clock-frequency = <24000000>;
++		clock-output-names = "osc24M";
++	};
++
++	pmu {
++		compatible = "riscv,pmu";
++		riscv,event-to-mhpmcounters =
++			<0x00003 0x00006 0x0007fff8>,
++			<0x00008 0x00009 0x0007fff8>,
++			<0x10000 0x10003 0x0007fff8>,
++			<0x10008 0x10009 0x0007fff8>,
++			<0x10019 0x10019 0x0007fff8>,
++			<0x1001b 0x1001b 0x0007fff8>,
++			<0x10021 0x10021 0x0007fff8>,
++			<0x10028 0x10029 0x0007fff8>;
++		riscv,event-to-mhpmevent =
++			<0x00003 0x00000000 0x000000a5>,
++			<0x00004 0x00000000 0x000000a6>,
++			<0x00005 0x00000000 0x00000036>,
++			<0x00006 0x00000000 0x00000038>,
++			<0x00008 0x00000000 0x00000027>,
++			<0x00009 0x00000000 0x00000028>,
++			<0x10000 0x00000000 0x0000000c>,
++			<0x10001 0x00000000 0x0000000d>,
++			<0x10002 0x00000000 0x0000000e>,
++			<0x10003 0x00000000 0x0000000f>,
++			<0x10008 0x00000000 0x00000001>,
++			<0x10009 0x00000000 0x00000002>,
++			<0x10019 0x00000000 0x000000a4>,
++			<0x1001b 0x00000000 0x000000a3>,
++			<0x10021 0x00000000 0x00000003>,
++			<0x10028 0x00000000 0x00000036>,
++			<0x10029 0x00000000 0x00000038>;
++		riscv,raw-event-to-mhpmcounters =
++			<0x00000000 0x00000001 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x00000002 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x00000003 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x00000005 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x00000006 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x00000007 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x00000008 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x00000009 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x0000000b 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x0000000c 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x0000000d 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x0000000e 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x0000000f 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x00000016 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x0000001b 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x0000001c 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x0000001d 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x0000001f 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x00000020 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x00000021 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x00000023 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x00000025 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x00000027 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x00000028 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x00000029 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x0000002a 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x00000030 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x00000036 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x00000038 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x0000009b 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x0000009c 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x0000009e 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x000000a3 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x000000a4 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x000000a5 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x000000a6 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x000000a7 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x000000a8 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x000000a9 0xffffffff 0xffffffff 0x0007fff8>,
++			<0x00000000 0x000000aa 0xffffffff 0xffffffff 0x0007fff8>;
++	};
++
++	soc {
++		compatible = "simple-bus";
++		#address-cells = <2>;
++		#size-cells = <2>;
++		interrupt-parent = <&plic>;
++		ranges;
++		dma-noncoherent;
++
++		pio: pinctrl@2000000 {
++			compatible = "allwinner,sun252i-v861-pinctrl";
++			reg = <0 0x02000000 0 0x400>;
++			interrupts = <67 IRQ_TYPE_LEVEL_HIGH>, <71 IRQ_TYPE_LEVEL_HIGH>,
++				     <73 IRQ_TYPE_LEVEL_HIGH>, <75 IRQ_TYPE_LEVEL_HIGH>,
++				     <77 IRQ_TYPE_LEVEL_HIGH>, <79 IRQ_TYPE_LEVEL_HIGH>,
++				     <81 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&ccu CLK_APB0>, <&osc24M>, <&rtc CLK_OSC32K>;
++			clock-names = "apb", "hosc", "losc";
++			gpio-controller;
++			#gpio-cells = <3>;
++			interrupt-controller;
++			#interrupt-cells = <3>;
++
++			uart0_ph_pins: uart0-ph-pins {
++				pins = "PH9", "PH10";
++				function = "uart0";
++				allwinner,pinmux = <5>;
++				bias-pull-up;
++			};
++		};
++
++		r_pio: pinctrl@2000540 {
++			compatible = "allwinner,sun252i-v861-r-pinctrl";
++			reg = <0 0x02000540 0 0x60>;
++			interrupts = <85 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&ccu CLK_APB0>, <&osc24M>, <&rtc CLK_OSC32K>;
++			clock-names = "apb", "hosc", "losc";
++			gpio-controller;
++			#gpio-cells = <3>;
++			interrupt-controller;
++			#interrupt-cells = <3>;
++		};
++
++		ccu: clock-controller@2001000 {
++			compatible = "allwinner,sun252i-v861-ccu";
++			reg = <0 0x02001000 0 0x1000>;
++			clocks = <&osc24M>, <&rtc CLK_OSC32K>, <&rtc CLK_IOSC>;
++			clock-names = "hosc", "losc", "iosc";
++			#clock-cells = <1>;
++			#reset-cells = <1>;
++		};
++
++		uart0: serial@2500000 {
++			compatible = "snps,dw-apb-uart";
++			reg = <0 0x02500000 0 0x400>;
++			interrupts = <2 IRQ_TYPE_LEVEL_HIGH>;
++			reg-shift = <2>;
++			reg-io-width = <4>;
++			clocks = <&ccu CLK_BUS_UART0>;
++			resets = <&ccu RST_BUS_UART0>;
++			status = "disabled";
++		};
++
++		r_ccu: clock-controller@7010000 {
++			compatible = "allwinner,sun252i-v861-r-ccu";
++			reg = <0 0x07010000 0 0x400>;
++			clocks = <&osc24M>, <&rtc CLK_OSC32K>, <&rtc CLK_IOSC>,
++				 <&ccu CLK_PLL_PERIPH0_200M>;
++			clock-names = "hosc", "losc", "iosc", "pll-periph";
++			#clock-cells = <1>;
++			#reset-cells = <1>;
++		};
++
++		rtc: rtc@7090000 {
++			compatible = "allwinner,sun252i-v861-rtc",
++				     "allwinner,sun50i-r329-rtc";
++			reg = <0 0x07090000 0 0x400>;
++			interrupts = <138 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&r_ccu CLK_BUS_R_RTC>, <&osc24M>,
++				 <&r_ccu CLK_R_AHB>;
++			clock-names = "bus", "hosc", "ahb";
++			#clock-cells = <1>;
++		};
++
++		plic: interrupt-controller@30000000 {
++			compatible = "allwinner,sun252i-v861-plic", "thead,c900-plic";
++			reg = <0 0x30000000 0 0x4000000>;
++			interrupts-extended = <&cpu0_intc 11>, <&cpu0_intc 9>,
++					      <&cpu1_intc 11>, <&cpu1_intc 9>;
++			riscv,ndev = <150>;
++			interrupt-controller;
++			#interrupt-cells = <2>;
++			#address-cells = <0>;
++		};
++
++		clint: timer@34000000 {
++			compatible = "allwinner,sun252i-v861-clint", "thead,c900-clint";
++			reg = <0 0x34000000 0 0x10000>;
++			interrupts-extended = <&cpu0_intc 3>, <&cpu0_intc 7>,
++					      <&cpu1_intc 3>, <&cpu1_intc 7>;
++		};
++	};
 +};
-+
-+static SUNXI_CCU_MP_DATA_WITH_MUX(r_ahb_clk, "r-ahb", r_ahb_apb_parents, 0x000,
-+				  0, 5,		/* M */
-+				  8, 2,		/* P */
-+				  24, 3,	/* mux */
-+				  0);
-+static const struct clk_hw *r_ahb_hws[] = { &r_ahb_clk.common.hw };
-+
-+static SUNXI_CCU_MP_DATA_WITH_MUX(r_apb0_clk, "r-apb0", r_ahb_apb_parents,
-+				  0x00c,
-+				  0, 5,		/* M */
-+				  8, 2,		/* P */
-+				  24, 3,	/* mux */
-+				  0);
-+static const struct clk_hw *r_apb0_hws[] = { &r_apb0_clk.common.hw };
-+
-+static SUNXI_CCU_GATE_HWS(bus_r_ppu_clk, "bus-r-ppu", r_apb0_hws, 0x1ac,
-+			  BIT(0), 0);
-+static SUNXI_CCU_GATE_HWS(bus_r_rtc_clk, "bus-r-rtc", r_ahb_hws, 0x20c,
-+			  BIT(0), 0);
-+
-+static struct ccu_common *sun252i_v861_r_ccu_clks[] = {
-+	&r_ahb_clk.common,
-+	&r_apb0_clk.common,
-+	&bus_r_ppu_clk.common,
-+	&bus_r_rtc_clk.common,
-+};
-+
-+static struct clk_hw_onecell_data sun252i_v861_r_hw_clks = {
-+	.num	= CLK_BUS_R_RTC + 1,
-+	.hws	= {
-+		[CLK_R_AHB]		= &r_ahb_clk.common.hw,
-+		[CLK_R_APB0]		= &r_apb0_clk.common.hw,
-+		[CLK_BUS_R_PPU]		= &bus_r_ppu_clk.common.hw,
-+		[CLK_BUS_R_RTC]		= &bus_r_rtc_clk.common.hw,
-+	},
-+};
-+
-+static const struct ccu_reset_map sun252i_v861_r_ccu_resets[] = {
-+	[RST_BUS_R_PPU]		= { 0x1ac, BIT(16) },
-+	[RST_BUS_R_RTC]		= { 0x20c, BIT(16) },
-+};
-+
-+static const struct sunxi_ccu_desc sun252i_v861_r_ccu_desc = {
-+	.ccu_clks	= sun252i_v861_r_ccu_clks,
-+	.num_ccu_clks	= ARRAY_SIZE(sun252i_v861_r_ccu_clks),
-+
-+	.hw_clks	= &sun252i_v861_r_hw_clks,
-+
-+	.resets		= sun252i_v861_r_ccu_resets,
-+	.num_resets	= ARRAY_SIZE(sun252i_v861_r_ccu_resets),
-+};
-+
-+static int sun252i_v861_r_ccu_probe(struct platform_device *pdev)
-+{
-+	void __iomem *reg;
-+
-+	reg = devm_platform_ioremap_resource(pdev, 0);
-+	if (IS_ERR(reg))
-+		return PTR_ERR(reg);
-+
-+	return devm_sunxi_ccu_probe(&pdev->dev, reg, &sun252i_v861_r_ccu_desc);
-+}
-+
-+static const struct of_device_id sun252i_v861_r_ccu_ids[] = {
-+	{ .compatible = "allwinner,sun252i-v861-r-ccu" },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, sun252i_v861_r_ccu_ids);
-+
-+static struct platform_driver sun252i_v861_r_ccu_driver = {
-+	.probe	= sun252i_v861_r_ccu_probe,
-+	.driver	= {
-+		.name			= "sun252i-v861-r-ccu",
-+		.suppress_bind_attrs	= true,
-+		.of_match_table		= sun252i_v861_r_ccu_ids,
-+	},
-+};
-+module_platform_driver(sun252i_v861_r_ccu_driver);
-+
-+MODULE_IMPORT_NS("SUNXI_CCU");
-+MODULE_DESCRIPTION("Support for the Allwinner V861 PRCM CCU");
-+MODULE_LICENSE("GPL");
 
 -- 
 2.55.0
