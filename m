@@ -1,79 +1,78 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794609218;
-	b=0IMk1QXYirmxJ5UTO55RngCqjXOVkLSGCpIhAcO5y4CFzNq9HMhBvifBSoA5vR7AXlrL
-	 /m5J4pJ6PYVRRMbZOLcwO9v97uJ2tMIvZQpRYfF1CQ0zE6LSuthEec11idRyMDurAe3u5
-	 gH+RxwLTYo+2b2pg8zFo8JhCaNBuxqBXHzZm9MZZBaDxCy4OA1I3PjzcD5ozb1MQ1IczO
-	 0T1jO0xykorksx3MogrqPT87LXCwlBH9MYhjGogde38zGlorEX6N3wP0YR+5eR1tfzy0R
-	 rHkFS8gBvYDOD7fuhYKLXqG21gpCutRNZNAWqd3K9/FqcJc2jr8KxxyZlZIlXyLg7dA==
+	t=1794609223;
+	b=W+dBprnsq0GHhG3rGuUjM2nXzeMGWq0AB19kyiNk053Ly+h9NN/Fc01jPo618XNRgmYE
+	 7566skbvaxPGdiBWRSkNASWL3Kl6yzLkWBg1uecDUwPPB6P47RzzTtrKg5P8N4oD4MhlR
+	 2wp92eoKe8SUI3v0P8/an0MrPURjWWpLJU/+sfDiByAA1hy+CojmAKRscL0KTygYhI/b3
+	 BbyPAX07XIuqaNt9C5qIGZe13vTCKmXsX8E23lm5bbi1iPzZUDyVBXSDmzIpnifAaJX++
+	 nIIuUwIPkXySgBAzEh411reEs6h7Qn/cKU49KKHrnAqKufIi+RcKykx9GcIUafaQE4Q==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794609218;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794609223;
 	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
 	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=2hAcwHHxwsuzZBb2Xr9VuIK0jqUogfFZXLMnVu53bds=;
-	b=ATXzmn+C7eS0wwqO70ew0taD35UrF7+WXov1L2faitclmp3NGH06S6ExKb5dZ825P74o
-	 y/MoEJnJpnKpRhGWaUjP8EKyf2eO1Y6Sx23XAVKofds25PCZfrL2EnRu4mVxxBXkyac39
-	 PjkdRnVUsdGqozQzByO7v6rL+D1Pp9nL94WCo2PyfWUykX1QCWm/dtBhaTGtwGAlMlWuJ
-	 HCKLjr0HWteCKe+XNXkMLU2ADka6Ay697oagl0u5Bz3zK437rgyTqNNJNr6OqPgsEFkW8
-	 ZDafFYBOfv7IcAMZVDRMKyVW7UXVH7+Iv1I6KKfTZ8Zp1jxGPNnmNn9BuK66MN7iBdg==
+	bh=JwFqOKP20g0aC7yp0dMF04OjCxUKgcRvU9TaC/BzR80=;
+	b=TmEQEo7akcQWL8/yOGhWKA7oUm6wrO2Ck57sPkyOl3/ASVzWY38a2NHAvDMqhnuyIVEn
+	 BC4t6xdyy7URtWg1jm3Dan5D1WJHIoswcvVnTc/QAu2IU/Fb60spRU5RWrE1W+gaaYk1Z
+	 mel7uP9umKBRuFztAL3X+vzalQXcNJuyOD0/wq8DfnuJ/VrdkKFUdm3v5tfmZ69fmFFbs
+	 FD0USks66NfJHrq/kzz7dKYQfEdrFyrKjd6tjrBItYJSSdOTqAHMzajwI/+qRAlh0it8Q
+	 iBuPgZ+7h/Q1UDjmSivK3h2stV+74ypagiqI0qNs/6FbczzvZUNhMdegkRWaOZXxm0Q==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FV2QCBUk;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BCXHdLRw;
 	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D1B8606A33F;
-	Fri, 13 Nov 2026 22:33:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 962D7606AF37;
+	Fri, 13 Nov 2026 22:33:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FV2QCBUk
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BCXHdLRw
 Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
 ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1794609218;
-	b=dzzmXe6EOZUnCWCtCyX6KvaZZaIqecjvSw7Ihx+zuBvWbgLp6gh64xyKX8TpcHXvjvw9
-	 v76KpEGQ5KwrM9KjwjFczpr7r9p2d9Bc+rKZY4nuQx86unFW/JG0KQxh76wWozyyw20Bh
-	 IBoAzxPvDb8O7C8PnVqBroByWv5+M8CijlDTt8bTke3UpPx0GzRu2TpvLbyAmPWS4r/Au
-	 1LfHnALVFJw925Z6S6z2U//9BtiJ877BBlRqM81JeVHhDGEt6hSN4mbD4YddwsncRNtNN
-	 SeXQogDJc8npcvFZvmcbuZR/US9JKdABR6pCL+W5tFUzW+SwMo+7cUMKZbKkaUZ/qmg==
+	t=1794609223;
+	b=Cfqnq+VgQvnXxMtuSt2tP8cGIX+dAfsjkA2Srd1L0c9wTNZNchp7vYjf0oTMIapor+3X
+	 b8g2rgiL2bBEnbo7pm0DcbjF5akbOYiU4IaaIj0sPqJaVXJ/xaNf9va9439IgkLurTfbg
+	 7mBR8Hf/Z2Pdn9GerIE8P7YVkpgEF1DNmWok4HUTDLetogwlsqNGJrDzW3DpLlwH0ptvy
+	 HWiLg9qRwJk5FL+2UxI6hrO0KwwwVgbf5tw29e11BrbFQ8DuqqspoV19ZYTtIyNAoLJ4D
+	 tzdtsc0nwY7UzigQ9ppcLFywWr1qDtQ2wYXKZSw1elXLqSc17gfC6rOfX+bNOgB2DxA==
 ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1794609218;
+	c=relaxed/relaxed; t=1794609223;
 	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
 	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=2hAcwHHxwsuzZBb2Xr9VuIK0jqUogfFZXLMnVu53bds=;
-	b=zkdvl/0ZFb1FpxlIGKUO7fJ149Hb8jHBh3fjEDiS+tlD+6Bm9yVWE0pc+CIAyGAObLHB
-	 wkUkfOTEZDjnrUNLLH0VRplDT7PvTkcjp5RByloPTX01PJR63jYuO26QKH0EfBtboSvAL
-	 sW5g7GUxkInSp7HUe/Ixhu4AkEOj4/3M+rMBEddznGcKAgGjD5IU5AGlPPNxZcsZUnZt4
-	 vmeVMJD5Z+Fn4YjmTdZnfSHiPsnmXhb7vBE6MYjp4Drgc1lk5JytVbI1KX88QK34Qn7kX
-	 9LiyzDmDKUIur/nZDByJJKecbyn4vGw+VHUV5qCGCTjhhamqLVZKj2Gtb929+g9hDgw==
+	bh=JwFqOKP20g0aC7yp0dMF04OjCxUKgcRvU9TaC/BzR80=;
+	b=Ilq0WS7++QBMXINskeTfkv1BRozYHiKek1828s4fG8AcLv5qg8vmGx7zQiVXEN98MPOP
+	 Fn72XvMfU2c6MoLfUez+idaHWqO+VgYLIVdt1Sp3Oghb+V4pl6nP/y/AB+799bEz2UwLo
+	 gV9qDq2vej2g1//Q5IwWjVQ2ctM3xeEeX4YpA6fNHSrGxbFqvX7TeTfbRk6MZnNA7uPT/
+	 yuSSEBOuwWNBaHzGQCujCN19WHzPY36Ef631xviA9rFNx8a2OyReq8ccinlOnbOH95LCB
+	 A1QyYWrckhCUAc8zmE7AIaLzivxdWVyc3G+MQpuAwC8bpY0mr7MrL0d/RptavreXd2w==
 ARC-Authentication-Results: i=1; smtp.kernel.org; 
 	arc=none smtp.remote-ip=100.80.115.77
 Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id 359C41F0089E;
-	Fri, 13 Nov 2026 22:33:35 +0000 (UTC)
+	by smtp.kernel.org (Postfix) with ESMTPS id F2B8E1F000C5;
+	Fri, 13 Nov 2026 22:33:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794609218;
-	bh=2hAcwHHxwsuzZBb2Xr9VuIK0jqUogfFZXLMnVu53bds=;
+	s=k20260515; t=1794609223;
+	bh=JwFqOKP20g0aC7yp0dMF04OjCxUKgcRvU9TaC/BzR80=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
-	b=FV2QCBUk2dFIqW9Sn4MhR5LOeAQRxbIE+193UXDCtDilblOtjVZQX+pjVDAu+XwtV
-	 9VgSVlAhu8ZSOkTKE4r4jxC/PuTMcu05YxHbiE/o2xhMHZ8tFFalM5sJJnIsuvMTz2
-	 XlkOYVkefUoz4DukDyaLwYyRI2SvzBUnJD6OfOpfHrhLTZP455+y2WilPeyHpFfANd
-	 SZ4MN2BNr+UjHclc+2wsrCMV9wKFVR1cvv5iGkVUT7M43u0hoiZARcjPne5SrlaoGk
-	 4C+0yT60mFBEQyJz5U+rG31MOjFxtqA+odRqx+fQ0GIEARrHcFqISuP40NlsGzrvBD
-	 ro/5salgoOc/Q==
+	b=BCXHdLRwmqWlF/2aUfKDVB12YsuvDfKHRE1C18YiVLHjVW/+mmHRU6orZ74ECnR1U
+	 lxq1xB9k9rl8Eg9BpLEPGXr+KoquFd3OK33orrD5XGQjXWhD7ayucjBywtP3TTYfRT
+	 Ry14g4FmqpBrgWegX9nEyANQQ+29wTQyk0knFG3gqAu+20/ANUmenv1tSjZmV94ZgW
+	 jKRaMOAmiRUso0ZreHUn1Tzp+JzWhDgbYPs0DL77Xa5Yv0JLpMereIiLvThLAyiT+B
+	 njE//EK8LLvTXrXgk5e615fUqRnsy4OcQG5vyeiGEmzYI02j3ErU92yk6sOEVyObim
+	 Q0hVAGjWIg8iw==
 Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 937C549B84;
+	by lkml.kernel.org (Postfix) with ESMTP id 3E14A49B74;
 	Fri, 13 Nov 2026 22:33:33 +0000 (UTC)
 From: Han Gao via B4 Relay <devnull+gaohan.iscas.ac.cn@kernel.org>
-Date: Sat, 14 Nov 2026 06:33:38 +0800
-Subject: [PATCH 12/19] dt-bindings: pinctrl: add the Allwinner V861 pin
- controllers
+Date: Sat, 14 Nov 2026 06:33:34 +0800
+Subject: [PATCH 08/19] dt-bindings: rtc: sun6i: add the Allwinner V861 RTC
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -84,7 +83,7 @@ List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261114-v861-v1-12-eb71ec3ee523@iscas.ac.cn>
+Message-Id: <20261114-v861-v1-8-eb71ec3ee523@iscas.ac.cn>
 References: <20261114-v861-v1-0-eb71ec3ee523@iscas.ac.cn>
 In-Reply-To: <20261114-v861-v1-0-eb71ec3ee523@iscas.ac.cn>
 To: Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
@@ -111,11 +110,11 @@ Cc: Han Gao <rabenda.cn@gmail.com>, linux-riscv@lists.infradead.org,
  linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org, 
  linux-gpio@vger.kernel.org
 X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1794609209; l=2426;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1794609209; l=902;
  i=gaohan@iscas.ac.cn; s=20261021; h=from:subject:message-id;
- bh=OVFVAovojWhCjL1CcvpMpyxRiwB/0HvBnEwl/vSd8Os=;
- b=I8y5zq/wfjE0lbgnncurtQ07hgFzNrVSMhKq4SHgkIBrpZNMZEux/+meGG5waFVfmHGj730hC
- i4FabMIA2qFD386KAufZP4MB4on1RyqcbMFigp86/eUPgTrGQwyuMCx
+ bh=F1GNhVpodsXAYlEoyOMPo+2vHXQnhpYEkGTEEAeJ24U=;
+ b=r31usjU0JpNBnyAaJ6yw0tFh3sM1hAcG8U6aEklPoM93eVC8D7WYOsDVfP5Z8K5DzDKgfP/GZ
+ KiiBLhKjRvSDJAPRwJ137YPvrIo1pzy5Oun+vZaS+OGZA1VItVeH/QU
 X-Developer-Key: i=gaohan@iscas.ac.cn; a=ed25519;
  pk=J8WHEK3filS86QaCaIHDGafqhxKyQ4K7+vFgRirTIiY=
 X-Endpoint-Received: by B4 Relay for gaohan@iscas.ac.cn/20261021 with
@@ -126,85 +125,26 @@ Content-Transfer-Encoding: 7bit
 
 From: Han Gao <gaohan@iscas.ac.cn>
 
-The V861 main and always-on pin controllers follow the A523 binding.
-The always-on one has a single interrupt bank, so also allow a single
-debounce value.
+The V861 RTC is compatible with the R329 one. Add a compatible with the
+R329 one as fallback.
 
 Signed-off-by: Han Gao <gaohan@iscas.ac.cn>
 ---
- .../pinctrl/allwinner,sun55i-a523-pinctrl.yaml     | 31 +++++++++++++++++++---
- 1 file changed, 28 insertions(+), 3 deletions(-)
+ Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/devicetree/bindings/pinctrl/allwinner,sun55i-a523-pinctrl.yaml b/Documentation/devicetree/bindings/pinctrl/allwinner,sun55i-a523-pinctrl.yaml
-index d7d0ba32ced4..3c2924df17b9 100644
---- a/Documentation/devicetree/bindings/pinctrl/allwinner,sun55i-a523-pinctrl.yaml
-+++ b/Documentation/devicetree/bindings/pinctrl/allwinner,sun55i-a523-pinctrl.yaml
-@@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/pinctrl/allwinner,sun55i-a523-pinctrl.yaml#
- $schema: http://devicetree.org/meta-schemas/core.yaml#
- 
--title: Allwinner A523 & A733 Pin Controller
-+title: Allwinner A523, A733 & V861 Pin Controller
- 
- maintainers:
-   - Andre Przywara <andre.przywara@arm.com>
-@@ -26,6 +26,8 @@ properties:
- 
-   compatible:
-     enum:
-+      - allwinner,sun252i-v861-pinctrl
-+      - allwinner,sun252i-v861-r-pinctrl
-       - allwinner,sun55i-a523-pinctrl
-       - allwinner,sun55i-a523-r-pinctrl
-       - allwinner,sun60i-a733-pinctrl
-@@ -35,7 +37,7 @@ properties:
-     maxItems: 1
- 
-   interrupts:
--    minItems: 2
-+    minItems: 1
-     maxItems: 11
-     description:
-       One interrupt per external interrupt bank supported on the
-@@ -62,7 +64,7 @@ properties:
-       Debouncing periods in microseconds, one period per interrupt
-       bank found in the controller
-     $ref: /schemas/types.yaml#/definitions/uint32-array
--    minItems: 2
-+    minItems: 1
-     maxItems: 11
- 
- patternProperties:
-@@ -149,6 +151,29 @@ allOf:
-           minItems: 2
-           maxItems: 2
- 
-+  - if:
-+      properties:
-+        compatible:
-+          const: allwinner,sun252i-v861-pinctrl
-+    then:
-+      properties:
-+        interrupts:
-+          minItems: 7
-+          maxItems: 7
-+        input-debounce:
-+          maxItems: 7
-+
-+  - if:
-+      properties:
-+        compatible:
-+          const: allwinner,sun252i-v861-r-pinctrl
-+    then:
-+      properties:
-+        interrupts:
-+          maxItems: 1
-+        input-debounce:
-+          maxItems: 1
-+
- additionalProperties: false
- 
- examples:
+diff --git a/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml b/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml
+index ebe35f893f8c..9d05b61acedd 100644
+--- a/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml
++++ b/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml
+@@ -33,6 +33,7 @@ properties:
+       - items:
+           - enum:
+               - allwinner,sun20i-d1-rtc
++              - allwinner,sun252i-v861-rtc
+               - allwinner,sun55i-a523-rtc
+               - allwinner,sun60i-a733-rtc
+           - const: allwinner,sun50i-r329-rtc
 
 -- 
 2.55.0
