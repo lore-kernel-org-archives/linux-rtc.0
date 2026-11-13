@@ -1,47 +1,59 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=49.212.47.36
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794528450;
-	b=hvV4gmcbhfVfXmpAtH0BM4VHw63GuOJZ2dJjw93eW2wNEG7atwVckshQAngaYHXrOPkm
-	 3nZ/TbhJBuI6r3VX84dFv+bCmdIGQLDyjthreZdW45Y2M8qqvgjAD7I2Ml74BgVyqyb8t
-	 Yd0M7HsxjvZpN7s5aYuk6b2j7JakwEpI6ws+NvKTNhaHA6LCFRdSVs1vMSztoRAEHVJFP
-	 7l3rnl0LD9W1TUU2qROplxKWu4XlNH/ORuvD0lS6smK+P4yBxEvL6a7x+m11KFIt/Xs+P
-	 wDflfyzTE/FGblDPyddnTYRMDPIwJ7E3CuLmZ4AaVbFxVsuotLVkm+BLwnTYu135Gfw==
+	t=1794532804;
+	b=JxrYKBGQ/dG/9B4vJ6XjvrUG7/UPhBhMOZwG19aV4xkCOVi+tvUZlL1SE01nC5gQZEa3
+	 FYg/rvpeKVrEXs7k0QJQEYoJcE9xNZwKLpnLnis8Tgj7AKJtnSL+tsa7/ufmsOQtExeoa
+	 sHVs8qsGJRSW/s1DmvpoJwJdGug6KDTFzV2aTDd+aW+nWwMX8ayA0VAvNFT/oiRRsyvHT
+	 eYuEprSi01H8lPHvFDL+EMdDBVu+qUxjz99Blse8NicvS6+nsaEq4Y2RD1RmEuFIaQl72
+	 vq6Fg1PgduzKuJ4bzA5DaRX4GndBkHHnlZ/4qhvo4zr0WsaM0P1N7fQVW8U+hkXnROw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794528450;
-	h=DMARC-Filter:Received:DKIM-Filter:To:From:X-Ip:X-Ip-source:
-	 Precedence:List-Unsubscribe:List-Unsubscribe-Post:Subject:
-	 Mime-Version:Content-Type:Content-Transfer-Encoding:X-MagazineId:
-	 X-uId:X-Sender:X-Url:Message-Id:Date;
-	bh=NOfNgTyd0uEr6RzFm0WGakXbVq4eVhUqaBjZ/gzkpPY=;
-	b=DX7xvJY/tEW2DZ2pVQqZgHzpkJnJIZ4aauRBm4CZabycuhDm/YU3ZbJliAcglzLOXwtw
-	 rcmfSJb+cadtwLimyLqzXYavRTbxAEM9u2tnCcLwgRo0rEw8V9KLAUPgGfLZSqeKBtKiS
-	 0PBCApPPtVWLud33IFHyYTv2tiQlHYBr6gF/zyfXhDaV27ooKOpRCN3FE43z0VlWUXthH
-	 h+s86yC3oR+UJlq/Q+11Ap5k8ahWdWB8K6ERz38BKq9WbWivwNwU6vT3HdFj5u3/BRfuy
-	 5PIWYT3x+8xrx9+qWgAp1qccqV5dLMlWmMg9FAqQlKW2Q2kQczCFjTKHKKv4tGq/vzQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794532804;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 In-Reply-To:References:X-Mailer:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=ihVMGHo1BmleIkV3EOT0D9R5nIHHW1mYzBlrGw9jfGs=;
+	b=YOJjSfBAcAi8Do1iZZ592g7botkhepTrLxWnX4jEwYHiP+i2dGwv4xU8Hmdop4MQqruv
+	 PEJF7G1BrbMdrr7kotMQbnM9wLNzAZ0klaD6bjK+i35bAGLgkFl1uxLbzwcLYqR+V3s05
+	 tgNOnLmSksLvBvt7pK0ZeHebIjWrISZYLNUj8XjpcfuuyPWxxBV7twA/uH4G82YM5ge9L
+	 5+EHgbSUyiDOHOx1hVTyW5RWZO7uiACrmc1dSbnb/9+CGlrbfmdaZzhDNUoHVLthuSb1z
+	 x0Scp0JfSZaYfV0YQLs9iWzHA8X/c7W2IqFoJdFmUra/lEhDv+rqKA2fBPLir4oISbg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=knowledgelink-corp.jp;
-	spf=pass smtp.mailfrom=magerr.combzmail.jp;
-	arc=none smtp.remote-ip=49.212.47.36
-Received: from r9114.ps.combzmail.jp (r9114.ps.combzmail.jp [49.212.47.36])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hJVTzpjW;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34902606A327
-	for <linux-rtc@vger.kernel.org>; Fri, 13 Nov 2026 00:07:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 34902606A327
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=knowledgelink-corp.jp
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=magerr.combzmail.jp
-Received: by r9114.ps.combzmail.jp (Postfix, from userid 99)
-	id 2B95A3067CD; Fri, 13 Nov 2026 09:04:51 +0900 (JST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 r9114.ps.combzmail.jp 2B95A3067CD
-To: linux-rtc@vger.kernel.org
-From: =?ISO-2022-JP?B?GyRCP0BFRCFDMGxITDxSQ0RLIT9NJUolbCVDJTglaiVzJS8bKEI=?= <info@knowledgelink-corp.jp>
-X-Ip: 8118062929242806
-X-Ip-source: k85gj72848dnsad1u0p6gd
-Precedence: bulk
-List-Unsubscribe-Post: List-Unsubscribe=One-Click
-Subject: =?ISO-2022-JP?B?GyRCPFJEOSROMnE8UiROIVYlKCE8JTkhVyEiGyhC?=
- =?ISO-2022-JP?B?GyRCJCQkRDwtJGEkXiQ5JCshKSFaN1AxRDxUOEJEaiU7GyhC?=
- =?ISO-2022-JP?B?GyRCJV8lSiE8IVsbKEI=?=
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0FF5606A323;
+	Fri, 13 Nov 2026 01:20:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hJVTzpjW
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8EB91F000C4;
+	Fri, 13 Nov 2026 01:20:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794532803;
+	bh=ihVMGHo1BmleIkV3EOT0D9R5nIHHW1mYzBlrGw9jfGs=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=hJVTzpjWkmPY0v3/KVrmMhVkRvcRtGSnUzNTZ/4hUNWmc4LjO4zfXjHbuQ8hV8/vZ
+	 fK613O872Bdx0JJDQbaC6RZByiVHo3JEmetLyjkqhMmed5YIm7QfOo9U2+8YQIyYIP
+	 McBQcK0R3OisJdmCy+DxZu10DZwPCmkpWrxgk+IIqTyPKtnbelc9NDsirKVYXqABxK
+	 6/yHEticQ5mzgqTM1XcQTP7mKSpQElkjVaaq5PyqWG+t07ZzTCg4b0nXRTvoZaFa0C
+	 BtQtOdduxum2riLmUmP0Q/PrY0L/0nQNZR+Pur30+AB3eBl6gb+rx3OaUS8VgvMHEE
+	 0q1cZyhyLzmZA==
+Date: Fri, 13 Nov 2026 01:19:57 +0000
+From: Jonathan Cameron <jic23@kernel.org>
+To: Akhilesh Patil <akhilesh.patil@linux.dev>
+Cc: andy@kernel.org, krzk+dt@kernel.org, dlechner@baylibre.com,
+ robh@kernel.org, crofts@kernel.org, conor+dt@kernel.org,
+ alexandre.belloni@bootlin.com, linux-kernel@vger.kernel.org,
+ linux-iio@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-rtc@vger.kernel.org, akhileshpatilvnit@gmail.com,
+ akhilesh@ee.iitb.ac.in
+Subject: Re: [PATCH v4] MAINTAINERS: Update Akhilesh Patil Email address
+Message-ID: <20261113011957.5d8836ff@jic23-hlaptop>
+In-Reply-To: <20261112091641.GA3643677@u5ce4748bae3b54.ant.amazon.com>
+References: <20261112091641.GA3643677@u5ce4748bae3b54.ant.amazon.com>
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -50,88 +62,122 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-2022-jp
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-MagazineId: 28d1
-X-uId: 6764325137486067654956401021
-X-Sender: CombzMailSender
-X-Url: http://www.combzmail.jp/
-Message-Id: <20261113000603.2B95A3067CD@r9114.ps.combzmail.jp>
-Date: Fri, 13 Nov 2026 09:04:51 +0900 (JST)
 
-　
-　ルールを決めたら、社員は辞めるどころか
-　「迷わなく」なった。
-　
-　これまでに4,800社以上への支援から分かった
-　
-　“凡人”を常勝集団に変える
-　ルールのつくり方を
-　
-　次の朝礼から実践できる形で
-　分かりやすく丁寧にお伝えします。
+On Thu, 12 Nov 2026 09:16:41 +0000
+Akhilesh Patil <akhilesh.patil@linux.dev> wrote:
 
-┏… Overview …………………………………………┓
-　
-　「あいつが辞めたら、うちは回るのか？」
-　
-　　エースに頼らず“凡人”を
-　　常勝集団に変えるルールのつくり方
+> Move to my new linux.dev email address akhilesh.patil@linux.dev
+> I plan to use this email for kernel development going forward.
+> Also update email address in few yaml and driver source files.
+> 
+> Signed-off-by: Akhilesh Patil <akhilesh.patil@linux.dev>
 
-　　　　　　　　―――
-　　日　時　11月24日（火）13:00-15:00
-　
-　　会　場　Zoom無料開催／定員100名
-　　事務局　ナレッジリンクセミナー窓口
-　
-　　詳細はこちら
-　　https://knowledge-co.jp/rule/
+I can pick this one up with an rtc ack, or it can go through that
+tree. I don't mind which.
 
-┗……………………………………………………………┛
-　
-　
-　多くの社長とお話しする中で
-　このようなお悩みをよく伺います。
-　
-　　・エースが辞めたら、売上が大きく落ちる
-　　・朝礼に遅れてくる社員がいても、誰も何も言わない
-　　・同じミスに、毎回説教。その後、自己嫌悪になる
+Acked-by: Jonathan Cameron <jonathan.cameron@oss.qualcomm.com>
 
-　研修も、クレドも、評価制度も試した。
-　それでも改善は続かず「結局は人次第なのか」と感じている。
-　
-　
-　そんなお悩みを解決し、成果を生み出す会社に一変させる
-　本質をついた、ルールづくりをお伝えします。
+Thanks,
 
-　
-― セミナーで得られること ―
+Jonathan
 
-　・ルールを増やすと社員は辞めるのか？への答え
-　・「姿勢のルール」の決め方
-　・「完全結果」の指示に書き換える方法
-　・エラー時に上司がかける「一言」
-　
-　
-　いずれも、翌日の朝礼から試していただける内容です。
-　
-　自社の組織に希望を持つための気づきを得られる
-　内容となっておりますので、ぜひご視聴ください。　
-　
-　
-_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+> ---
+> 
+> Changes in v4: 
+> - No source change.
+> - Added entire change log for all versions.
+> - Link to v3: 
+> https://lore.kernel.org/linux-iio/20261110052942.GA2505113@u5ce4748bae3b54.ant.amazon.com/
+> 
+> Changes in v3: 
+> - Fixed order of entry in .mailmap
+> - Link to v2: 
+> https://lore.kernel.org/all/20261109104443.GA531570@u5ce4748bae3b54.ant.amazon.com/ 
+> 
+> Changes in v2:
+> - Updated email ID in relevant device tree source files and driver source files.
+> - Link to v1: 
+> https://lore.kernel.org/linux-iio/20261109063924.GA118887@u5ce4748bae3b54.ant.amazon.com/
+> 
+>  .mailmap                                                      | 1 +
+>  .../devicetree/bindings/iio/pressure/aosong,adp810.yaml       | 2 +-
+>  Documentation/devicetree/bindings/rtc/st,m41t93.yaml          | 2 +-
+>  MAINTAINERS                                                   | 2 +-
+>  drivers/iio/pressure/adp810.c                                 | 4 ++--
+>  5 files changed, 6 insertions(+), 5 deletions(-)
+> 
+> diff --git a/.mailmap b/.mailmap
+> index 7fb33babc931..d09fd3708023 100644
+> --- a/.mailmap
+> +++ b/.mailmap
+> @@ -27,6 +27,7 @@ Adrian Bunk <bunk@stusta.de>
+>  Ajay Kaher <ajay.kaher@broadcom.com> <akaher@vmware.com>
+>  Akhil P Oommen <akhilpo@oss.qualcomm.com> <akhilpo@codeaurora.org>
+>  Akhil P Oommen <akhilpo@oss.qualcomm.com> <quic_akhilpo@quicinc.com>
+> +Akhilesh Patil <akhilesh.patil@linux.dev> <akhilesh@ee.iitb.ac.in>
+>  Alan Cox <alan@lxorguk.ukuu.org.uk>
+>  Alan Cox <root@hraefn.swansea.linux.org.uk>
+>  Aleksandar Markovic <aleksandar.markovic@mips.com> <aleksandar.markovic@imgtec.com>
+> diff --git a/Documentation/devicetree/bindings/iio/pressure/aosong,adp810.yaml b/Documentation/devicetree/bindings/iio/pressure/aosong,adp810.yaml
+> index ad5f26ce5043..ca4d4210f609 100644
+> --- a/Documentation/devicetree/bindings/iio/pressure/aosong,adp810.yaml
+> +++ b/Documentation/devicetree/bindings/iio/pressure/aosong,adp810.yaml
+> @@ -7,7 +7,7 @@ $schema: http://devicetree.org/meta-schemas/core.yaml#
+>  title: aosong adp810 differential pressure sensor
+>  
+>  maintainers:
+> -  - Akhilesh Patil <akhilesh@ee.iitb.ac.in>
+> +  - Akhilesh Patil <akhilesh.patil@linux.dev>
+>  
+>  description:
+>    ADP810 is differential pressure and temperature sensor. It has I2C bus
+> diff --git a/Documentation/devicetree/bindings/rtc/st,m41t93.yaml b/Documentation/devicetree/bindings/rtc/st,m41t93.yaml
+> index bdd995c5c1f4..837679dc01ac 100644
+> --- a/Documentation/devicetree/bindings/rtc/st,m41t93.yaml
+> +++ b/Documentation/devicetree/bindings/rtc/st,m41t93.yaml
+> @@ -7,7 +7,7 @@ $schema: http://devicetree.org/meta-schemas/core.yaml#
+>  title: ST M41T93 RTC and compatible
+>  
+>  maintainers:
+> -  - Akhilesh Patil <akhilesh@ee.iitb.ac.in>
+> +  - Akhilesh Patil <akhilesh.patil@linux.dev>
+>  
+>  description:
+>    ST M41T93 is spi based Real Time Clock (RTC) with time, date,
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 222b7fc2c3aa..3aa8fa3c068f 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -4095,7 +4095,7 @@ F:	Documentation/devicetree/bindings/iio/chemical/aosong,ags02ma.yaml
+>  F:	drivers/iio/chemical/ags02ma.c
+>  
+>  AOSONG ADP810 DIFFERENTIAL PRESSURE SENSOR DRIVER
+> -M:	Akhilesh Patil <akhilesh@ee.iitb.ac.in>
+> +M:	Akhilesh Patil <akhilesh.patil@linux.dev>
+>  L:	linux-iio@vger.kernel.org
+>  S:	Maintained
+>  F:	Documentation/devicetree/bindings/iio/pressure/aosong,adp810.yaml
+> diff --git a/drivers/iio/pressure/adp810.c b/drivers/iio/pressure/adp810.c
+> index 82aa433548d2..832df6ba0ee3 100644
+> --- a/drivers/iio/pressure/adp810.c
+> +++ b/drivers/iio/pressure/adp810.c
+> @@ -1,6 +1,6 @@
+>  // SPDX-License-Identifier: GPL-2.0-only
+>  /*
+> - * Copyright (c) 2025 Akhilesh Patil <akhilesh@ee.iitb.ac.in>
+> + * Copyright (c) 2025 Akhilesh Patil <akhilesh.patil@linux.dev>
+>   *
+>   * Driver for adp810 pressure and temperature sensor
+>   * Datasheet:
+> @@ -219,6 +219,6 @@ static struct i2c_driver adp810_driver = {
+>  };
+>  module_i2c_driver(adp810_driver);
+>  
+> -MODULE_AUTHOR("Akhilesh Patil <akhilesh@ee.iitb.ac.in>");
+> +MODULE_AUTHOR("Akhilesh Patil <akhilesh.patil@linux.dev>");
+>  MODULE_DESCRIPTION("Driver for Aosong ADP810 sensor");
+>  MODULE_LICENSE("GPL");
 
-　一般社団法人ナレッジリンク
-　東京都千代田区神田小川町1-8-3
-　セミナー窓口：03-5256-7638
-
-……………………………………………………………………
-　メール案内が不要な方にはご迷惑をお掛けしまして
-　大変申し訳ございません。
-　お手数ですが下記URLより手続きをお願い致します。
-　
-　配信の解除依頼はこちら
-　https://fc-knowledgelink-corp.jp/mail/
-
-_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
