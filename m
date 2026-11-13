@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794609412;
-	b=kVqaCqBhFdvftOlho1phh8MjLBFzyUDUcDULqzeJNHYrG0EUbTn7omwJZF15E+phtS5d
-	 sbex+J4pIiu+PkBMF1751/W2sDhJjojHhfFxnP4SzBiuWd38wr0oHkO4/Kh7rgHhl97iF
-	 +iKBa0Q9FpVv/Nc2e3QBLN3lRxEIrl2qhZ5YEhleSrrc6eBpFwIQhnfxkffIu8fqEXZq4
-	 US5dJtX92A8c7VJ10tJmvZNPDqAdtEbjV2npmwwULm2u5S1WucI2qSd0/m+NZYaHsNEF8
-	 7llFe2LxR4Bz+JYINOsalTXIW1n+bY/IroYk7UeT8GA16HmrgXSiUrJW6FByFHi+VkA==
+	t=1794609448;
+	b=j/raKCGtTV+s/QeTXRENowcUXtHUezqFf1KACzqrY+0WJLZMASy5ubF5FaffVHC3qJm4
+	 lfSXAlcQ1JDvBAoH7r/scjqDzV62kDGQjcBtr7JoNvpqR6d0LWtILewmbPlOPNM/EKJCA
+	 GBAjhoTktp6PzgR6TTegECD/lridn9xTyXeQ+k5aP24BApnnMY2MxWhQk0mXDUd1DKAM9
+	 ba3u7z0TU++NXoGhM/Z2NO7ScvrJOI30zb70kmeZVpdtjAaduFl1ldcxog/d1DLeoUnpM
+	 eWOy8ledmHqcISAbeViNivBsV8JWRCEmOJtXKXr9kzyC6Vxxz6+HfL/HMGf2Z/xVn/A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794609412;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794609448;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=JAKH8VMmskaDqzcvn2sYSOYXWRbHAXcSgMnheK17mYU=;
-	b=KhGd5wYoLnoQGR2aQ8PEAhhqu3Tiou2G9PwIVBLMHHdXG+xn16Icj2ocNqF+yZLgoSfl
-	 nBGbkW6fg5ulAjWBKa5l7xI2vCGYLaS6uVKX10PQgS5Dp6LEFtllYoTpPkYlUNDG2FcaY
-	 Z0E0dPjuoVcU3C769n5nx49/cf2y49Ew4VGAiOuFV3STZnPRe5rYHAG/tNoe7fP6Trx5L
-	 wTuq5A3xOENpw+8sOo2ZKXcinLbYRtqpdmEBAWfVcRJl45gTNEO8CU+alLokc7P7Gy5A3
-	 7Zz/du/AJfyAPP50SqhwjlO0UhOoqhPqJ/9u7YDOY6knteLndh70q5YpUTbsE9MwDDA==
+	bh=liownonsW0RWZYVP+AHU/wzVSAOaAqZkceq3sRKnKqc=;
+	b=bg8GHgPk+xSOqetWBQHQK8cqSE29FsAI2jwptXJCiLoGd9yJJflItBnb55DmDeX0NTRu
+	 B3Jdh3J7FPoiMV+aFzEGuViO6nZJ0D2zjwYUzfXlQIiijUHZYrHVH1SiwI/BA5UzgJ6lS
+	 K5tBxQc+EE0Q/FvRq+rE8SqzULfrWsfKUrxDkjfCAZsgsc21lBwJG4TQ5qUkkCCiOai2k
+	 D/tOPv4lINiJdQQXxLZTowKgbSSu8QFDcJxKi4lG7SRGIONNiUdErut86rlGGnHFnoyzH
+	 T7CSz374dd4BBx+Tw8PFWvEiJqKtg0z4Ir5gVmlZbs/V5SQDHVY+JRcQjXW+HLZIcmA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="VP1t8/sP";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BmoFcfuG;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A64F9606A551
-	for <linux-rtc@vger.kernel.org>; Fri, 13 Nov 2026 22:36:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C40F9606A33F
+	for <linux-rtc@vger.kernel.org>; Fri, 13 Nov 2026 22:37:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VP1t8/sP
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 502851F000C4;
-	Fri, 13 Nov 2026 22:36:52 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BmoFcfuG
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15F641F000C4;
+	Fri, 13 Nov 2026 22:37:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794609412;
-	bh=JAKH8VMmskaDqzcvn2sYSOYXWRbHAXcSgMnheK17mYU=;
+	s=k20260515; t=1794609448;
+	bh=liownonsW0RWZYVP+AHU/wzVSAOaAqZkceq3sRKnKqc=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=VP1t8/sPkLbRcdCJhLcJbCARUkNSXKiFdyZRsSsH7xrhQQqNHIS7V1rb9ktdT42jN
-	 Z0Scl5R0DPpTEgyKBUsLPBjLsDNN6Cv6mgGj2/KmCXUCO5F3/uK2eNVu6tYyQ1iNB0
-	 U83wzKRhcyXwBnxIwVINlYnUSFI9WTkU7EYk82L8a92ifkjxW/0BhQ3xXHxNFGYz0O
-	 9qY5NXCEL1O0gJOs+fA1aLjxagCNQixpKCBXGfjHdbmCI1C93cKm+e0BFgyIB65wzq
-	 Cjnx3wJfpg1AXH6TvU6HQIO0ezBizd3++xk+BTPeQvZnATasF68LathXwNlkASMw10
-	 lGuMqGLeVNbUQ==
-Message-ID: <sashiko-outbox-213822@kernel.org>
+	b=BmoFcfuGa9KhyoZ0373Ckbj7KkZPBGrXDfiZNdM0KzD3KbZ8wN5/mBwqywzKfM/fJ
+	 TDyzh6H6/S5dNX4XpLJIVE65hdCCTHZWjs6kHFHvW4JadkUUK4MRJVV0sWjT0dy9SV
+	 1JTG61KSouSasKafmRyOyG1DbjXospgv3GBN4BsxzsLIQX7UDPwd1HewysSwPyyctS
+	 MKX5jLqqr+BsTVa68EBUP4mgn+uI+KdVShiuXK22bI/DEhA+W5AAWagO8kREP8zH61
+	 akr9AgPw/8aHX+6C5MCkD3PFOj0Y+NTanCVfbr/Ok5bpW1vbcDLB8l6xlD2C0IV04n
+	 j13w5jlocTvsA==
+Message-ID: <sashiko-outbox-213823@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 10/19] clk: sunxi-ng: sun6i-rtc: allow another 24 MHz to
- 32k divider ratio
+Subject: Re: [PATCH 03/19] dt-bindings: interrupt-controller: add the
+ Allwinner V861 PLIC
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Han Gao" <gaohan@iscas.ac.cn>
 Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20261114-v861-v1-10-eb71ec3ee523@iscas.ac.cn>
+In-Reply-To: <20261114-v861-v1-3-eb71ec3ee523@iscas.ac.cn>
 References: <20261114-v861-v1-0-eb71ec3ee523@iscas.ac.cn>
- <20261114-v861-v1-10-eb71ec3ee523@iscas.ac.cn>
+ <20261114-v861-v1-3-eb71ec3ee523@iscas.ac.cn>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 13 Nov 2026 22:36:51 +0000
+Date: Fri, 13 Nov 2026 22:37:27 +0000
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -63,8 +63,8 @@ Precedence: list
 
 > From: Han Gao <gaohan@iscas.ac.cn>
 >=20
-> The fixed 24 MHz to 32 kHz divider does not divide by 750 on all
-> variants. Allow the match data to override its multiplier and divider.
+> The V861 uses the XuanTie C900 PLIC implementation, like the D1. Add an
+> SoC-specific compatible with "thead,c900-plic" as the fallback.
 >=20
 > Signed-off-by: Han Gao <gaohan@iscas.ac.cn>
 
@@ -72,5 +72,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261114-v861-v1-0-=
-eb71ec3ee523@iscas.ac.cn?part=3D10
+eb71ec3ee523@iscas.ac.cn?part=3D3
 
