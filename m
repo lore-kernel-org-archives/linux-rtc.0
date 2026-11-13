@@ -1,56 +1,47 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=49.212.47.36
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794524189;
-	b=QdPBhvPLLCbJaIZhBtrSRM1d/74GPJYwfRafo74sKxLvdBbUn6GYJoOUbgQcBVNxo/W3
-	 kw72NMeaLgW21oXUdX3W1DJYa8cBtbB3Rrik6q3NVrD9qEqRi0kdmRn+LvSq59/Pyy/ul
-	 axPE2m/AwA4Wez5UEeXPqSmYdo7AGIrFWmT3DaslpBgimtlwcYvkUHMov5pRsKfeEDs8z
-	 CSo3ilG7vzIsFI6wAHYTV+DhSYKS8TmSzWdVRKrnwUKTUDc99SSrScDsZ+2WePwBqypQY
-	 rgjPsNT2CnuPNyziMAfYelbFZYwH0Neoq9DHGdU0MAHZhkWwQDhTY9LkT9qQnZFs9eg==
+	t=1794528450;
+	b=hvV4gmcbhfVfXmpAtH0BM4VHw63GuOJZ2dJjw93eW2wNEG7atwVckshQAngaYHXrOPkm
+	 3nZ/TbhJBuI6r3VX84dFv+bCmdIGQLDyjthreZdW45Y2M8qqvgjAD7I2Ml74BgVyqyb8t
+	 Yd0M7HsxjvZpN7s5aYuk6b2j7JakwEpI6ws+NvKTNhaHA6LCFRdSVs1vMSztoRAEHVJFP
+	 7l3rnl0LD9W1TUU2qROplxKWu4XlNH/ORuvD0lS6smK+P4yBxEvL6a7x+m11KFIt/Xs+P
+	 wDflfyzTE/FGblDPyddnTYRMDPIwJ7E3CuLmZ4AaVbFxVsuotLVkm+BLwnTYu135Gfw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794524189;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=3LmFrsBQFbZEhx18usBDVPj20osM9FeVGPojC5J12gQ=;
-	b=OpswdMuVYOMDVbp3t5KYapquPW4l57s1yMRbT3XiaiUqK8+0ce0oUWt8x+rifQPLfryx
-	 tmCj6cFOXk3cbnJSTgCk9lurMF048xsier380nbLfKxmiWI/fGXqJe2IkwYqTQWOqFR+o
-	 toWPmkbknWk/atcVRGbyDt65l37HdQ5m/YgEnw0mLDZLnpDXdt8lk+PuHeDhM2G5aqCjA
-	 kL3pSyBUQjQK9srR5Xgnq8IszCqy+qrBpGJ/g8MhFNRMm5C4Y0UeTSAUPiCNT9sjPzHaF
-	 M9C4t6M/fT1Gy6dQy9pDVBStFycrj+8dsAxz1qbcSpi6HLeL8wb6jGXnBEkG7frJdBg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794528450;
+	h=DMARC-Filter:Received:DKIM-Filter:To:From:X-Ip:X-Ip-source:
+	 Precedence:List-Unsubscribe:List-Unsubscribe-Post:Subject:
+	 Mime-Version:Content-Type:Content-Transfer-Encoding:X-MagazineId:
+	 X-uId:X-Sender:X-Url:Message-Id:Date;
+	bh=NOfNgTyd0uEr6RzFm0WGakXbVq4eVhUqaBjZ/gzkpPY=;
+	b=DX7xvJY/tEW2DZ2pVQqZgHzpkJnJIZ4aauRBm4CZabycuhDm/YU3ZbJliAcglzLOXwtw
+	 rcmfSJb+cadtwLimyLqzXYavRTbxAEM9u2tnCcLwgRo0rEw8V9KLAUPgGfLZSqeKBtKiS
+	 0PBCApPPtVWLud33IFHyYTv2tiQlHYBr6gF/zyfXhDaV27ooKOpRCN3FE43z0VlWUXthH
+	 h+s86yC3oR+UJlq/Q+11Ap5k8ahWdWB8K6ERz38BKq9WbWivwNwU6vT3HdFj5u3/BRfuy
+	 5PIWYT3x+8xrx9+qWgAp1qccqV5dLMlWmMg9FAqQlKW2Q2kQczCFjTKHKKv4tGq/vzQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HllWrPif;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=none header.from=knowledgelink-corp.jp;
+	spf=pass smtp.mailfrom=magerr.combzmail.jp;
+	arc=none smtp.remote-ip=49.212.47.36
+Received: from r9114.ps.combzmail.jp (r9114.ps.combzmail.jp [49.212.47.36])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64002606A880;
-	Thu, 12 Nov 2026 22:56:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HllWrPif
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8BEB1F000C4;
-	Thu, 12 Nov 2026 22:56:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794524188;
-	bh=3LmFrsBQFbZEhx18usBDVPj20osM9FeVGPojC5J12gQ=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=HllWrPifUSJqBkdjY9YrTJzDMsN5rQUpW6Vx4PfZBFkAsYhoO8HT33ivCvtOTCtuj
-	 zvLdNe1lCLQwolmIiVhQ+NWBEI4pRdu6cmbrqxYsvFWAewlPa7jifPDtT4J3b1C6lG
-	 7fbCQ9voHcbxeFjngoMH7O2XVRMufhTrVuBP0ZndRTP0zCWo1W9cwSreWiSUOHo3uz
-	 M0v1ysihN0Yg44yNlZtCqZisx65YDM8kHbdwgcl3NPUWELg+HyYsFXeXNslX9kXnIx
-	 vEQNyAauKKkf5+oPAUG0/IztXO8zJgoOAZPpCBupJ43ZRlkA9ccutBVy5ySGQGKDCm
-	 qedFueBi7YI2A==
-Date: Thu, 12 Nov 2026 16:56:26 -0600
-From: "Rob Herring (Arm)" <robh@kernel.org>
-To: Akhilesh Patil <akhilesh.patil@linux.dev>
-Cc: andy@kernel.org, krzk+dt@kernel.org, linux-rtc@vger.kernel.org,
-	akhileshpatilvnit@gmail.com, crofts@kernel.org,
-	alexandre.belloni@bootlin.com, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, conor+dt@kernel.org,
-	linux-iio@vger.kernel.org, akhilesh@ee.iitb.ac.in, jic23@kernel.org,
-	dlechner@baylibre.com
-Subject: Re: [PATCH v4] MAINTAINERS: Update Akhilesh Patil Email address
-Message-ID: <179452418643.1857011.17712598174525760162.robh@kernel.org>
-References: <20261112091641.GA3643677@u5ce4748bae3b54.ant.amazon.com>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34902606A327
+	for <linux-rtc@vger.kernel.org>; Fri, 13 Nov 2026 00:07:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 34902606A327
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=knowledgelink-corp.jp
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=magerr.combzmail.jp
+Received: by r9114.ps.combzmail.jp (Postfix, from userid 99)
+	id 2B95A3067CD; Fri, 13 Nov 2026 09:04:51 +0900 (JST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 r9114.ps.combzmail.jp 2B95A3067CD
+To: linux-rtc@vger.kernel.org
+From: =?ISO-2022-JP?B?GyRCP0BFRCFDMGxITDxSQ0RLIT9NJUolbCVDJTglaiVzJS8bKEI=?= <info@knowledgelink-corp.jp>
+X-Ip: 8118062929242806
+X-Ip-source: k85gj72848dnsad1u0p6gd
+Precedence: bulk
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Subject: =?ISO-2022-JP?B?GyRCPFJEOSROMnE8UiROIVYlKCE8JTkhVyEiGyhC?=
+ =?ISO-2022-JP?B?GyRCJCQkRDwtJGEkXiQ5JCshKSFaN1AxRDxUOEJEaiU7GyhC?=
+ =?ISO-2022-JP?B?GyRCJV8lSiE8IVsbKEI=?=
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -59,43 +50,88 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261112091641.GA3643677@u5ce4748bae3b54.ant.amazon.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
+X-MagazineId: 28d1
+X-uId: 6764325137486067654956401021
+X-Sender: CombzMailSender
+X-Url: http://www.combzmail.jp/
+Message-Id: <20261113000603.2B95A3067CD@r9114.ps.combzmail.jp>
+Date: Fri, 13 Nov 2026 09:04:51 +0900 (JST)
 
+　
+　ルールを決めたら、社員は辞めるどころか
+　「迷わなく」なった。
+　
+　これまでに4,800社以上への支援から分かった
+　
+　“凡人”を常勝集団に変える
+　ルールのつくり方を
+　
+　次の朝礼から実践できる形で
+　分かりやすく丁寧にお伝えします。
 
-On Thu, 12 Nov 2026 09:16:41 +0000, Akhilesh Patil wrote:
-> Move to my new linux.dev email address akhilesh.patil@linux.dev
-> I plan to use this email for kernel development going forward.
-> Also update email address in few yaml and driver source files.
-> 
-> Signed-off-by: Akhilesh Patil <akhilesh.patil@linux.dev>
-> ---
-> 
-> Changes in v4:
-> - No source change.
-> - Added entire change log for all versions.
-> - Link to v3:
-> https://lore.kernel.org/linux-iio/20261110052942.GA2505113@u5ce4748bae3b54.ant.amazon.com/
-> 
-> Changes in v3:
-> - Fixed order of entry in .mailmap
-> - Link to v2:
-> https://lore.kernel.org/all/20261109104443.GA531570@u5ce4748bae3b54.ant.amazon.com/
-> 
-> Changes in v2:
-> - Updated email ID in relevant device tree source files and driver source files.
-> - Link to v1:
-> https://lore.kernel.org/linux-iio/20261109063924.GA118887@u5ce4748bae3b54.ant.amazon.com/
-> 
->  .mailmap                                                      | 1 +
->  .../devicetree/bindings/iio/pressure/aosong,adp810.yaml       | 2 +-
->  Documentation/devicetree/bindings/rtc/st,m41t93.yaml          | 2 +-
->  MAINTAINERS                                                   | 2 +-
->  drivers/iio/pressure/adp810.c                                 | 4 ++--
->  5 files changed, 6 insertions(+), 5 deletions(-)
-> 
+┏… Overview …………………………………………┓
+　
+　「あいつが辞めたら、うちは回るのか？」
+　
+　　エースに頼らず“凡人”を
+　　常勝集団に変えるルールのつくり方
 
-Acked-by: Rob Herring (Arm) <robh@kernel.org>
+　　　　　　　　―――
+　　日　時　11月24日（火）13:00-15:00
+　
+　　会　場　Zoom無料開催／定員100名
+　　事務局　ナレッジリンクセミナー窓口
+　
+　　詳細はこちら
+　　https://knowledge-co.jp/rule/
 
+┗……………………………………………………………┛
+　
+　
+　多くの社長とお話しする中で
+　このようなお悩みをよく伺います。
+　
+　　・エースが辞めたら、売上が大きく落ちる
+　　・朝礼に遅れてくる社員がいても、誰も何も言わない
+　　・同じミスに、毎回説教。その後、自己嫌悪になる
+
+　研修も、クレドも、評価制度も試した。
+　それでも改善は続かず「結局は人次第なのか」と感じている。
+　
+　
+　そんなお悩みを解決し、成果を生み出す会社に一変させる
+　本質をついた、ルールづくりをお伝えします。
+
+　
+― セミナーで得られること ―
+
+　・ルールを増やすと社員は辞めるのか？への答え
+　・「姿勢のルール」の決め方
+　・「完全結果」の指示に書き換える方法
+　・エラー時に上司がかける「一言」
+　
+　
+　いずれも、翌日の朝礼から試していただける内容です。
+　
+　自社の組織に希望を持つための気づきを得られる
+　内容となっておりますので、ぜひご視聴ください。　
+　
+　
+_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+
+　一般社団法人ナレッジリンク
+　東京都千代田区神田小川町1-8-3
+　セミナー窓口：03-5256-7638
+
+……………………………………………………………………
+　メール案内が不要な方にはご迷惑をお掛けしまして
+　大変申し訳ございません。
+　お手数ですが下記URLより手続きをお願い致します。
+　
+　配信の解除依頼はこちら
+　https://fc-knowledgelink-corp.jp/mail/
+
+_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
