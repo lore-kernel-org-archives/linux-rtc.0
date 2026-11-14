@@ -1,61 +1,115 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.215.227
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794614516;
-	b=i24EddeFI0509m55/ymif8RYgVKco+9cXSvJcXDzzaIN43aBzCR3/tVkVSqETqgkR4Iz
-	 YhGwgcc+ghCXHii+WtrI3H+R2ztrLTzx4AQxGpEphmyYGvM1O9si0Vv0u01BkmoDy/l8/
-	 rTRHwHxP9JJnwM/+NF/JlHiInLKnCXkddcDIMH+YvWIVbXSSOD8UTpDyN/cORzgE6xpQd
-	 FeKeFmR3EhrbZz9LfmVevV7cbmHGNhA7uE/nNSbM+H/QlclM3Cl6YW4mPlycDNBLouVUj
-	 up+ApJmT6PT0B+8Mwouv3hAvDhaLCmIpuIVgSfhNd9WzVu1C2NArB8eVkm0dsVj8qNw==
+	t=1794627203;
+	b=UwqHoEt5OnKJMrFX60Fsjaxv7EtX3rP5zSv8cU3stElMxqOChyUocQkQXVgLqkxeIJum
+	 GFdzR0e4agSRNjyYfuQIrcXpBykZngT13Ov6w8APegOIA/9N6ROxZnwX77Zxi+g7yKLRm
+	 pFCKh6oI/8RsOs86kyiJbUkHcNY2QuXONfJ8WELH3SHh3y6WKYfGjINLj/+jS7hjnWPcK
+	 mP/t7a1sXn68TN4y0QmUhOX0IoL6lfcDu1Zx9AIRVyCbURR6WPfF1iw21ye5tkuWfZ8p2
+	 Lc+221N46+QXixsgOkKOXhndw0IKaTz4geVYMeKVADNuqRSlSbS/H96o0sAeDvQlVTg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794614516;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 In-Reply-To:References:X-Mailer:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=TcE1lzRstwloJsqmEE00Egrk9Ryl3qjzIWZnUVNIPmg=;
-	b=ZRw0qJ6+FTpJ02HqmHOwXIbzJWCNhn+PtuRg/mX5WIHa4vuQyLBNcjSRnCpfdLNB2H4G
-	 dT+Bn4dAGbbLQnjgwJI6o+AlrXYx2yhN1gC+b8rwxqYLGaL29tFxHbcGtmvlVhnPfY60+
-	 fMppxObq3kaZTZJ6T31x31V6oPwWfEAskhsgNVCAD6qTEZGzg2wM4hPxopbXeFCupbJc6
-	 LcpZJ/lJ38OX8Vt7jEtT2k/9AM2eKm+e8l6bbVqgcy7uLBz0JRYlWB9MpqiM4sDtcxnyP
-	 Fy1LoKKRo3Bz1ZuqRVjxq4+8TgVys5d53tnUDO/jJTqT2fl2DnYBmuNsCgUGgOGLl+g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794627203;
+	h=DMARC-Filter:Received:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:X-Relaying-Domain:
+	 X-CFilter-Loop:Received:DKIM-Signature:X-Forwarded-Encrypted:
+	 X-Received:X-Received:Received:From:To:Cc:Subject:Date:Message-ID:
+	 X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding:X-DetectorID-Processed;
+	bh=vPrQKAr5VJH4BBI1lFBcxcIpYXfnW30sT/Vt+7Z3g8s=;
+	b=aDF6DiemNVSsobczS9PLR3t39u0j170o7p3qtdok07yfThBtYLpQ82RN2WLyBTkMC7LT
+	 KxfMlf/dxOVytUqm5oDNLTHaH833Zc0caF6lIeD5TT7wlRImezlC3C2IjV491fPp4vNJx
+	 xlSsdryxo1fLKCzV/k3P4F2dBRKRzgqiREKI7MM2p0JJGM46BdibSCHX5ifuYxbF33Egs
+	 ueSnyWygsmfR/dopaXKTbwmVhGnzVhKye+DrqI9dp71yL9Xf3ahKe4Yc1dLx4cbaAOKjr
+	 WsZLmzi1xhO+gzfkU3jJKkAhOCiTxTpLomi1WVSa6B6OM2rtetN3vUu8TUW3dT5x3LA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mke91yiG;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=broadcom.com;
+	spf=fail smtp.mailfrom=broadcom.com;
+	dkim=pass header.d=broadcom.com header.i=@broadcom.com header.a=rsa-sha256 header.s=google header.b=X+YBvNqC;
+	arc=none smtp.remote-ip=209.85.215.227
+Received: from mail-pg1-f227.google.com (mail-pg1-f227.google.com [209.85.215.227])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BEE48606A329;
-	Sat, 14 Nov 2026 00:01:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEF7B606A885
+	for <linux-rtc@vger.kernel.org>; Sat, 14 Nov 2026 03:33:20 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CEF7B606A885
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mke91yiG
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 211711F000C4;
-	Sat, 14 Nov 2026 00:01:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794614516;
-	bh=TcE1lzRstwloJsqmEE00Egrk9Ryl3qjzIWZnUVNIPmg=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=mke91yiGfT3RLRiwlm56Xuq4Ya8wX+nP7tnk796KpJGSy+ncrTgGKr2udXQv4gJdv
-	 cXhvnbQD4eqPnYYh859sfCZ8+06F6TeAbpLK96f3lTcLO0TH4P9hdfmhgL6g4NrEWn
-	 cDymXnrhxtItOUQbDvTDfA2Opc7vj8C91Tq4OE3aoVNRI+4K6/QV2ZGTkXAGIiB62r
-	 dQp9030CQ/yxNzBhLRVJGpSrv1ebryvlyNyMZo8k4DqtitLg9DBAqQawZbGvAHQvif
-	 IpnE85lTm0d8TKjZ0fm6cxtT/k0pDfLYg8/1aPOX803hbLsy6yvE6kf8eNT0rdwlQf
-	 3FBZykMz/KdRw==
-Date: Sat, 14 Nov 2026 00:01:50 +0000
-From: Jonathan Cameron <jic23@kernel.org>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Akhilesh Patil <akhilesh.patil@linux.dev>, andy@kernel.org,
- krzk+dt@kernel.org, dlechner@baylibre.com, robh@kernel.org,
- crofts@kernel.org, conor+dt@kernel.org, linux-kernel@vger.kernel.org,
- linux-iio@vger.kernel.org, devicetree@vger.kernel.org,
- linux-rtc@vger.kernel.org, akhileshpatilvnit@gmail.com,
- akhilesh@ee.iitb.ac.in
-Subject: Re: [PATCH v4] MAINTAINERS: Update Akhilesh Patil Email address
-Message-ID: <20261114000150.10237279@jic23-hlaptop>
-In-Reply-To: <202611130735579e063959@mail.local>
-References: <20261112091641.GA3643677@u5ce4748bae3b54.ant.amazon.com>
-	<20261113011957.5d8836ff@jic23-hlaptop>
-	<202611130735579e063959@mail.local>
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.a=rsa-sha256 header.s=google header.b=X+YBvNqC
+Received: by mail-pg1-f227.google.com with SMTP id 41be03b00d2f7-cdd9d0c9bbdso1811376a12.1
+        for <linux-rtc@vger.kernel.org>; Fri, 13 Nov 2026 19:33:20 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794627200; x=1795232000;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:dkim-signature:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=vPrQKAr5VJH4BBI1lFBcxcIpYXfnW30sT/Vt+7Z3g8s=;
+        b=T0h1I9PSBr7YQ07+BhwhtVymPoAGwsEQnySUGsI8EHHpdUMEOCSc1dLq7aJnUXMfgo
+         NtShE3L7Ih/7AA+UFK8p3uthYTJK6fcoQyg4P0Ka+BfDR2upEbLaG0b6xM41t7ZPizFU
+         1XFuZBnmsABlCFM7Ccw/wVrHpyrWNVXIhKkElPP8l+1D4K1IEW8ZAH7cCUSPVHJVg7Nw
+         ylJ0YOcGinpjbQn6fm4r6oZQbGDl98wpPAgVAFr1UPhn0ZWpngZisMIIItJlXY9kFHPq
+         WVDvbVPv93Vkee1S3HnF1ILpVlcRB8pKzKuUT3p0zvna0Gt5M4InHNcH0/jWmgsdIMgM
+         1Ttg==
+X-Forwarded-Encrypted: i=1; AL+hErGBEsT1sMnQgf1Ea70PPYoQlTvgvLx2Qze5a9Bgq8IAd8tMJdJ32jlb5DrgyWj4gmUQ3VIuI83DODQ=@vger.kernel.org
+X-Gm-Message-State: APuU4Z8LaP7CbAVutb895cvXDAORnc2XnNlqoxUiXsVF9QsybVNhvQFH
+	CmnaAnx25KC9qVg0tkyW4KY6KRpOE/hoR1qj6xLois4+WXoblUrj7MgU/cFQXLv3JnkPd/FRuCO
+	DQ9JHrZ1PjyyIPKpozpSS0SWV/awm+dFGme3scAXBBvEAFxpldGKxEvkN4+yv2zOIkpfV20KjY0
+	CAmSIuCNBI6Jcy9Rd0FQkRO+32pL9FQwvGcPBoWljEOkUu99X2AvsJgJe3O0ZD3it4neS3oikMK
+	scl08eGSYK/LGs3uSYj
+X-Gm-Gg: AYBFou14sQi8JSfWa5gCTMoEfkv1HjVjmItC/U3Kxxlwm8iPNvJ9eRuQhfF0qJoIUx6
+	cdiHWZQlPStuk/vMqJmGPlXwwu0E7KLRVxC0ktjAiAevUlknnNQrHN3tMCuPZjG1uI0HGspbc8W
+	3eacmL5XaJodkZu6RMu1ZZ6W9nLhAuGgWMEVcOoH6o7AmVRH55MiOp15mWQkSM2BB9s8Wp8QwCP
+	K0uQ48EFXmigy0leSRz+GwzWtfJMCj4OSvVEPwQVn/FHM4BdBqXKiJtwDd2wVRfebBq6fxoqRMc
+	fsPsmhHveWqsQa0s6eXiil7zzOte1kWJnmsfq9GkPKSk0efft8ixcfMUUpuVSjdZ2KfGeFgzPZ/
+	f4robhisjyPn3KOnnE1pd2T+c5jpgg8zIuyQSf8qSq4mRNbZYzcRiZX1Z3bVBVSzoJXWCe+Tmss
+	dQ5gCQVSDOO/VgSrvSVozXyIZ1m49PDPkiJ8G1LQEl
+X-Received: by 2002:a17:90b:3f46:b0:3b0:78c8:d56e with SMTP id 98e67ed59e1d1-3b1b0b8f0acmr4374044a91.27.1794627200077;
+        Fri, 13 Nov 2026 19:33:20 -0800 (PST)
+Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-26.dlp.protect.broadcom.com. [144.49.247.26])
+        by smtp-relay.gmail.com with ESMTPS id 98e67ed59e1d1-3b1ae999e55sm5684299a91.7.2026.11.13.19.33.18
+        for <linux-rtc@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 13 Nov 2026 19:33:20 -0800 (PST)
+X-Relaying-Domain: broadcom.com
+X-CFilter-Loop: Reflected
+Received: by mail-dy1-f198.google.com with SMTP id 5a478bee46e88-370230d93efso7069893eec.1
+        for <linux-rtc@vger.kernel.org>; Fri, 13 Nov 2026 19:33:18 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google; t=1794627197; x=1795231997; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=vPrQKAr5VJH4BBI1lFBcxcIpYXfnW30sT/Vt+7Z3g8s=;
+        b=X+YBvNqCsBPhobT8XfUh8BNwt/IakaOaOdCmLYQ/8e8ABs/d/vh8M35AtEDnlUOebM
+         U2sB2Om1fZa3lERcQyEOgoWOsVPe7TBBXwX1eTfezZZyTqQ1GGZyhPb8ZM3MC9iSetq6
+         n6PFay1Ls1TDX5ajdn7JVVNm6cIDO0heJrhMg=
+X-Forwarded-Encrypted: i=1; AL+hErHXbsIwJ9xhk6oO6hbzwxKQjBd7B/Lrb6Zt71A+PIajdkpczIpA6n4rZcnerYIkJ7SPb503+qZvP5k=@vger.kernel.org
+X-Received: by 2002:a05:7022:7e83:b0:1b3:bdd9:cc6d with SMTP id a92af1059eb24-1b503121791mr4956816c88.32.1794627197443;
+        Fri, 13 Nov 2026 19:33:17 -0800 (PST)
+X-Received: by 2002:a05:7022:7e83:b0:1b3:bdd9:cc6d with SMTP id a92af1059eb24-1b503121791mr4956781c88.32.1794627196818;
+        Fri, 13 Nov 2026 19:33:16 -0800 (PST)
+Received: from fainelli-desktop.igp.broadcom.net ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-379563df84fsm21906906eec.20.2026.11.13.19.33.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 13 Nov 2026 19:33:16 -0800 (PST)
+From: Florian Fainelli <florian.fainelli@broadcom.com>
+To: bcm-kernel-feedback-list@broadcom.com,
+	Peter Robinson <pbrobinson@gmail.com>,
+	Florian Fainelli <florian.fainelli@broadcom.com>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Sander Speetjens <sander.speetjens@gmail.com>,
+	linux-rpi-kernel@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-rtc@vger.kernel.org,
+	Stefan Wahren <wahrenst@gmx.net>
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Subject: Re: [PATCH] firmware: raspberrypi: Add bcm2712 revD compatible check
+Date: Fri, 13 Nov 2026 19:33:15 -0800
+Message-ID: <20261114033315.876198-1-florian.fainelli@broadcom.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20261102170227.1719206-1-pbrobinson@gmail.com>
+References: <20261102170227.1719206-1-pbrobinson@gmail.com>
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -65,140 +119,20 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-DetectorID-Processed: b00c1d49-9d2e-4205-b15f-d015386d3d5e
 
-On Fri, 13 Nov 2026 08:35:57 +0100
-Alexandre Belloni <alexandre.belloni@bootlin.com> wrote:
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-> Hi,
+On Mon,  2 Nov 2026 17:02:24 +0000, Peter Robinson <pbrobinson@gmail.com> wrote:
+> The bcm2712 revD doesn't contain the base SoC compatible of the revC
+> because they're not fully compatible, we need to check both else we
+> don't match for newer devices and the RTC doesn't get enumerated.
 > 
-> 
-> On 13/11/2026 01:19:57+0000, Jonathan Cameron wrote:
-> > On Thu, 12 Nov 2026 09:16:41 +0000
-> > Akhilesh Patil <akhilesh.patil@linux.dev> wrote:
-> >   
-> > > Move to my new linux.dev email address akhilesh.patil@linux.dev
-> > > I plan to use this email for kernel development going forward.
-> > > Also update email address in few yaml and driver source files.
-> > > 
-> > > Signed-off-by: Akhilesh Patil <akhilesh.patil@linux.dev>  
-> > 
-> > I can pick this one up with an rtc ack, or it can go through that
-> > tree. I don't mind which.
-> >   
-> 
-> It makes more sense that you take it.
-> 
-> Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Applied to the testing branch of iio.git (not because this needs
-much testing obviously - but other stuff I've queued up does!)
+> Fixes: dba67294e2151 ("rtc: Add Raspberry Pi 5 RTC driver")
+> Signed-off-by: Peter Robinson <pbrobinson@gmail.com>
+> ---
 
-Jonathan
-
-> 
-> > Acked-by: Jonathan Cameron <jonathan.cameron@oss.qualcomm.com>
-> > 
-> > Thanks,
-> > 
-> > Jonathan
-> >   
-> > > ---
-> > > 
-> > > Changes in v4: 
-> > > - No source change.
-> > > - Added entire change log for all versions.
-> > > - Link to v3: 
-> > > https://lore.kernel.org/linux-iio/20261110052942.GA2505113@u5ce4748bae3b54.ant.amazon.com/
-> > > 
-> > > Changes in v3: 
-> > > - Fixed order of entry in .mailmap
-> > > - Link to v2: 
-> > > https://lore.kernel.org/all/20261109104443.GA531570@u5ce4748bae3b54.ant.amazon.com/ 
-> > > 
-> > > Changes in v2:
-> > > - Updated email ID in relevant device tree source files and driver source files.
-> > > - Link to v1: 
-> > > https://lore.kernel.org/linux-iio/20261109063924.GA118887@u5ce4748bae3b54.ant.amazon.com/
-> > > 
-> > >  .mailmap                                                      | 1 +
-> > >  .../devicetree/bindings/iio/pressure/aosong,adp810.yaml       | 2 +-
-> > >  Documentation/devicetree/bindings/rtc/st,m41t93.yaml          | 2 +-
-> > >  MAINTAINERS                                                   | 2 +-
-> > >  drivers/iio/pressure/adp810.c                                 | 4 ++--
-> > >  5 files changed, 6 insertions(+), 5 deletions(-)
-> > > 
-> > > diff --git a/.mailmap b/.mailmap
-> > > index 7fb33babc931..d09fd3708023 100644
-> > > --- a/.mailmap
-> > > +++ b/.mailmap
-> > > @@ -27,6 +27,7 @@ Adrian Bunk <bunk@stusta.de>
-> > >  Ajay Kaher <ajay.kaher@broadcom.com> <akaher@vmware.com>
-> > >  Akhil P Oommen <akhilpo@oss.qualcomm.com> <akhilpo@codeaurora.org>
-> > >  Akhil P Oommen <akhilpo@oss.qualcomm.com> <quic_akhilpo@quicinc.com>
-> > > +Akhilesh Patil <akhilesh.patil@linux.dev> <akhilesh@ee.iitb.ac.in>
-> > >  Alan Cox <alan@lxorguk.ukuu.org.uk>
-> > >  Alan Cox <root@hraefn.swansea.linux.org.uk>
-> > >  Aleksandar Markovic <aleksandar.markovic@mips.com> <aleksandar.markovic@imgtec.com>
-> > > diff --git a/Documentation/devicetree/bindings/iio/pressure/aosong,adp810.yaml b/Documentation/devicetree/bindings/iio/pressure/aosong,adp810.yaml
-> > > index ad5f26ce5043..ca4d4210f609 100644
-> > > --- a/Documentation/devicetree/bindings/iio/pressure/aosong,adp810.yaml
-> > > +++ b/Documentation/devicetree/bindings/iio/pressure/aosong,adp810.yaml
-> > > @@ -7,7 +7,7 @@ $schema: http://devicetree.org/meta-schemas/core.yaml#
-> > >  title: aosong adp810 differential pressure sensor
-> > >  
-> > >  maintainers:
-> > > -  - Akhilesh Patil <akhilesh@ee.iitb.ac.in>
-> > > +  - Akhilesh Patil <akhilesh.patil@linux.dev>
-> > >  
-> > >  description:
-> > >    ADP810 is differential pressure and temperature sensor. It has I2C bus
-> > > diff --git a/Documentation/devicetree/bindings/rtc/st,m41t93.yaml b/Documentation/devicetree/bindings/rtc/st,m41t93.yaml
-> > > index bdd995c5c1f4..837679dc01ac 100644
-> > > --- a/Documentation/devicetree/bindings/rtc/st,m41t93.yaml
-> > > +++ b/Documentation/devicetree/bindings/rtc/st,m41t93.yaml
-> > > @@ -7,7 +7,7 @@ $schema: http://devicetree.org/meta-schemas/core.yaml#
-> > >  title: ST M41T93 RTC and compatible
-> > >  
-> > >  maintainers:
-> > > -  - Akhilesh Patil <akhilesh@ee.iitb.ac.in>
-> > > +  - Akhilesh Patil <akhilesh.patil@linux.dev>
-> > >  
-> > >  description:
-> > >    ST M41T93 is spi based Real Time Clock (RTC) with time, date,
-> > > diff --git a/MAINTAINERS b/MAINTAINERS
-> > > index 222b7fc2c3aa..3aa8fa3c068f 100644
-> > > --- a/MAINTAINERS
-> > > +++ b/MAINTAINERS
-> > > @@ -4095,7 +4095,7 @@ F:	Documentation/devicetree/bindings/iio/chemical/aosong,ags02ma.yaml
-> > >  F:	drivers/iio/chemical/ags02ma.c
-> > >  
-> > >  AOSONG ADP810 DIFFERENTIAL PRESSURE SENSOR DRIVER
-> > > -M:	Akhilesh Patil <akhilesh@ee.iitb.ac.in>
-> > > +M:	Akhilesh Patil <akhilesh.patil@linux.dev>
-> > >  L:	linux-iio@vger.kernel.org
-> > >  S:	Maintained
-> > >  F:	Documentation/devicetree/bindings/iio/pressure/aosong,adp810.yaml
-> > > diff --git a/drivers/iio/pressure/adp810.c b/drivers/iio/pressure/adp810.c
-> > > index 82aa433548d2..832df6ba0ee3 100644
-> > > --- a/drivers/iio/pressure/adp810.c
-> > > +++ b/drivers/iio/pressure/adp810.c
-> > > @@ -1,6 +1,6 @@
-> > >  // SPDX-License-Identifier: GPL-2.0-only
-> > >  /*
-> > > - * Copyright (c) 2025 Akhilesh Patil <akhilesh@ee.iitb.ac.in>
-> > > + * Copyright (c) 2025 Akhilesh Patil <akhilesh.patil@linux.dev>
-> > >   *
-> > >   * Driver for adp810 pressure and temperature sensor
-> > >   * Datasheet:
-> > > @@ -219,6 +219,6 @@ static struct i2c_driver adp810_driver = {
-> > >  };
-> > >  module_i2c_driver(adp810_driver);
-> > >  
-> > > -MODULE_AUTHOR("Akhilesh Patil <akhilesh@ee.iitb.ac.in>");
-> > > +MODULE_AUTHOR("Akhilesh Patil <akhilesh.patil@linux.dev>");
-> > >  MODULE_DESCRIPTION("Driver for Aosong ADP810 sensor");
-> > >  MODULE_LICENSE("GPL");  
-> >   
-> 
-
+Applied to https://github.com/Broadcom/stblinux/commits/drivers/next, thanks!
+--
+Florian
