@@ -1,56 +1,108 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=95.215.58.60
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.48
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794730839;
-	b=k+0UHPllgES+4v5Hi3qouXmgqsvEQI/1wQagtNRFv1S9/V/G0WaHElIjSU5jsNYP17kg
-	 f4dz6e6Ej5PTJGKcjLK0RCTYA0Wy02e3224O2xTVaiOqyDCEe7Wq0M2cyh8PAdLTz3lUh
-	 p/y+AyVHOX94gCZD13mMWLw51wKgqVuTnfpVa05sSkoXR8zD/tBNetmA4hvht8NhdnpW5
-	 wEaJBOKM0vt6n+0Tdynsspi5rQlFihaPDUdhplUads4hTfsNIiT68ulJbQtjq8NJROwf3
-	 0lf7YaYNMc9NzgJfg+zGlOtlfp22XazcJABREMIFR8sImExsZrXE8gYG9SioqZ6123g==
+	t=1794757266;
+	b=yB+ZfXhl2acAoyqk+3H/HYwCKPmObpTz+qvadgFWK8DVFzdIgAOhQ7f1mxuCvDQF6gsu
+	 4Ywq0xAXyqwZp5FLKFYG+oJqfXw+qoafR/t5ZupqsF4B+ODBqC0hoHJrerFYkK7SKJbaj
+	 PN9JFlc4Ckwek4rSKHP1ClfE4QQO7EBpw0OmhVa/yLp0B/S99aYt07/JPhpftayJn9nYw
+	 KiQUX/2ULFCkSriAJl54OwjxwLxntMMnhWh+aaQlOHZ4LnAYCPVR+0u5VylXNVk/U0guC
+	 gjTnrS7eXr4OtQOGXpbqUbcy2e52jeACAEpKz1nmnYaw+AMFEiNLfUAVyt+PNEGEKbw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794730839;
-	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
-	 X-Mizu-Trace-ID:X-Migadu-Flow:Message-ID:Date:MIME-Version:User-Agent:
-	 Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=AJ1xfee2Csn9VN4fhbIm0y3xwJVteInbog5JyVAqWMQ=;
-	b=iZQynYo3ZpAMxJkuM5zG9jLLVDNTzylb/Z/D8Pewe5wLM2VvQeJO8gGfw8QJzeTX3gNm
-	 tZ4ZJkkLQbXZegies1nQmzO9ezJ3Csdme6vmaBCVoo314V0aQcGt2y7s+oykIGUnRQU2O
-	 3t9MlGfjCg2bcx2u+jHt9x70KeX9TpKgqJSMoDRb6fTfonlTq0GLWiet0bx4tU/RehA5F
-	 0hwDJqxDyop/DiVjlyPChGggOY+pVl9ffTq+eyUZ9j56LQfw3fnJ75PaOkdOVfB1dLD4+
-	 9pa/F4/zvLuN0r737/e5aISweBozTVXMQVnsHbAwqZ4M4uLwqjN5enMDQubwCut7UQQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794757266;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To;
+	bh=PVuohZ8xLFR5YiCoEYGFhyPTULZBGZj7Wpwh1r3TICY=;
+	b=tj6JFG5M5oJcJblaJIUYJddBKYOYc3cO7FaIJEnbGRe2/UQoLy2H1/RaexvVEgekvtUp
+	 dPFSXudL1chyWsVVG0N11Uk4BcDqHylGTDtDanQ9pS053phZgzQI82xXwHZOtF3NqekvQ
+	 mh4gYjP8H43EcgkN9ZBq5N3xNqti0GomvC8Emhp25UcbzPyY9w1bIpifG82YLa07Wh+bE
+	 bjIAZcdYUg63mKzVu5aIdGOd1t8VUFHKSOdzRTJeoTS+y4Y5UIToBghpKUU8WKZk6epmt
+	 AkNCJVYDO+Kqv9Nl1CbXIDDkM+GViQJWMFtFt1GUhZtdMmmKZNFxjYRB0WvZCxG1yiA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=packett.cool;
-	spf=pass smtp.mailfrom=packett.cool;
-	dkim=pass header.d=packett.cool header.i=@packett.cool header.a=rsa-sha256 header.s=key1 header.b=P8JwMvKM;
-	arc=none smtp.remote-ip=95.215.58.60
-Received: from mta1.migadu.com (out-60.mta1.migadu.com [95.215.58.60])
+	dmarc=pass header.from=baylibre.com;
+	spf=pass smtp.mailfrom=baylibre.com;
+	dkim=pass header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=JcnXBjQ6;
+	arc=none smtp.remote-ip=209.85.221.48
+Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com [209.85.221.48])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1DC5606A31E
-	for <linux-rtc@vger.kernel.org>; Sun, 15 Nov 2026 08:20:37 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C1DC5606A31E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=packett.cool
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=packett.cool
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA8CE606A31A
+	for <linux-rtc@vger.kernel.org>; Sun, 15 Nov 2026 15:41:05 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CA8CE606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=packett.cool header.i=@packett.cool header.a=rsa-sha256 header.s=key1 header.b=P8JwMvKM
-X-Envelope-To: linux-rtc@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=6Q2a8Doi+A+WH2MhvcE6/e3oliRLG1FAhetxf+CGFl0=;
- c=simple/simple; d=packett.cool;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1794730835; v=1; x=1795335635;
- b=P8JwMvKM7F/skTX9h6XCjQAdOAidih/jfip94v06HSKWXrzk3uFWRJiB/BJWhdCk2pGxc03Y
- z8dgHjcorsAzSXLC07n4nwZutGuN1EbUxxDQKbz3nf+IHeAv+1MWB7KcwjY/ia+kBewD08sOhAY
- LlxST8kjAQdgeeo8ibKA/ngJjqnBrlwdkgUx3XxrUv9gqZlzvvKQ4Ce8Pa/sXvpo2rN5Sqpj8/u
- y0NLokh+t8x9BQIVYdWIR0dVkZQAVzIjcYaI9JnueSS2yFKd6zB+MteEyqry9HuNPVgNPWsD03r
- vuTd7VUS6mzOaiuzsTvyJx3yk0dKkc1BbfNQi6yEOu6jw==
-X-Envelope-To: linux-rtc@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id 9046fc18112be64a;
-	Sun, 15 Nov 2026 08:20:19 +0000
-X-Mizu-Trace-ID: 9046fc18112be64a
-X-Migadu-Flow: FLOW_OUT
-Message-ID: <4a7e0f27-60b6-46ec-956b-8897812622a2@packett.cool>
-Date: Sun, 15 Nov 2026 05:20:11 -0300
+	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=JcnXBjQ6
+Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-497614c95f0so1129763f8f.1
+        for <linux-rtc@vger.kernel.org>; Sun, 15 Nov 2026 07:41:05 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre.com; s=google; t=1794757264; x=1795362064; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=PVuohZ8xLFR5YiCoEYGFhyPTULZBGZj7Wpwh1r3TICY=;
+        b=JcnXBjQ6oVs3WO6WxsJjlXF3Srfn+XWnPXlN0yzPpJsvcbjAwiYznR2yVsrq+dIF0J
+         W9K1hDH1dg4Rq7lZSMIhfD3gchU0KLGorPdGJ+zlQeEucdr7nNce45CvydySUCY90PWY
+         Xyu/qB9TRVQV4d6tUrWZIxOCTwwDWe69IsTtjWCZjxdP2vvALjzMAogu8SPoZHkOZyaF
+         zuC9NuaXKcHS/ydQMct1JDP/0pjhpMGbTARWR/YcAz+Qib3t24DwWdP7jNV5O7sXEqo0
+         nlPhnW30vWk79ZmVTGvnuZbrJ2Vgh12vhrZe5Vz+JkN4iiK2dMUW8v2WdxiY8cHNmbsu
+         Y4BA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794757264; x=1795362064;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=PVuohZ8xLFR5YiCoEYGFhyPTULZBGZj7Wpwh1r3TICY=;
+        b=Xuv79E3OeNLM1PPz1grofp72fUoh0HWq4BfOILBBklU/kWiThzB+AdsV79O2s6v9t/
+         pmKgz8yWCp6LDU4jEOmzuIg9BVPo4FbNB5rKfZBxM5OdRWCifGznUFhk6SsqYESuXx+8
+         Fz8G4bvU/1GfcXhlfdxX3xzQsFAvmZFHGyd1Cffp8XXnfnivAQngDaF/2Twou9cnYuj4
+         iiIVoFhVca0vt2n3n0Ht4RLoZ74NJaYB9rB9+A/LwiB2FCmXlbWu85eggjTGR+YNytgy
+         2sUoX1F/9FRXHW6N0tl2NffsHs6eM0LPosUF7siASq0aXz08Wk8rpt5amVPN33Fq6MW5
+         RjvQ==
+X-Forwarded-Encrypted: i=1; AL+hErEpNTUMFBu0FyvjaQYSwVBOgYeW+aj+HFZKMIKoSFE4VzysFcpWBV5TN0dn5BlOUslXBf8j20j8Tlo=@vger.kernel.org
+X-Gm-Message-State: APuU4Z+9xmyIm1/YlEjkR+fUz872N+IZEV1TqMAf2rhXG/36EGK9yWZ8
+	deaOaA0E5Ho6e6lcr/UuwwiqVvhWxH7R1sqKxj/jdD29y5Dey5BVQs4RVjFMaVbQuRo=
+X-Gm-Gg: AYBFou2clVqrVe89UVE550obd5fb+1GpHFI/sv3t/iRhhKBxf5VJs3FFXfB1+tpkKba
+	EqR1phSjTkONeWjE/vjgB+GfqqidXBGwN1LcLExFjRwuXPUhOuDogljhJBHQSdhZrvzYcd5Ji+X
+	DOLlrs+YFKg28RkXeThWB78Zk0jHRu1QPCBpdWwElcLHDqMTZoFktvCYWK6OwEwAuKxuLfL2nKy
+	AK0ayU/oO+wRtTj7PxrxYcvkMEWFjJn93n1F+prV3mx8x5addsmXQJe+zsDM6uZ2yH+E91kO2QP
+	tItgW6PR2u37sPsxIo9mDGSjHB0ckvth3m7rP1fpdpwlAh1wOxPrr00qInNzPt58L6oQRBG3iiT
+	Ji4i577miSqLK5cAB7LkcDd26D4LpxR725z5nvhVEUwXV6tnQwPCVG4VRRHIrlGNei+Z2s2UPmL
+	u/KDMCTDe2j8/Svy3EUHbpQaFvER/Va16oqAy36zPJoMC/wEuWMWDwTsdmV5Mxtj4QwIeaMZMNv
+	bri6Upwf68S6uaDwIAFmzw8gBv1B5XFaIFJcPt798yUVRn7D84ScctJhK4cl2GENRU0KmRv6mqQ
+	R8/3Im/hLdZYsUNt2wo0opRUFzvn63uJ3gM=
+X-Received: by 2002:a05:6000:2c04:b0:48e:d36:77 with SMTP id ffacd0b85a97d-49c6fc9db5bmr19465481f8f.4.1794757264141;
+        Sun, 15 Nov 2026 07:41:04 -0800 (PST)
+Received: from localhost ([2a02:8071:56d1:2de0:1d24:d58d:2b65:c291])
+        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-49c888b90d4sm16462060f8f.9.2026.11.15.07.41.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 15 Nov 2026 07:41:03 -0800 (PST)
+Date: Sun, 15 Nov 2026 16:41:01 +0100
+From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
+To: gaohan@iscas.ac.cn
+Cc: Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
+	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Guo Ren <guoren@kernel.org>, 
+	Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>, 
+	Samuel Holland <samuel.holland@sifive.com>, Daniel Lezcano <daniel.lezcano@kernel.org>, 
+	Anup Patel <anup@brainfault.org>, Stephen Boyd <sboyd@kernel.org>, 
+	Brian Masney <bmasney+clk@redhat.com>, Jerome Brunet <jbrunet+clk@baylibre.com>, 
+	Chen-Yu Tsai <wens@kernel.org>, Jernej Skrabec <jernej.skrabec@gmail.com>, 
+	Samuel Holland <samuel@sholland.org>, Philipp Zabel <p.zabel@pengutronix.de>, 
+	Alexandre Belloni <alexandre.belloni@bootlin.com>, Maxime Ripard <mripard@kernel.org>, 
+	Linus Walleij <linusw@kernel.org>, Andre Przywara <andre.przywara@arm.com>, 
+	Han Gao <rabenda.cn@gmail.com>, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org, 
+	Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@sifive.com>, 
+	Conor Dooley <conor@kernel.org>, devicetree@vger.kernel.org, linux-csky@vger.kernel.org, 
+	linux-sunxi@lists.linux.dev, linux-clk@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linux-rtc@vger.kernel.org, linux-gpio@vger.kernel.org
+Subject: Re: [PATCH 14/19] pinctrl: sunxi: add support for the Allwinner V861
+ PIO
+Message-ID: <avnR67LnZo4Mo0Tf@monoceros>
+References: <20261114-v861-v1-0-eb71ec3ee523@iscas.ac.cn>
+ <20261114-v861-v1-14-eb71ec3ee523@iscas.ac.cn>
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -60,139 +112,68 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/5] arm64: dts: qcom: sc8180x: Add Microsoft Surface Pro
- X
-To: Haipeng Lin <jimmie.lin@gmail.com>, Bjorn Andersson
- <andersson@kernel.org>, Konrad Dybcio <konradybcio@kernel.org>,
- Abel Vesa <abelvesa@kernel.org>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>
-Cc: Maximilian Luz <luzmaximilian@gmail.com>, Hans de Goede
- <hansg@kernel.org>, =?UTF-8?Q?Ilpo_J=C3=A4rvinen?=
- <ilpo.jarvinen@linux.intel.com>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>,
- linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
-References: <20261104070441.74127-1-val@packett.cool>
- <20261104070441.74127-3-val@packett.cool>
- <64e7afd3-50e5-4134-9bf6-92c4aa740bd7@gmail.com>
-Content-Language: en-US
-From: Val Packett <val@packett.cool>
-In-Reply-To: <64e7afd3-50e5-4134-9bf6-92c4aa740bd7@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="fgskattfdxvvv7hb"
+Content-Disposition: inline
+In-Reply-To: <20261114-v861-v1-14-eb71ec3ee523@iscas.ac.cn>
 
 
-On 11/15/26 12:16 AM, Haipeng Lin wrote:
-> On 11/4/26 2:04 AM, Val Packett wrote:
->> From: Maximilian Luz <luzmaximilian@gmail.com>
->>
->> Introduce a device tree for the Surface Pro X tablet in all 3 variants
->> (SQ1 with cellular, SQ1 Wi-Fi only, SQ2 with cellular).
+--fgskattfdxvvv7hb
+Content-Type: text/plain; protected-headers=v1; charset=us-ascii
+Content-Disposition: inline
+Subject: Re: [PATCH 14/19] pinctrl: sunxi: add support for the Allwinner V861
+ PIO
+MIME-Version: 1.0
+
+Hello,
+
+On Sat, Nov 14, 2026 at 06:33:40AM +0800, Han Gao via B4 Relay wrote:
+> new file mode 100644
+> index 000000000000..742465076d86
+> --- /dev/null
+> +++ b/drivers/pinctrl/sunxi/pinctrl-sun252i-v861.c
+> @@ -0,0 +1,49 @@
+> +// SPDX-License-Identifier: GPL-2.0-only
+> +/*
+> + * Allwinner V861 SoC pinctrl driver.
+> + *
+> + * Copyright (c) 2026 Han Gao <gaohan@iscas.ac.cn>
+> + */
+> +
+> +#include <linux/mod_devicetable.h>
+
+Don't include <linux/mod_devicetable.h>. <linux/platform_device.h>
+already provides of_device_id with less dependencies, so please just
+drop including <linux/mod_devicetable.h>.
+
+> +#include <linux/platform_device.h>
+> +#include <linux/pinctrl/pinctrl.h>
+> +
 > [...]
->
-> I believe there is also a Wi-Fi only SQ2 variant. Looking at the WoA
-> drivers for 8180_CAS (Caspar, Wi-Fi only)
-> https://github.com/WOA-Project/Qualcomm-Reference-Drivers/tree/master/Surface/8180_CAS/200.0.31.0
-Huuuh, okay..
-> This variant is the only that has both SurfaceSMF_SQ1.cab and
-> SurfaceSMF_SQ2.cab. Only 8180_CAS MPSS INF maps the no-modem subsystem
-> ID (SUBSYS_MSNM8180 -> qcmpss8180_nm.mbn), the 8180_CAR (Carina) only
-> lists the cellular MSWW/MSJP/MSCN IDs.
->
-> My SQ2 Wi-Fi boots with the caspar dts in this patch fine but the
-> gold cluster is pinned at SQ1's top clocks because the 3.072 / 3.1488
-> GHz OPPs are only in carina.dts.
->
->> diff --git a/arch/arm64/boot/dts/qcom/sc8180x-microsoft-carina.dts b/arch/arm64/boot/dts/qcom/sc8180x-microsoft-carina.dts
->> new file mode 100644
->> index 000000000000..5d155c69907a
->> --- /dev/null
->> +++ b/arch/arm64/boot/dts/qcom/sc8180x-microsoft-carina.dts
->> @@ -0,0 +1,50 @@
->> +// SPDX-License-Identifier: BSD-3-Clause
->> +
->> +/dts-v1/;
->> +
->> +#include "sc8180x-microsoft-surface-pro-x.dtsi"
->> +
->> +/ {
->> +	model = "Microsoft Surface Pro X (SQ2)";
->> +	compatible = "microsoft,carina", "qcom,sc8180x";
->> +};
->> +
->> +&cpu4_opp_table {
->> +	opp-3072000000 {
->> +		opp-hz = /bits/ 64 <3072000000>;
->> +		opp-peak-kBps = <8368000 51609600>;
->> +	};
->> +
->> +	opp-3148800000 {
->> +		opp-hz = /bits/ 64 <3148800000>;
->> +		opp-peak-kBps = <8368000 51609600>;
->> +	};
->> +};
->> +
-> [...]
->
-> Would it make sense to move opp-3072000000 and opp-3148800000 into the
-> shared sc8180x-microsoft-surface-pro-x.dtsi? qcom-cpufreq-hw disables
-> all DT OPPs first and only re-enables freqs present in the hardware LUT
-> so this would work for SQ1 and caspar.dtb will cover both the SQ1 and
-> SQ2 Wi-Fi models out of the box and carina.dts won't need its own
-> &cpu4_opp_table override.
+> +static const struct of_device_id v861_pinctrl_match[] = {
+> +	{ .compatible = "allwinner,sun252i-v861-pinctrl", },
+> +	{}
+> +};
 
-I'm pretty sure mine *did* complain very loudly about having these OPPs 
-and might've even had broken scaling.
+Please drop the comma before the closing } and add a space in the list
+terminator.
 
-I'll retest again, if it works I'll move it to the shared dtsi (or even 
-the SoC's?)
+Best regards
+Uwe
 
->> diff --git a/arch/arm64/boot/dts/qcom/sc8180x-microsoft-surface-pro-x.dtsi b/arch/arm64/boot/dts/qcom/sc8180x-microsoft-surface-pro-x.dtsi
->> new file mode 100644
->> index 000000000000..17fb01c6b164
->> --- /dev/null
->> +++ b/arch/arm64/boot/dts/qcom/sc8180x-microsoft-surface-pro-x.dtsi
-> [...]
->> +&smb2351_2 {
->> +	status = "disabled";
->> +};
->> +
->> +&smb2351_a {
->> +	status = "disabled";
->> +};
-> Confirmed on hardware that labeling pmic@2 and pmic@a in
-> sc8180x-pmics.dtsi fixes the dtc build failure here.
-Yeahh, forgot to include, will be in v2
-> [...]> +&uart13 {
->> +	pinctrl-0 = <&uart13_state>;
->> +	pinctrl-names = "default";
->> +
->> +	status = "okay";
-> [...]
->
-> On linux-surface, ad1bb617a15a from Maximilian Luz had
->
-> &qupv3_id_2 {
->    status = "okay";
-> };
->
-> Would it be helpful to add here? I confirmed on hardware that adding it
-> allows uart13 (WCN3998 Bluetooth) and uart15 (SAM EC) to populate and
-> probe properly.
-Of course; it should've been the _2 in the first place but I made a 
-mistake during last-minute cleanup and left out the wrong ones…
-> Thanks,
-> Haipeng
+--fgskattfdxvvv7hb
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
 
-BTW, please send me the output of `sudo fwupdtool hwids`, these are 
-needed to add support to dtbloader/systemd-stub/stubble DT auto-selection.
+iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmr50okACgkQj4D7WH0S
+/k78BwgAggANSfiR3lIax5U5QxcHapAeEwjkuu5kUUd7ThVymu6geBziPkTKM9LN
+kV1vp14gkKuMuThllE6yPhDE+jBai3H2dmZPRAVxRmkHkRXaCGvN2Qy6QvjG7hn+
+pKrIhNm9FD3gtJcf3syW5npYiRAxG/6TkK+Gz1PXPgmg9Yj7puOzJ5ZZsZ+kBOcS
+xiSHHn5ujqEIP4jnBc7Dv7UpeDH4NxdbQ6ssuWEYpdmNKvGpbP4Xi4tlxo4RAMXF
+XWXJcAtussx3dylMOghSQ5VBKABwOqksAb/tX5/oaY13ScR8Lg/M3WzfjwXPwvtR
+yRXJHXEAk7lxYPB9WoXGrz3bVWm0dg==
+=Eo1Y
+-----END PGP SIGNATURE-----
 
-(If anyone with the cellular variants reads this: you too :))
-
-
-Thanks,
-
-~val
-
+--fgskattfdxvvv7hb--
