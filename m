@@ -1,55 +1,90 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.173
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794663035;
-	b=bu+tIwt+3wBFGUWRcvIEI8rxysvuiOnTG3MAgktkyYDf4xtJmdLrXsEzaiF5GqMZBx3B
-	 qcS2sgZ4jsi7ssyycsX+FX8R6OOHcD8SecPZGd1zOqefpCa1jLZ/HqYGSkRdE65sk3WH8
-	 oAn85i1bRUc4gmIVI03GbIFtG60wo7FpRsFLQ3H5aAPW9Peqv0qb4qQDTSjep1sJXoXEl
-	 LoLQTHhrfCHVg2rN6M/rySZT/C4Xeitp3XewnkBlanIfLX31gSQ9Lpxm18IGTKptuUYIG
-	 5k+QprRz3EEoIveRdhseR19ktnXYmR2qz3QrygjAZk99GTtCEuJpsCECx0Nt3djEBVA==
+	t=1794711196;
+	b=x0DqxflBGGIlxiYTItYJXUurt1XBCa31icdkyDQzL62sM66X4vpXBJdeX3KZDY8UaJvw
+	 0o38vuVGsywPMxa93o6J4C3r8dk8+Qt00dSw9p9Oe1OBcqj6CnSLrLtPembKwmQ9WqyL3
+	 /ntvzzRe7qD74kpNe45KLNi1aNTZhykmMIxtviSK89rI8R4DhIPhzEY/vWl+xDHfesRoQ
+	 pDEdDmrmGJSKph5Km07gganPkhLZWd+gPtHmz/kJ2qL4txj+dW4KE7HrtUekFucfcZTgD
+	 Hb0G92MwY4JRcRyMPvur7b75j6LWGweQjnzvWd3omDUpUO6B85yi8q5yyxT6dWGZd3g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794663035;
-	h=Received:DKIM-Signature:Received:X-Forwarded-Encrypted:
-	 X-Gm-Message-State:X-Received:MIME-Version:References:In-Reply-To:
-	 From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:Message-ID:
-	 Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=4kdsxrLqnYOpX1QyU0iNFte1eOYe1nCLmGqKY73MdjQ=;
-	b=0PzQs4NndsdJx+iQeZ+3e5817V1cWQs3YKkFk4YYh/EsdUbI7+eRYgzBPcJMCyF+lGXH
-	 i6syL+6IrqEd6hjmEc7/mMD7GeoiE+UliidEb0XQFjP38qq2iQDsVeV3KxMeybuhSm7YB
-	 FW647wdil7xwhRcQ/IKwci66jB+ghNIesIDgWYw1jld7SCJXCVdA9C/x3UJQkWm5ZZj63
-	 NGhCClaREkzNlXIHkeiZ5EeSb7gOZNhFM6ZKIguh8GGO9/zXkSqoaVRgU8BTt5UGr9Mgh
-	 CLnZxH8rqwS8IR7Fqnjk5lkbK2LNeA4OTXh9yJGFKFljMJAeOaxkL+G7q5RMpV4zBzQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794711196;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:References:
+	 Content-Language:From:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=FEFqR+LrcVL3DPo39+xuQCQE0txVSiEwhPQ2lR4VeeI=;
+	b=jDAhtlEv8d8Jmy2UJR3RCXxnZzFfDno+67mEacih7nY3AeV9rKyn/zELdBnl9YnxDQMj
+	 tGBjHZVrpqq8leN0MRD0qHbs51i5sademvioUPWTwMmZJkQP6usoyxufy07E1IG/Fpxpx
+	 H4IilvenyneL5WNDia3NQusY4hz3BjrM52c08HRlOlehf5Oyi0Me23T+qFaZ54r5ilADH
+	 hgpstb2lVVq5uKJB8xtW8tPgsgzGNxFWRkQpskdeao8h7TVY7qcrayvmznlWWSFxMLxWK
+	 nGD6nEdqSoYlS46rbjwFQ+XeSCHOSYMttkhWg0HmOpusqbpPl5CzbyeDuPv83uz5NZg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mbe77+1G;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=qcrn69dz;
+	arc=none smtp.remote-ip=209.85.222.173
+Received: from mail-qk1-f173.google.com (mail-qk1-f173.google.com [209.85.222.173])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52C65606A32E
-	for <linux-rtc@vger.kernel.org>; Sat, 14 Nov 2026 13:30:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1A6A606A32D
+	for <linux-rtc@vger.kernel.org>; Sun, 15 Nov 2026 02:53:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B1A6A606A32D
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mbe77+1G
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FBB21F000CC
-	for <linux-rtc@vger.kernel.org>; Sat, 14 Nov 2026 13:30:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794663035;
-	bh=4kdsxrLqnYOpX1QyU0iNFte1eOYe1nCLmGqKY73MdjQ=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=mbe77+1GhvODI+6mWq5hPRR5d8VCtc9UMyfbjr+wccQGdxYPb9nXX6Y3s8yGz6kIb
-	 fARVMe7B9b5Et13NlB8hB5LeWaFryaB7pJSkHiyWDoClDmPB2TlzhG/YI8qDTjQyE/
-	 WDYvttsj6kL3Jr40rcFF7sVzzMxutqB1pjXLA3LPT/3vG60X33w+vhS0JbUTe+7ifG
-	 pRaQ8FCones0hTHahfg6b0pKCSEghuci+Q5h5pGV3/RP7te5YPKnzUWRAgSWqWAJJm
-	 1x/N9wO2eWU3JIquYC91FWUiwJsvg9fCcORSszU+M2uU6/IAYsisGgX7mvKHBJlkZ3
-	 /lEINIMPlev0w==
-Received: by mail-wr1-f46.google.com with SMTP id ffacd0b85a97d-491aaed7565so841785f8f.2
-        for <linux-rtc@vger.kernel.org>; Sat, 14 Nov 2026 05:30:34 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AL+hErG+RYXcyHS1d65G0wVVpRkjCDDq80yGfe/7fR49I9/Ijq3D/jHsHfNE4CdrPkh1bl4IodG1a4cUnew=@vger.kernel.org
-X-Gm-Message-State: APuU4Z8Iv7FRmRtgq3CwdT8sU9tcDQCVB2iMO0UgDuGYJvYNyYb2jtI1
-	17KVBIlTd9Ka5r2D4w5cJOSwI7hXjy+lOTpJYIzK5JwaTp9YQDDrxWXGXmPYU8lVLceAp+PWVLo
-	Q40FlnSrhjc+cN95KNjuCK+rpPxG5l04=
-X-Received: by 2002:a05:6000:288c:b0:49d:1ce3:1849 with SMTP id
- ffacd0b85a97d-49d1ce31d46mr9587940f8f.21.1794663033180; Sat, 14 Nov 2026
- 05:30:33 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=qcrn69dz
+Received: by mail-qk1-f173.google.com with SMTP id af79cd13be357-9495e8ae23aso144405585a.2
+        for <linux-rtc@vger.kernel.org>; Sat, 14 Nov 2026 18:53:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794711195; x=1795315995; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=FEFqR+LrcVL3DPo39+xuQCQE0txVSiEwhPQ2lR4VeeI=;
+        b=qcrn69dzmQolEs+h5yEiGzVJHu4bLX1DKf+xYNeVJXaDRLsor4tZEhx0QaAMSct2Tz
+         LN798TXybSwRmQRtctyWLyEz+Jjw8D1neNJ9la9K39X0ZbxWbPtEJbREdwkj+ZY/dozn
+         G1DTejOIXmlYRFDHgnWyoT1JygHcZjaH+ZjvOSwRZsh5R1u0YEkp88Aiq61QignskC1k
+         DXDZ2yAK595kXGwUTtrSzpqB22ijBdfQrZMXI/vKtcw2O6umgX92Z2Ke6L1QcxCwAo8k
+         UGtwfpzn5iCUd9ae//G54GJeHk8wUvPcwBEOmVUPzBikroIQJN8ai85vc7c5qVW1oyML
+         ypUA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794711195; x=1795315995;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=FEFqR+LrcVL3DPo39+xuQCQE0txVSiEwhPQ2lR4VeeI=;
+        b=rRWeB88XxH9K5EGRBpNpFO6upRWi5U+buT/l3DK0AVYL/ulHhRmkLl3XVBpu4DezmP
+         jTlQeyx74tcEstPHXa8xsfCDe96EomaWqn5pgg09y00kquQZVHiL75jfVnNOA9lafDw5
+         f4a9Mz3leBzN845nqBVY6DaiXqwOMW2uZ7KvnLTvuNa+CjvNBpPEr8JK+J6VsAfxDFrp
+         QiwB9EfeL/iuT8Qej09Na+tAViyPRT1jbmdVo/TaOfkyj4cyK049Sl/ZrNNsCKbzuUdd
+         +4UDCorJo5/Z2FRWKmHE3/wrCAktabtPdsFV54kmPOcANRuTji6AFH+McN6oiOW8KBJu
+         4o7A==
+X-Forwarded-Encrypted: i=1; AL+hErGV2FkQ+E+jq8/wNmWGmZSIskda2IMsv0uDUT1slLSJZzq9DtE1GZrXV2Ka0d9thHPEszQ15OXNcpo=@vger.kernel.org
+X-Gm-Message-State: APuU4Z9YFZ6KHytQL+GOB3n47uAdoulXgooANLib1wJDUI+VAAWaYR9j
+	LC2tPrELU1SmT9Mcb1m+F065+Hx0L9jy9A1bVdMHGGrqykV56Hx5GsZx
+X-Gm-Gg: AYBFou1XD+GnaI9NwIwrLW+BFS3p560jX5tmkMUqJ7zGheVZ+/bkvPe0p5flBCBay9L
+	/cFtZLTSzaGS5aRvnyFA6OhltiqLRjbRl9iP6zwq730dVsMEIyNGlv6seqvt6DfdSc3d/IiUBre
+	CoLyaYISkcp76Or97Swf7M/YU1MybVydlLiO9yqefIwYiiX9+vVMcotrtmriyX7zz+By/Bw6neW
+	UFnMCsa9ZRBig8FKPEnNmiEhTK548r7QNN9tHzy9fq3sNmN4F0vvHugBTsvbo7ml2Urth7px9QM
+	u40BL22ti/kHWLS5J4gPye2y0ZIur+YhOtvQGYad6393bovP4WFsvwXGmPJwpApcuG1nZ4cwxen
+	XfusTaDTp/sIzqnNDMALM5ZrXoZs16jtkvYfcKWCfZYpHWrqVmculr2NQRMMkkh3wsu5CBVoUXm
+	6sfAtpZcd09kk6xIKVivIDwegZzLmvpGwRRejY5tTjnJORhC1eYMrcFK40AJ4z+O0sV0qlHrShe
+	ehU64NlrMNGhIMwpU8bDAWp+dQ0yZ/U5Ar2cMEh0wGMFZ9s/DV1UpSiP4TNhw9zwCAV8oaaJ50p
+	7UHdYq8qfiVShBLjJPF0qIoXW+YlJSojTCYm5jMWZlVQjae9gl9Tes1/Sr8ttjx1I2KcdDHcKnu
+	PlyYMmSVGxAl2msCNs4exToCVtqTE6Cjd0dXO4Bj95OEATTiY7I7VEAibAujHcSP/jJP4KxK7xz
+	s=
+X-Received: by 2002:a05:620a:2614:b0:939:fde0:a71b with SMTP id af79cd13be357-9494b86e99fmr1082857185a.0.1794711194579;
+        Sat, 14 Nov 2026 18:53:14 -0800 (PST)
+Received: from ?IPV6:2600:4040:5abf:f200::9dd? ([2600:4040:5abf:f200::9dd])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9494c836156sm531348285a.19.2026.11.14.18.53.13
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 14 Nov 2026 18:53:14 -0800 (PST)
+Message-ID: <9c17de44-8c69-432a-a196-90a4765be871@gmail.com>
+Date: Sat, 14 Nov 2026 21:53:13 -0500
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -59,71 +94,67 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261114-v861-v1-0-eb71ec3ee523@iscas.ac.cn> <20261114-v861-v1-4-eb71ec3ee523@iscas.ac.cn>
-In-Reply-To: <20261114-v861-v1-4-eb71ec3ee523@iscas.ac.cn>
-From: Guo Ren <guoren@kernel.org>
-Date: Sat, 14 Nov 2026 21:30:21 +0800
-X-Gmail-Original-Message-ID: <CAJF2gTRDcAVjTu5N+-8zhPJRvgCBiTtt3xZRbF_1s7D+yXXJ+A@mail.gmail.com>
-X-Gm-Features: AclHuK8K2OPl8wvZJVK74a7K9gwaF5hUGnQfkFwAnJJ_kB4aFWWolyDhl3_PTvA
-Message-ID: <CAJF2gTRDcAVjTu5N+-8zhPJRvgCBiTtt3xZRbF_1s7D+yXXJ+A@mail.gmail.com>
-Subject: Re: [PATCH 04/19] dt-bindings: timer: add the Allwinner V861 CLINT
-To: gaohan@iscas.ac.cn
-Cc: Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>, 
-	Samuel Holland <samuel.holland@sifive.com>, Daniel Lezcano <daniel.lezcano@kernel.org>, 
-	Anup Patel <anup@brainfault.org>, Stephen Boyd <sboyd@kernel.org>, 
-	Brian Masney <bmasney+clk@redhat.com>, Jerome Brunet <jbrunet+clk@baylibre.com>, 
-	Chen-Yu Tsai <wens@kernel.org>, Jernej Skrabec <jernej.skrabec@gmail.com>, 
-	Samuel Holland <samuel@sholland.org>, Philipp Zabel <p.zabel@pengutronix.de>, 
-	Alexandre Belloni <alexandre.belloni@bootlin.com>, Maxime Ripard <mripard@kernel.org>, 
-	Linus Walleij <linusw@kernel.org>, Andre Przywara <andre.przywara@arm.com>, 
-	Han Gao <rabenda.cn@gmail.com>, linux-riscv@lists.infradead.org, 
-	linux-kernel@vger.kernel.org, Paul Walmsley <paul.walmsley@sifive.com>, 
-	Palmer Dabbelt <palmer@sifive.com>, Conor Dooley <conor@kernel.org>, devicetree@vger.kernel.org, 
-	linux-csky@vger.kernel.org, linux-sunxi@lists.linux.dev, 
-	linux-clk@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	linux-rtc@vger.kernel.org, linux-gpio@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 0/5] Add support for the Microsoft Surface Pro X
+To: Val Packett <val@packett.cool>
+Cc: Bjorn Andersson <andersson@kernel.org>,
+ Konrad Dybcio <konradybcio@kernel.org>, Abel Vesa <abelvesa@kernel.org>,
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Maximilian Luz
+ <luzmaximilian@gmail.com>, Hans de Goede <hansg@kernel.org>,
+ =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+ Alexandre Belloni <alexandre.belloni@bootlin.com>,
+ linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
+References: <20261104070441.74127-1-val@packett.cool>
+Content-Language: en-US
+From: Haipeng Lin <jimmie.lin@gmail.com>
+In-Reply-To: <20261104070441.74127-1-val@packett.cool>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Sat, Nov 14, 2026 at 6:33=E2=80=AFAM Han Gao via B4 Relay
-<devnull+gaohan.iscas.ac.cn@kernel.org> wrote:
->
-> From: Han Gao <gaohan@iscas.ac.cn>
->
-> The V861 uses the XuanTie C900 CLINT implementation, like the D1. Add an
-> SoC-specific compatible with "thead,c900-clint" as the fallback.
->
-> Signed-off-by: Han Gao <gaohan@iscas.ac.cn>
-> ---
->  Documentation/devicetree/bindings/timer/sifive,clint.yaml | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/Documentation/devicetree/bindings/timer/sifive,clint.yaml b/=
-Documentation/devicetree/bindings/timer/sifive,clint.yaml
-> index d53f52e80d88..313fb39bd453 100644
-> --- a/Documentation/devicetree/bindings/timer/sifive,clint.yaml
-> +++ b/Documentation/devicetree/bindings/timer/sifive,clint.yaml
-> @@ -49,6 +49,7 @@ properties:
->        - items:
->            - enum:
->                - allwinner,sun20i-d1-clint
-> +              - allwinner,sun252i-v861-clint
->                - canaan,k230-clint
->                - sophgo,cv1800b-clint
->                - sophgo,cv1812h-clint
->
-> --
-> 2.55.0
->
->
-Oh, my misunderstanding, thead,c900-clint is used by opensbi. Please
-keep this in the commit log.
+On 11/4/26 2:04 AM, Val Packett wrote:
+> The Surface Pro X is a 2019-era tablet powered by the Qualcomm SC8180X SoC,
+> released in three variants (SQ1, Wi-Fi, SQ2).
+> 
+> Patches to support it have been around in a downstream tree at
+> https://github.com/linux-surface/kernel for a while. Let's upstream it!
+> 
+> I have permission from Maximilian Luz to use his From/S-o-b with modified
+> (squashed, stripped down and split by model variant) patches:
+> https://github.com/linux-surface/surface-pro-x/issues/7#issuecomment-6597291831
+> [...]
 
-Reviewed-by: GUO Ren (XuanTie) <guoren@kernel.org>
+Hi Val,
 
---=20
-Best Regards
- Guo Ren
+Thanks for your work upstreaming this. I've been running the 
+linux-surface SPX patches on my Surface Pro X Wi-Fi SQ2
+(Surface_Pro_X_2010) for a while and tested this series on it (v7.4-rc1
++ your SLPI + this series) plus a few fixups needed to get it working:
+
+1. Labels for smb2351_2 (pmic@2) and smb2351_a (pmic@a) in
+   sc8180x-pmics.dtsi so the board DTS files build.
+
+2. &qupv3_id_2 { status = "okay"; } in the SPX dtsi so uart13 (BT) and
+   uart15 (SAM EC) are populated.
+
+3. Tested caspar.dtb as-is but this will cap CPU4 at 2.995 GHz (SQ1
+   clocks). Added carina's two SQ2 CPU4 OPPs to reach 3.15 GHz on my
+   SQ2 Wi-Fi. Please see reply to 2/5.
+
+4. Wi-Fi: I had to revert v7.4-rc1 544d85de4dc2 ("net: qrtr: Send HELLO
+   message on endpoint registration") otherwise MPSS hits a fatal error
+   ~40s after every start and crash-loops. Wi-Fi associates but never 
+   passes traffic.
+   After reverting it the modem starts up so this may be a regression
+   unrelated to this series.
+
+With the fixups noted above, for
+- Surface Pro X Wi-Fi SQ2 (Surface_Pro_X_2010)
+
+Tested-by: Haipeng Lin <jimmie.lin@gmail.com>
+
+Happy to re-test v2 on this unit if needed.
+
+Thanks,
+Haipeng
