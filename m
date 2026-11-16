@@ -1,79 +1,78 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
 	t=1794788711;
-	b=B3HCYG3F0N074HCbbzbXXR5nf1HWjTn97Cjt8niHz5KBZB5LVFADn94SJ8ug3kxoRSBX
-	 7u7eiwmNcoCQNDUmUMJLRYGIXYg3Zpke1GiBceKn6P338KjO5PgkrNk1iy4HtKWQRidqy
-	 xrpPpyKFxlm0hRZv1M+KqkkGV2m7qx6YYoW6z2KXv4OuYDUFDgo39XMP+eS+il7nGS/9z
-	 t/yjXEAPgxZxuVA8Mv9KDpfTvaR4N9NxN4UnWUFPG08rNLr6Vk82aO52bxCBIhOYSAjFG
-	 iyT4IsxzpMJ9T3PtDiegkACeCLHEGs5+o+c+efXyikWeyptyqJfagxlfZZW3EqKNOZg==
+	b=jXtw2xjb8iYrCyY7UNRWA10KWqFcbAEeVlX463q7v+ViVyc2SW94KTp88TSD9+zXyznG
+	 jEqrCS02DAJl6sg22xkLpX24fomLbbMTRxcQnIKRxDPU1pAWUh4sz3lY4WSzVL217LrWP
+	 srOFZhaPy7Bz7RgHG2f3b+t692v+wEdvMW3K2CmO7pkxsxZAxxkrv0IqXX55Hm4oY+yRM
+	 CKZUkVf02m2kjtmF2PQNZEpWrDxysbqv2MV6cwhZsfEvbDwtHQWFaWKHXDd6AFCUaQQAl
+	 I0e1kfEKLCgMGlTDdF9r21jOY3zlnHoI/LeiKRyfL511xUH9F95hwUlcDq+Q/pZpkIQ==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1794788711;
 	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
 	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=+xI9NgUf4o2KSEdFDaA+NOd4E6VfsuZrbaaEvbQwxOA=;
-	b=mwOE1keVOn5PmheuSWx1Myn6kZZwHVXnWaf++Y8mM9HVjo1U439utUvzw8346BKbz5h8
-	 NXeJnX5DzAeIelOA4g0CQUGY3TuO3zcPSYmL+hGce1tCXTUMhy6cKPcR112bkN88m2Xj7
-	 OEwBV5fknuImxufL4s4t17eflMynA9Qe6zBkAAApb/ibg14+OgaShMTTb920hY92RaUmQ
-	 vnXWcktGNlHRIPd2R1t0x6GLax2HkazFRrR6RtTUoV2DXkESIOeooDBkK7T9WKw0V3xcV
-	 a6qG1uJT8o7U4FNfIophl9GtUCns7kVLBDwX2+pngnx6BI7cRcjIXIrygT65K6E6/5Q==
+	bh=JZadbG6e1np2H4INxIfzGzER81/6aMvR4chC6fHHpoQ=;
+	b=WsFY8n/qs0JKunPXKcwtd5ji4hpTmggKAeaL970K/US9KyVbJ6hEr7572sxxQo/g4LGI
+	 41Zxxf+gyZE5C8cjK84tJvDUjEj9EFBqLu1MTAloGXvomxnjoWIB1kngioBoBPPxFHTzS
+	 XNCaTn5mrVmbh1r0cCbHQ7/4GO5umGnmJ+AAoRdQ2r/0PxkQBhjAVXnIk4xVYchQj8DzL
+	 ncZcEA+imBeRRYygzy2aOmez1amTndmol5jnd3JskWARySo8tAPe9Ipz+bCUh7UKB0H1/
+	 8iM+spXLkDZ0PXnZx526OmawXGpqEFWErsfpahHx1IucAhFhAUt2s5mE5AZPVxzKp6w==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OgVqcvMQ;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MvWojKOp;
 	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E2C9606A337;
-	Mon, 16 Nov 2026 00:25:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E56F606A884;
+	Mon, 16 Nov 2026 00:25:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OgVqcvMQ
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MvWojKOp
 Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
 ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1794788710;
-	b=fmzP+FPDBx579dmGMAAM7zeZOo/hUfMo8wI5hOIuslrd6COaNfcqhiyosduipJpXerQg
-	 NXyNAsL+blAuGj4/k/gDKj4qVy19hfMbMxDWp2FMTK3iZSyLcJPNR6IgA/l26+1FG+U3I
-	 tI6DC6xhawOzNZf9vQb8CWG8P7pQ1d5tNZTH7GUPqZzpTSs/vjSk5k7kubzYQkCsGfMNI
-	 DrE1LgOJoRkIGI4WpNtDDoYV1S07oy7ANMw7+fw9wksh2fBn4/jj+MSo4YxHss2eM5CBe
-	 YSeUothfO1VtddtA4oV9WCmu62jmtlcZ4ky5Rh/s4MDKl94FDUAShR99X2FKm54OEyw==
+	t=1794788711;
+	b=vHXH+c5RB4OoLQHRHDbp09bNz1VjBFLsf5bzQv2qvKsahSsKw9X6tuvT8leyYCNIXzpV
+	 wINtyiu7m79IYBsXlsRZgeQGkiQYNrbx5ToW+mWsFpV8RQj2S5zV56mMwoGVGIDOba19n
+	 yb81dJWiXHWWiCUu5dUPvVe0h7HLYKbX9HthG7DEjw1221QkiIIc68LwA8J30fHel2Xad
+	 ErfMfwiUzStj9Zzp9VQn+cCYdaeKQbtoSR6aatI/24jsows3xUiRxS9jrmnEOVC28vxKX
+	 tj5+r4ODa54XUd7f7v/Eg8Yysy5ur9WVgS7h4okhQKEzah7ZLezQfloI0c2ozWWgJQA==
 ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1794788710;
+	c=relaxed/relaxed; t=1794788711;
 	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
 	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=+xI9NgUf4o2KSEdFDaA+NOd4E6VfsuZrbaaEvbQwxOA=;
-	b=yu8Qrv7zonGf7+33gFGBb6US0FetuZMXn+p6R6ju2Htbe4OZCS4RjzwbsDudIwIQSyEV
-	 nHw8+6eBeu1pz/jVx61htvwvfstuYV22XRkldh9EHF89/kWqYPxXpzy43N6k5QCdfu5qS
-	 UOi3JSt37IIUGGMHQ1J8wVYg0JhS/eNTneRXDrWz/T7+le0PRvv0SKk8H1/Gz6WP1oIqZ
-	 tDc1Im3ft8Bk2ZiqnmTa1eBv38XaScmCWZ+KmQCLGPgW6fEnIEFv5OZGBP3/5Kjn95mbL
-	 vur+PVHTnbkYjau17uPVmOF5ax1JLMbv3FdV3LHhXlccX8v+IKuf/NnFKqFZxuczwpw==
+	bh=JZadbG6e1np2H4INxIfzGzER81/6aMvR4chC6fHHpoQ=;
+	b=GG8+TaY6LUtqI8uPXWJtF8yST2+HoujZd+NUAI6bK/xXZ6sQ4Jo7vFamA5ghNlcu5fTl
+	 fNfY8Tqiypzfs1Zy84e9dx8YhRiNbn49wS4vk/87rWQyt8H/V6JAlBGdAjukk1eRlJ3Su
+	 4oAn4lskSYaEbOpEzdN5+cX5QtmyAY60fDfcuzJMWWufQdid1lpQAV8D4hqS9+ekDWouZ
+	 qzD8/GKzxmBCzKtN7gFuIcrJKegxFS8spJAeiMP3bva3j5DtTE1MLNAnpR+0Ouxrd3Xmd
+	 7HfkMtEod/LcgG5AFjd2vL7QINQ38k6Rnh/BMWTkz2aX/3hFG+YxEn3HqGsW4s7zG4Q==
 ARC-Authentication-Results: i=1; smtp.kernel.org; 
 	arc=none smtp.remote-ip=100.80.115.77
 Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id 31F301F000C5;
-	Mon, 16 Nov 2026 00:25:09 +0000 (UTC)
+	by smtp.kernel.org (Postfix) with ESMTPS id 7842D1F000CC;
+	Mon, 16 Nov 2026 00:25:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794788710;
-	bh=+xI9NgUf4o2KSEdFDaA+NOd4E6VfsuZrbaaEvbQwxOA=;
+	s=k20260515; t=1794788711;
+	bh=JZadbG6e1np2H4INxIfzGzER81/6aMvR4chC6fHHpoQ=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
-	b=OgVqcvMQd6BaZ9UAC447VZx2q0roSmJHquiO4WnifbenuMckxYHHxosKodl5Kv/Uc
-	 CH3CyJDtvD3O+mHYke8wvOLHaBuVRiBe4Vsuh8V+9ZaThtuG3D7Jeb4cNP0JXRHj5e
-	 RqQvUaWH2YTgpYo7UiTB9YONUgQ52AsqvDwRAP1BcN3Z5iPBZlX+zQr5cASJJqjlEy
-	 4vq50qe6FmPwqw+qCf/OK2QgjfRsE8wxIQDWHGnW4ovnqV0AMP6Dq7r3IYpL0s1QRQ
-	 AxT9i7kd9jz5nGaVEm6wCv7WcHdozUBcyoaIshWDhZkYQJvY/enQxfQOKWsm2boTm6
-	 ldr6IokM5MrNQ==
+	b=MvWojKOpOuoshbGEiAL7Uo5WCFe0DTCl3n9L+OehsfdHGObxHdxpJJBq9OEPSD9js
+	 CqacL7qroIOQTGzr6PgCC7nx7WpP4plzPvhCG6Xz9peKeBgd0gLNrzZc9sc/G2GXib
+	 8lvRMqkcxokAMj6/adED4D7d6vbKiSaYi4FwpTkUgA+ve+zKXqS4BuRxPc3NKS9boR
+	 aAkW1phmYIj8m20PrV7e614vAWWIHqym9IIvQeka0SFioDLiw/m2k+36Iv7099sxGq
+	 pDabUWMgYlOZj2508OeBxnhBF3gZCh4AGEo56Vwh0m053exb4G8RF2mIGjhq6nOL3P
+	 Ys1up6eKFA98Q==
 Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id B550B4A28F;
-	Mon, 16 Nov 2026 00:25:08 +0000 (UTC)
+	by lkml.kernel.org (Postfix) with ESMTP id 2D67A4A2A7;
+	Mon, 16 Nov 2026 00:25:09 +0000 (UTC)
 From: Igor Velkov via B4 Relay <devnull+iav.iav.lv@kernel.org>
-Date: Mon, 16 Nov 2026 00:25:00 +0000
-Subject: [PATCH v2 1/8] alarmtimer: Replace alarmtimer_get_rtcdev() with
- alarmtimer_has_rtcdev()
+Date: Mon, 16 Nov 2026 00:25:05 +0000
+Subject: [PATCH v2 6/8] dt-bindings: rtc: Add linux,wakeup-states
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -84,7 +83,7 @@ List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261116-b4-alarmtimer-rtc-priority-v2-1-b2c69721e489@iav.lv>
+Message-Id: <20261116-b4-alarmtimer-rtc-priority-v2-6-b2c69721e489@iav.lv>
 References: <20261116-b4-alarmtimer-rtc-priority-v2-0-b2c69721e489@iav.lv>
 In-Reply-To: <20261116-b4-alarmtimer-rtc-priority-v2-0-b2c69721e489@iav.lv>
 To: John Stultz <jstultz@google.com>, Thomas Gleixner <tglx@kernel.org>, 
@@ -100,13 +99,13 @@ Cc: Stephen Boyd <sboyd@kernel.org>, Miroslav Lichvar <mlichvar@redhat.com>,
  linux-arm-kernel@lists.infradead.org, linux-amlogic@lists.infradead.org, 
  linux-kernel@vger.kernel.org, Igor Velkov <iav@iav.lv>
 X-Mailer: b4 0.13.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=4917; i=iav@iav.lv;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3061; i=iav@iav.lv;
  h=from:subject:message-id;
- bh=f68xLwZpTjZGNfu+rVHvQZiRfGedR9updFcLDrGikhA=;
- b=owGbwMvMwCVmNH1q96v4SmbG02pJDFm/fONvcPx+xR396dn2Hta1Fl8k/SyWs6f/maqinT5ls
- sue1WoFHaUsDGJcDLJiiiwTDmncylhy9a+/h/kDmDmsTCBDGLg4BWAin/cz/DNVqtTRt52s+l7p
- 6UPWRkdh5sztfyI2p5+wjp+28wPTfS1Ghq699v9k7011MdlwQbFzvtl75nccKlU6wsGandckpSR
- 3MwAA
+ bh=jiWwGKeX8J95JaxaQWkNTzGvuFoNUgKE+31aH14O6+k=;
+ b=owGbwMvMwCVmNH1q96v4SmbG02pJDFm/fJM+HbRbzvOrcLN3Z3bohrn176QZAn96i7190bszJ
+ 9IldGF7RykLgxgXg6yYIsuEQxq3MpZc/evvYf4AZg4rE8gQBi5OAZhIjwTD/7z5Xad3PvXKsfZq
+ 2XV+acvpA6bqq77kFk7lX/5uM2fSf3WGv7LRzD55rDquroK32mX+n5qncENr0u8wQ1GmttgnrUI
+ z+QA=
 X-Developer-Key: i=iav@iav.lv; a=openpgp;
  fpr=90C228DA68A4D5FD4F4837E03297958BEA5F7903
 X-Endpoint-Received: by B4 Relay for iav@iav.lv/default with auth_id=1060
@@ -116,152 +115,82 @@ Content-Transfer-Encoding: 7bit
 
 From: Igor Velkov <iav@iav.lv>
 
-alarmtimer_get_rtcdev() returns the wakeup RTC without taking a reference.
-Apart from alarmtimer_suspend() and alarmtimer_resume(), its callers only
-test the result for NULL: the alarm clock functions to tell whether alarm
-clocks are supported, and charger-manager to decide whether to set up its
-alarm.
+A board can have more than one RTC with an alarm that wakes the system,
+for example an I2C RTC next to an RTC in the PMIC or the SoC firmware.
+Which of them wakes the system depends on the sleep state and on the
+board's firmware: amlogic,meson-vrtc is a register the firmware reads
+when the application processors suspend, so it wakes the system from
+deep sleep only, and whether an I2C RTC wakes the system from deep
+sleep depends on the firmware handling its interrupt line.
 
-A later patch lets a different RTC wake the system from each suspend
-state, so there is no single RTC to return.
+Add linux,wakeup-states to describe this per RTC: the suspend states an
+alarm of the RTC wakes the system from, named as in /sys/power/mem_sleep,
+or none for an RTC whose alarm wakes the system from no suspend state.
 
-Provide alarmtimer_has_rtcdev() for these tests and read rtcdev directly
-in alarmtimer_suspend() and alarmtimer_resume().
+List it in nxp,pcf8563.yaml and amlogic,meson-vrtc.yaml, which do not
+allow unlisted properties.
 
 Signed-off-by: Igor Velkov <iav@iav.lv>
 ---
- drivers/power/supply/charger-manager.c |  2 +-
- include/linux/alarmtimer.h             |  7 ++-----
- kernel/time/alarmtimer.c               | 24 ++++++++++++------------
- 3 files changed, 15 insertions(+), 18 deletions(-)
+ .../devicetree/bindings/rtc/amlogic,meson-vrtc.yaml     |  2 ++
+ Documentation/devicetree/bindings/rtc/nxp,pcf8563.yaml  |  2 ++
+ Documentation/devicetree/bindings/rtc/rtc.yaml          | 17 +++++++++++++++++
+ 3 files changed, 21 insertions(+)
 
-diff --git a/drivers/power/supply/charger-manager.c b/drivers/power/supply/charger-manager.c
-index 8e8c5109401a..754ff4b3de1a 100644
---- a/drivers/power/supply/charger-manager.c
-+++ b/drivers/power/supply/charger-manager.c
-@@ -1456,7 +1456,7 @@ static int charger_manager_probe(struct platform_device *pdev)
- 	psy_cfg.drv_data = cm;
+diff --git a/Documentation/devicetree/bindings/rtc/amlogic,meson-vrtc.yaml b/Documentation/devicetree/bindings/rtc/amlogic,meson-vrtc.yaml
+index a89865fa676a..51cce4b2a7ff 100644
+--- a/Documentation/devicetree/bindings/rtc/amlogic,meson-vrtc.yaml
++++ b/Documentation/devicetree/bindings/rtc/amlogic,meson-vrtc.yaml
+@@ -30,6 +30,8 @@ properties:
+   reg:
+     maxItems: 1
  
- 	/* Initialize alarm timer */
--	if (alarmtimer_get_rtcdev()) {
-+	if (alarmtimer_has_rtcdev()) {
- 		cm_timer = devm_kzalloc(cm->dev, sizeof(*cm_timer), GFP_KERNEL);
- 		if (!cm_timer)
- 			return -ENOMEM;
-diff --git a/include/linux/alarmtimer.h b/include/linux/alarmtimer.h
-index 2014288ca2f4..3dd6d8762a73 100644
---- a/include/linux/alarmtimer.h
-+++ b/include/linux/alarmtimer.h
-@@ -6,8 +6,6 @@
- #include <linux/hrtimer.h>
- #include <linux/timerqueue.h>
++  linux,wakeup-states: true
++
+ required:
+   - compatible
+   - reg
+diff --git a/Documentation/devicetree/bindings/rtc/nxp,pcf8563.yaml b/Documentation/devicetree/bindings/rtc/nxp,pcf8563.yaml
+index 22909a96123e..e464432e4690 100644
+--- a/Documentation/devicetree/bindings/rtc/nxp,pcf8563.yaml
++++ b/Documentation/devicetree/bindings/rtc/nxp,pcf8563.yaml
+@@ -32,6 +32,8 @@ properties:
+   interrupts:
+     maxItems: 1
  
--struct rtc_device;
--
- enum alarmtimer_type {
- 	ALARM_REALTIME,
- 	ALARM_BOOTTIME,
-@@ -58,10 +56,9 @@ u64 alarm_forward_now(struct alarm *alarm, ktime_t interval);
- ktime_t alarm_expires_remaining(const struct alarm *alarm);
++  linux,wakeup-states: true
++
+   start-year: true
+   wakeup-source: true
  
- #ifdef CONFIG_RTC_CLASS
--/* Provide way to access the rtc device being used by alarmtimers */
--struct rtc_device *alarmtimer_get_rtcdev(void);
-+bool alarmtimer_has_rtcdev(void);
- #else
--static inline struct rtc_device *alarmtimer_get_rtcdev(void) { return NULL; }
-+static inline bool alarmtimer_has_rtcdev(void) { return false; }
- #endif
+diff --git a/Documentation/devicetree/bindings/rtc/rtc.yaml b/Documentation/devicetree/bindings/rtc/rtc.yaml
+index e46d50b1063e..54f41858dda4 100644
+--- a/Documentation/devicetree/bindings/rtc/rtc.yaml
++++ b/Documentation/devicetree/bindings/rtc/rtc.yaml
+@@ -26,6 +26,23 @@ properties:
+       0: not chargeable
+       1: chargeable
  
- #endif
-diff --git a/kernel/time/alarmtimer.c b/kernel/time/alarmtimer.c
-index ecf8c89f7eaf..6c663f7d93c2 100644
---- a/kernel/time/alarmtimer.c
-+++ b/kernel/time/alarmtimer.c
-@@ -63,15 +63,15 @@ static struct rtc_timer		rtctimer;
- static struct rtc_device	*rtcdev;
- 
- /**
-- * alarmtimer_get_rtcdev - Return selected rtcdevice
-+ * alarmtimer_has_rtcdev - Check whether an RTC can wake the system for alarms
-  *
-- * This function returns the rtc device to use for wakealarms.
-+ * Return: True when alarmtimer has an RTC to program on suspend
-  */
--struct rtc_device *alarmtimer_get_rtcdev(void)
-+bool alarmtimer_has_rtcdev(void)
- {
--	return READ_ONCE(rtcdev);
-+	return !!READ_ONCE(rtcdev);
- }
--EXPORT_SYMBOL_GPL(alarmtimer_get_rtcdev);
-+EXPORT_SYMBOL_GPL(alarmtimer_has_rtcdev);
- 
- static int alarmtimer_rtc_add_device(struct device *dev)
- {
-@@ -221,7 +221,7 @@ static int alarmtimer_suspend(struct device *dev)
- 		freezer_delta = 0;
- 	}
- 
--	rtc = alarmtimer_get_rtcdev();
-+	rtc = READ_ONCE(rtcdev);
- 	/* If we have no rtcdev, just return */
- 	if (!rtc)
- 		return 0;
-@@ -285,7 +285,7 @@ static int alarmtimer_resume(struct device *dev)
- {
- 	struct rtc_device *rtc;
- 
--	rtc = alarmtimer_get_rtcdev();
-+	rtc = READ_ONCE(rtcdev);
- 	if (rtc)
- 		rtc_timer_cancel(rtc, &rtctimer);
- 	return 0;
-@@ -591,7 +591,7 @@ static bool alarm_timer_arm(struct k_itimer *timr, ktime_t expires,
-  */
- static int alarm_clock_getres(const clockid_t which_clock, struct timespec64 *tp)
- {
--	if (!alarmtimer_get_rtcdev())
-+	if (!alarmtimer_has_rtcdev())
- 		return -EINVAL;
- 
- 	tp->tv_sec = 0;
-@@ -610,7 +610,7 @@ static int alarm_clock_get_timespec(clockid_t which_clock, struct timespec64 *tp
- {
- 	struct alarm_base *base = &alarm_bases[clock2alarm(which_clock)];
- 
--	if (!alarmtimer_get_rtcdev())
-+	if (!alarmtimer_has_rtcdev())
- 		return -EINVAL;
- 
- 	base->get_timespec(tp);
-@@ -628,7 +628,7 @@ static ktime_t alarm_clock_get_ktime(clockid_t which_clock)
- {
- 	struct alarm_base *base = &alarm_bases[clock2alarm(which_clock)];
- 
--	if (!alarmtimer_get_rtcdev())
-+	if (!alarmtimer_has_rtcdev())
- 		return -EINVAL;
- 
- 	return base->get_ktime();
-@@ -644,7 +644,7 @@ static int alarm_timer_create(struct k_itimer *new_timer)
- {
- 	enum  alarmtimer_type type;
- 
--	if (!alarmtimer_get_rtcdev())
-+	if (!alarmtimer_has_rtcdev())
- 		return -EOPNOTSUPP;
- 
- 	if (!capable(CAP_WAKE_ALARM))
-@@ -763,7 +763,7 @@ static int alarm_timer_nsleep(const clockid_t which_clock, int flags,
- 	ktime_t exp;
- 	int ret;
- 
--	if (!alarmtimer_get_rtcdev())
-+	if (!alarmtimer_has_rtcdev())
- 		return -EOPNOTSUPP;
- 
- 	if (flags & ~TIMER_ABSTIME)
++  linux,wakeup-states:
++    $ref: /schemas/types.yaml#/definitions/string-array
++    description:
++      Suspend states an alarm of this RTC wakes the system from, given
++      the board and its firmware, named as in /sys/power/mem_sleep. none,
++      given alone, means the alarm wakes the system from no suspend
++      state. An RTC without this property is taken to wake the system
++      from every suspend state.
++    oneOf:
++      - items:
++          enum:
++            - s2idle
++            - shallow
++            - deep
++      - items:
++          - const: none
++
+   quartz-load-femtofarads:
+     description:
+       The capacitive load of the quartz(x-tal), expressed in femto
 
 -- 
 2.43.0
