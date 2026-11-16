@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794853928;
-	b=gCX641m6jrqkKzlym+YDgG1msbZ+PxPb5/zabdpXz701seJaK51ehOU13pgdlEke2WOh
-	 7zyNOjM0JkZ+B0C2PvqPPAZNzG7UjWYWIECgeBQyrbZs0gHP+34ditYT0KpRZiYH1ZTXW
-	 2UUkSBikhW9KB05wc1NzXOFaFcGwbEYqH5iHyUCmH488xegjdlW8I+qPrfECI9oY0ACGm
-	 TiPWtIxG54UtyU3QZZ10gp4INckPN0DoA5b8Cm4JTeVGoQEQDwTY73WsE3bvzUDjgdnxo
-	 Yhi4C22xnJycet9zLvDJ0yfYSC+YMTQA6V4VCcXyj2v4Uuattp74jRXxkXQ16byWOtw==
+	t=1794853961;
+	b=fexE31CfGVufvl9O5mprzmXuqI11tLu0aPxaNAPeUWZKCzL+c62iRqMxx9bLdWu5Vv6V
+	 IMZs4S9fP4TXn5shE4BcyGe/r/kqtRjDQ4iEnguD0kA6iYUBDa+Sl0nyBFv3fe63jCtFB
+	 0gff4/ZfSkGee3Z+olidDlgFk1i+YtszVPS+P0b5vJ7puFKdS0qhT3JlaEjl06nnu7tzI
+	 qp+btVWNZBTu+uUmF5R/dMtCFXCJy4aqftadu0StXJU4r7+3ngKxEuIa+lrBp4xnpldHk
+	 ispN92+iwH5ereN2BtuxN4s1hTSgC1R87nhjA3CETrDxR66QbX/2WcUGA+aBqGX5orQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794853928;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794853961;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=slt/8ehFK6dZ83SG4ILG0nE+6CRzbuCPyGX2iJ03a6M=;
-	b=39zUpndccSkwlyG7CXQPCTXdTkNsUnq98vnaTcUYeR/5SXfXLQvornZkTAiPyKpRuf8r
-	 GhlzQZcBHDRXtSEXrzllU74+zaLiilcc3rWyTrf/PjVH4O9wl8Fy6ZYjfVwKKTG+7xAdE
-	 BGBTN/H0tiV0JCJJAqmb1BwJZavFMYXY4z15GSpLu1W6UkH1LY8uIjlI2ouChkkYk4tLK
-	 2pUzy9xNPbXXkJsSshdH5ftVQXeZkFOBSdBKdYGHW8ZwzoTQJVIygX9KdaCSO7Alr0wX0
-	 x1PExh5vb1InvTFE3I5zqneH24nfKJwqHf9xIQet1VG3cN2IVydABHU9dtdlyZ3GAJQ==
+	bh=u0amJXnNhvCqUYVosfqp8kda2/cuojxj7YCK3kHoL1c=;
+	b=gCWYu60vkRtsAZ3fJIK8eVEyHBF+lTaqXvW5/LCJ3bBbkFAt13rYofa2Si0iq7+fJ+yE
+	 DLgo6WA0FpCDr8DiBzgej1Jt8iFGmvkADMSyS7cRbfpxSrFBGjX575Dars0I6bI+4VA7N
+	 9qO8SW78a/sLgT6Klc/Wq5BetKz9GAM4RkhrQj/2dEsBGal5PxtEzN34dR9j+cXDdOXBo
+	 utc07IGHVhjqa18TsOaYkIfQwpOMFuoG7ndgyqHTIdJcUEpatzNcvd8pOG418OrUwdAv1
+	 2cDDUktO6I+ayGqNZQSfzNr5OuoYaBn4vDVWDGnA2jDUi1us5dRAuB4fEcRvJbC5j4A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=X1zUOPc1;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BufQ4yB8;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BA6E606A322;
-	Mon, 16 Nov 2026 18:32:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA943606A32A;
+	Mon, 16 Nov 2026 18:32:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=X1zUOPc1
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A9601F000CD;
-	Mon, 16 Nov 2026 18:32:01 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BufQ4yB8
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CB111F000C4;
+	Mon, 16 Nov 2026 18:32:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794853928;
-	bh=slt/8ehFK6dZ83SG4ILG0nE+6CRzbuCPyGX2iJ03a6M=;
+	s=k20260515; t=1794853960;
+	bh=u0amJXnNhvCqUYVosfqp8kda2/cuojxj7YCK3kHoL1c=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=X1zUOPc1SH6sn27i5wA8bSRgm8RrRGGhLZ6WL9cILoB1EyfLhWF/taTEFAeepoBJ6
-	 WpxOoMp8xbqaGF4O+u8TA114hbrU+wNmFymBJ1VkJnnPVneFb2W/xdZlA7PwrryWD+
-	 rVLS4kqLn/pKY8uIQxKV6J6Nh0qLRu3ix4hau+rSZa/axHQZgeDyAuUSnbbPLLce5e
-	 Z1dr/HQLr6ogeoBE0rknyBgD9jNRa/qJ0b+FN4D934O4OCsasgcD9phJFnoYLi82NB
-	 E44I5yEXb64JLkenblKV+9UN1rDUQR8GXq6WyIO1Us7rIX7LA2/QhYLLjXrqe0AF+Q
-	 69CR1nFDOZ2Hg==
-Date: Mon, 16 Nov 2026 18:31:59 +0000
+	b=BufQ4yB8tNbR8TJ/Hnm/k0+qE6qxhRqGHHX46jkRGjToD5o4wDrOYPG7nvezFv0ij
+	 e00clQXsG373kdYmAXh8oCe3IdIVdiT7Iui5KI+tcxMLHi5sV3JE0MCYGqkDxIcaXG
+	 7gFlY44DXGIocwrYaoiYok5Qz2wfSVMvRrYiuUBEIyuQJO2rmvTxnoeAq5ciRmKYtF
+	 8jWVjuzRfesJCaPTKOdJGnjX00leLrKY96LkSJxp8fIyI8sTMQtc30D3p5LMJfS9hY
+	 WHff+hOG9ikpu+ry1kjea+En2yvY2vIpCCDVgojLaxx8EmurFzgfstWWNc3x0/FSjO
+	 xjWuXeQY+sZGQ==
+Date: Mon, 16 Nov 2026 18:32:32 +0000
 From: Conor Dooley <conor@kernel.org>
 To: gaohan@iscas.ac.cn
 Cc: Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
@@ -68,10 +68,11 @@ Cc: Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
 	linux-csky@vger.kernel.org, linux-sunxi@lists.linux.dev,
 	linux-clk@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
 	linux-rtc@vger.kernel.org, linux-gpio@vger.kernel.org
-Subject: Re: [PATCH 04/19] dt-bindings: timer: add the Allwinner V861 CLINT
-Message-ID: <20261116-septum-unwitting-471f14128af1@spud>
+Subject: Re: [PATCH 03/19] dt-bindings: interrupt-controller: add the
+ Allwinner V861 PLIC
+Message-ID: <20261116-catsup-lethargic-45b29242cb79@spud>
 References: <20261114-v861-v1-0-eb71ec3ee523@iscas.ac.cn>
- <20261114-v861-v1-4-eb71ec3ee523@iscas.ac.cn>
+ <20261114-v861-v1-3-eb71ec3ee523@iscas.ac.cn>
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -82,26 +83,26 @@ List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="ErtSfEwv4s8akozZ"
+	protocol="application/pgp-signature"; boundary="eBIsJ0dmZzflzkKm"
 Content-Disposition: inline
-In-Reply-To: <20261114-v861-v1-4-eb71ec3ee523@iscas.ac.cn>
+In-Reply-To: <20261114-v861-v1-3-eb71ec3ee523@iscas.ac.cn>
 
---ErtSfEwv4s8akozZ
+--eBIsJ0dmZzflzkKm
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
 Acked-by: Conor Dooley <conor.dooley@microchip.com>
 pw-bot: not-applicable
 
---ErtSfEwv4s8akozZ
+--eBIsJ0dmZzflzkKm
 Content-Type: application/pgp-signature; name=signature.asc
 
 -----BEGIN PGP SIGNATURE-----
 
-iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCavtMHwAKCRB4tDGHoIJi
-0qkwAP9Pd/ep9Gqk38vyq4AwUoKO4zmSxSq1Y4VcWPLvY0WyXAEAgRN5as9LYn94
-9CLp0jfoNf3CqN/EAfLU4rUerUSzwwc=
-=D0vo
+iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCavtMQAAKCRB4tDGHoIJi
+0gQ9AP9yFcU7elfIZfpsStDtWeKtAnPFAqBGCugfc09t6ejP6wD/arKyMr+JWozf
+FFL142vScOtV8F9Q7w85A31HzFStQgc=
+=1gXO
 -----END PGP SIGNATURE-----
 
---ErtSfEwv4s8akozZ--
+--eBIsJ0dmZzflzkKm--
