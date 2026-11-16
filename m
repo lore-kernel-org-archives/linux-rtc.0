@@ -1,78 +1,90 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.231.130
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794854222;
-	b=cxSCBp9QRp1Q3q1H0UbkT5MsExO8+LIcRfcVvnCw6oExjDWY2fFo04yqJVqTM7Fy4YXe
-	 tp8UcEFF//N68JFesMyF5jWE0S50n4tKxi0yXaUIwvulE1gR4Hrr53Pvf33pitbGvVk61
-	 /yxziHc3y5JkqsN+zqRghMSRpPM8ClJ6Qr34nh5lRKRBs9CVazbDVRAy7wrluN1hgQLJ6
-	 Z1c+xZQAO4+6YAo3fTMK9G+i7+FHmRw8BYUmwH02nGR03onkRWPHNaWryiivWReLZGw8B
-	 j4WQv6w5mCe8/coNmrabs/IBN24mNX1w9rG8O6l8GEeAdd790xK5cUyKTUnrCLMjAqw==
+	t=1794854799;
+	b=WH+rVtwCglgk6oi4nmucEhhBlZaWJ8oryEAy0K056EjyTritdI4LlciM8h78ZtEY9tXz
+	 +adBY2tDOg4IH7UynFIkpAYNRn5CWVnNj4UEbyPX3Y1rXLPsNWn52cuTI5t9J0815iBIp
+	 bbwxTlvhXB1BWSo2DFzNiWUhOLvetOWtjbSSBfRpvk9UL0no2yiUjWvrloh9OufKdRlRT
+	 5cvF5crcRlv0ODfO+zXb9oWhpVicEnxUwafTQJZs4qqT16ctqpRroIqF0rIOjl/uwKm7S
+	 4qPoXkBkJRXoI8/mJVLFdX0VFhg8cmi8CJu34TTe10EWKRCXW3mReYdnPZIVTE+nAZQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794854222;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=JG6CA7hF3cK3MbnlBMlTCcJ/avGWqkbsETlXUPBQl38=;
-	b=DZXf+VI1FKsMMU3AVUxhmaX6wVCejw5SLa/tuVBbnoMgxBU77dxYWnfE3R6m+Fra1ssJ
-	 RgvAJjZsQp3SaIfJcii0QvaaW7CsTq7I9PQ8oWyZTBH2Ravq+sjrNHa/9IPRfhE/MdW0y
-	 NWgfvG3mu1XHnIxy3KG/YUvRIK0w1mgyg2Yek3VIwoXzmMCD+W76weKU211GJUatiSCnK
-	 EWtduYEjJ9EzWkcNcNB+zJ8HVlGNHjvxqA83vN9Ek9zQFzkiY9FAVwOlOU6QDwWure7Kl
-	 QQLfULJDy9WqylmE+/C5jGJtdlHKpNHcXzqf2d/XqmHvBu6rWco4GAVmL0xn13crREw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794854799;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:Subject:Date:Message-Id:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key;
+	bh=P78VDpsJpTz+1/Uu6wAD6OIZCd9bSuoX6Podaf0tODg=;
+	b=ej80xRrefJk0P9A4Pm3vxrkowp8bEqyAQxTsSN0GAkb2oVq7T2AAKLUt1IGAf+X1HJSR
+	 qI4/k8bRLZ79bMOx0BhJT6alYm60hboAWTvUdjKDD71/l5m8SpS8PCqn+FzGZ+P2Cgron
+	 vD0UUIn6VTPWvC8XbXN2+qCLgQvJYD45zsci1ocfF/zlulAjHtuSCDtOlw0NVrpTwCUYt
+	 rdmOmvBCqtEZIvZsDc4FmMNwBxsxqXcp5WQ5GDRSSCi2Xf+RIyHUaqjKpNHFe2fRzi5T7
+	 4xx40bIz6YOvbSyQZbmv1dOaz21qnJuwhj3hJ6EmkYT11Lb1l+3t5+FoKogAMXfi44Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ndEjBJh4;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=mc0qHYFT;
+	arc=none smtp.remote-ip=74.125.231.130
+Received: from mail-oo2-f2.google.com (mail-oo2-f2.google.com [74.125.231.130])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 026F9606A322;
-	Mon, 16 Nov 2026 18:37:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80132606A32A
+	for <linux-rtc@vger.kernel.org>; Mon, 16 Nov 2026 18:46:38 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 80132606A32A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ndEjBJh4
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EC9B1F000C9;
-	Mon, 16 Nov 2026 18:36:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794854221;
-	bh=JG6CA7hF3cK3MbnlBMlTCcJ/avGWqkbsETlXUPBQl38=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=ndEjBJh4ItJInOcvAxXux03Rf6tpEY0aWYJTVaMRE/qyOsLT128+uXQ8uOG3HDHp9
-	 ChBqi477ZssuhxtEiLH75iEoGzJY6P83E4z7dKmRH+p8AjK1UugOd4VaCRidUiQy8+
-	 ivCV0SQkBr5DT+toW//ktRk/zd1Ku9RJJeGftspFZ4TqWUpsCi8E53JVEpDbg19Ay0
-	 7HxLxa+dO4hD3sJmTkhEk5DE35FLaw0ic7fnOkJN7LiuHiL9eCekpMed+XOQwsHlA7
-	 JwQ0tdq7fJZ/LczVaXMxWKfzMmdt0PnEA0rfqKNeM5VSl6xv2i0bal3tg3hb5gZh5W
-	 QQmK3hHskdGtg==
-Date: Mon, 16 Nov 2026 18:36:53 +0000
-From: Conor Dooley <conor@kernel.org>
-To: gaohan@iscas.ac.cn
-Cc: Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, Guo Ren <guoren@kernel.org>,
-	Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>,
-	Samuel Holland <samuel.holland@sifive.com>,
-	Daniel Lezcano <daniel.lezcano@kernel.org>,
-	Anup Patel <anup@brainfault.org>, Stephen Boyd <sboyd@kernel.org>,
-	Brian Masney <bmasney+clk@redhat.com>,
-	Jerome Brunet <jbrunet+clk@baylibre.com>,
-	Chen-Yu Tsai <wens@kernel.org>,
-	Jernej Skrabec <jernej.skrabec@gmail.com>,
-	Samuel Holland <samuel@sholland.org>,
-	Philipp Zabel <p.zabel@pengutronix.de>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Linus Walleij <linusw@kernel.org>,
-	Andre Przywara <andre.przywara@arm.com>,
-	Han Gao <rabenda.cn@gmail.com>, linux-riscv@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	Paul Walmsley <paul.walmsley@sifive.com>,
-	Palmer Dabbelt <palmer@sifive.com>, devicetree@vger.kernel.org,
-	linux-csky@vger.kernel.org, linux-sunxi@lists.linux.dev,
-	linux-clk@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-rtc@vger.kernel.org, linux-gpio@vger.kernel.org
-Subject: Re: [PATCH 05/19] dt-bindings: clock: sunxi-ng: document the
- Allwinner V861 CCUs
-Message-ID: <20261116-untapped-venomous-10a258880fe4@spud>
-References: <20261114-v861-v1-0-eb71ec3ee523@iscas.ac.cn>
- <20261114-v861-v1-5-eb71ec3ee523@iscas.ac.cn>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=mc0qHYFT
+Received: by mail-oo2-f2.google.com with SMTP id 46e09a7af769-849c2965b9eso1167228a34.1
+        for <linux-rtc@vger.kernel.org>; Mon, 16 Nov 2026 10:46:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794854797; x=1795459597; darn=vger.kernel.org;
+        h=cc:to:content-transfer-encoding:content-type:mime-version
+         :message-id:date:subject:from:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=P78VDpsJpTz+1/Uu6wAD6OIZCd9bSuoX6Podaf0tODg=;
+        b=mc0qHYFT/6qwRjTi3Dtv+++yFZW2fqcMUAcIKPmQF2uTfb48OKPIH1SeI2qe5vtsXR
+         q5Le9wFFEJZAdvcimDV5B7gmwCUaOlsGHATwTfxRRirTW4XEjRlvL/UVFoMZg1lPfx+I
+         Xy3vSdrq/orlPickEvoGy144vofdRuguz1AJ0mEJXfBjOSCMQk9df6lBHQ/e0JUbpxUz
+         q6HFcq+0wmiKJighYZt5EC/3Suu8GosBiUb+GAvlCqhIOMPQWUqoD8MlTlyAzW+eTI1O
+         jhXfpB8+n6zRe6rEMlzy11XjSTDJfbj8oeaiiLK9LHFqtwfLyNhT6A1rp3I63IsJZ504
+         U2Lg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794854797; x=1795459597;
+        h=cc:to:content-transfer-encoding:content-type:mime-version
+         :message-id:date:subject:from:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=P78VDpsJpTz+1/Uu6wAD6OIZCd9bSuoX6Podaf0tODg=;
+        b=MVn5+k58FQ5l4OJp9YjAcMfNvrmLhe4ewzm2sxNqOrPt58768lVXLJGL2V4ek2x9nV
+         /33MbvQxSSs1u1WtRfGzkVdynysubloZQpAYuqUva/up6zZ8SKsoEAyCqX1Fdkv8dTLi
+         ns8WFMb4uRJANKnuZFWamaDmlyQWJAMKs7OyN2SdloLMVJhC6YkNfqazMGdZelkB96uN
+         SoJkXTNNwM+JBgUTHSTltqZ/geKZggm2SEkEJ270k3lRRdo1uRcrdRj3kzuJ3GJn/01j
+         1xl10MCRfJM9YToUjsRu1O5XBj+V+u0KTHxSLt+bGiH8203cFHDPvPDMl1QknrHLZ+Ay
+         hDBA==
+X-Forwarded-Encrypted: i=1; AL+hErEN7KbmKVZgj1uuRvkMY9TXzBcU+MDKBhL1beW0rOdzf8EtzbhwggzHS89276Fq/ZcOv5fU8v3BQWo=@vger.kernel.org
+X-Gm-Message-State: APuU4Z85WxpoV/dGv6QoU+B3mAD6SfhI65uCasB3opbMVLo5x4Rb/uQ/
+	Y86886pLNBRK/Yi4BRtmUVRLvA+6PADpZMP5wiWZnAqWvKZo1ybVANoA
+X-Gm-Gg: AYBFou2KiO6Bi/7REOyuK8mKawK0y4RkUd1HfIvuPhQsjdm/ucwR1AUswl907jvuJVa
+	N3b71/URgx80kEHH/xOg5X/krkRfiSCHGDsYgxs7siD5ESLRRDzVElHHuI0NTg20bFig8/zUn+M
+	9gqDMGoeFmPw42bSkuK1nuNbtFN/e3HNBkW2LfkyzUnuX3Rci23j5iH2PzPTswpCr0TZDUPZoWS
+	2zg5PqJEzyMRKZEWTKD4gtpBiouUTpGj6gaAFCTZ3Ov7I2miGnFlZcrzvtiArhX2ee6ZSeUb/+/
+	oRULNRpZVGaDoXumHaJbqlq9VmPyG8Tzp5l8/oF4U8LdfyLYkMOOYgfwaf2h15cOlI0yEBpwHig
+	wqKzzcI19I7BrYltCeFQaQv4o05D53Dih1M2F/Qb7irvDQkxPz/BGkq6X9N0LySGlGWXagKiRSs
+	9ndPe+IaxbZ2QhTNZ8Ny1lhwfY2g/DKzuGukG8/tvQv1Fb9PCuXhQ5k3RSwM6TcpInX1NQXhdww
+	aAi2fcYuFGv/zXXaoMU1TKOv8gKLAKqW1jNPSuYefAp9Y8OHvNjNAXcWbhD+3wynPkiAxVzkJO3
+	oGa/CwejLVyhwZ6q4xkrhaVjV2bLTVTKNOO/NjUj7Wyarda9CYSv03Z733wZ9ErCtqHpVB0jE8D
+	Ylu/u5+hM1sbJmNjE+RdHe+DO39RaOBHJTs5CbLoL
+X-Received: by 2002:a05:6808:3186:b0:53c:7298:3591 with SMTP id 5614622812f47-56e5fd4852bmr9836229b6e.1.1794854797281;
+        Mon, 16 Nov 2026 10:46:37 -0800 (PST)
+Received: from [10.10.18.223] (wsip-64-207-253-118.tu.ok.cox.net. [64.207.253.118])
+        by smtp.gmail.com with ESMTPSA id 586e51a60fabf-4afe242b670sm7210735fac.17.2026.11.16.10.46.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 16 Nov 2026 10:46:36 -0800 (PST)
+From: Ryan Brue <ryanbrue.dev@gmail.com>
+Subject: [PATCH v3 0/2] rtc: mt6397: provide the RTC's 32 kHz output as a
+ clock
+Date: Mon, 16 Nov 2026 12:46:32 -0600
+Message-Id: <20261116-rbrue-suez-upstreaming-mt6397-rtc-32k-v3-0-179145eb7e89@gmail.com>
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -82,404 +94,93 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="jqXi36KkUpYdOM0M"
-Content-Disposition: inline
-In-Reply-To: <20261114-v861-v1-5-eb71ec3ee523@iscas.ac.cn>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAA/43Nyw6CMBBA0V9pZs2YTkcosPI/jItaCjbKIy0QH
+ +HfDbhh6fYu7vlAdMG7CKX4QHCzj77voBScCLA30zUOfQWlACVVRlIdMVzD5DBO7o3TEMfgTOu
+ 7Btsx40JjGC2yuqM0ZCmrM+acIREwBFf75+acL4mAm49jH14bO9NafwJJ+lOYCSUWOs1rzistU
+ z41rfGPg+1bWIVZ7a/q36tCiVRYo1VOKevj/rosyxeEFL37MAEAAA==
+X-Change-ID: 20261024-rbrue-suez-upstreaming-mt6397-rtc-32k-0a1c16f63383
+To: Sen Chu <sen.chu@mediatek.com>, Sean Wang <sean.wang@mediatek.com>, 
+ Macpaul Lin <macpaul.lin@mediatek.com>, Lee Jones <lee@kernel.org>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, 
+ Matthias Brugger <matthias.bgg@gmail.com>, 
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
+ Eddie Huang <eddie.huang@mediatek.com>, 
+ Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: linux-pm@vger.kernel.org, mfd@lists.linux.dev, 
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, 
+ linux-rtc@vger.kernel.org, Ryan Brue <ryanbrue.dev@gmail.com>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1794854794; l=2739;
+ i=ryanbrue.dev@gmail.com; s=20260906; h=from:subject:message-id;
+ bh=edI0U8BJ05vm1zYUWZKlM1TrWGXlJBUbcmpWbDIqGNc=;
+ b=NLQ9/9ifb2vqQe0on9JdNLDbVdTMhveUDIstOj4nsP4FUeFFlZdrmwfVC4+mYhCjsUQssYltO
+ y+PtxNWp0vnACO+TbUGWxj431pgV6oe5TK+FwOAtVekLyd9sDVCpExb
+X-Developer-Key: i=ryanbrue.dev@gmail.com; a=ed25519;
+ pk=KsUvVaP//v/2q+ZBuacc7cLbsyEYn+AD71Sn28oZWKo=
 
---jqXi36KkUpYdOM0M
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The MT6397 RTC drives a 32 kHz clock out of the PMIC, which boards use as
+the sleep clock of a Wi-Fi/Bluetooth combo chip. RTC_CON.F32KOB gates it,
+and mainline never touches that bit, so the chip only works if the
+bootloader happened to turn the output on.
 
-On Sat, Nov 14, 2026 at 06:33:31AM +0800, Han Gao via B4 Relay wrote:
-> From: Han Gao <gaohan@iscas.ac.cn>
->=20
-> The V861 has a main CCU and a PRCM CCU. Add the binding and the clock
-> and reset indices for both.
->=20
-> Signed-off-by: Han Gao <gaohan@iscas.ac.cn>
-> ---
->  .../bindings/clock/allwinner,sun252i-v861-ccu.yaml |  99 ++++++++++++++++
->  include/dt-bindings/clock/sun252i-v861-ccu.h       | 127 +++++++++++++++=
-++++++
->  include/dt-bindings/clock/sun252i-v861-r-ccu.h     |  14 +++
->  include/dt-bindings/reset/sun252i-v861-ccu.h       |  55 +++++++++
->  include/dt-bindings/reset/sun252i-v861-r-ccu.h     |  12 ++
->  5 files changed, 307 insertions(+)
->=20
-> diff --git a/Documentation/devicetree/bindings/clock/allwinner,sun252i-v8=
-61-ccu.yaml b/Documentation/devicetree/bindings/clock/allwinner,sun252i-v86=
-1-ccu.yaml
-> new file mode 100644
-> index 000000000000..29fc23ab2401
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/clock/allwinner,sun252i-v861-ccu.=
-yaml
-> @@ -0,0 +1,99 @@
-> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/clock/allwinner,sun252i-v861-ccu.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: Allwinner V861 Clock Control Unit
-> +
-> +maintainers:
-> +  - Han Gao <gaohan@iscas.ac.cn>
-> +
-> +properties:
-> +  "#clock-cells":
-> +    const: 1
-> +
-> +  "#reset-cells":
-> +    const: 1
-> +
-> +  compatible:
-> +    enum:
-> +      - allwinner,sun252i-v861-ccu
-> +      - allwinner,sun252i-v861-r-ccu
-> +
-> +  reg:
-> +    maxItems: 1
-> +
-> +  clocks:
-> +    minItems: 3
-> +    maxItems: 4
-> +
-> +  clock-names:
-> +    minItems: 3
-> +    maxItems: 4
-> +
-> +required:
-> +  - "#clock-cells"
-> +  - "#reset-cells"
-> +  - compatible
-> +  - reg
-> +  - clocks
-> +  - clock-names
+On the Amazon Fire HD 10 (2017), which can boot through U-Boot instead of
+the vendor's LK, nothing sets it in the former - LK sets the bit at every
+boot, and the MT6630 combo chip's Wi-Fi and Bluetooth never come up.
+Letting the RTC provide the output as a clock lets the chip's
+mmc-pwrseq-simple enable it. With the clock wired up both came up on that
+board in two boots out of two, and in none of three without it.
 
-reg and compatible should come before other properties, here and above.
+The driver registers the clock only when the RTC node has #clock-cells,
+so no existing board changes. The MT6323 shares the MT6397's driver data
+and gets it too; every MediaTek PMIC RTC whose registers I could read has
+F32KOB at bit 5 of RTC_CON, but for the MT6323 that is inferred from the
+shared driver data rather than read from a datasheet.
 
-> +
-> +allOf:
-> +  - if:
-> +      properties:
-> +        compatible:
-> +          enum:
-> +            - allwinner,sun252i-v861-ccu
-> +
-> +    then:
-> +      properties:
-> +        clocks:
-> +          items:
-> +            - description: High Frequency Oscillator (usually at 24MHz)
-> +            - description: Low Frequency Oscillator (usually at 32kHz)
-> +            - description: Internal Oscillator
-> +
-> +        clock-names:
-> +          items:
-> +            - const: hosc
-> +            - const: losc
-> +            - const: iosc
+Lee has applied the binding to mfd [1], so v3 is the driver part only:
+patch 1 gives the existing write trigger member a name that says what it
+is, as Lee asked for the new one, and patch 2 adds the clock. Both are
+for rtc.
 
-both devices duplicate this, so it can move to the top level.
-then all you need to do is set maxItems to 3 here and minitems to 4
-below.
+The board's devicetree that uses the clock is not upstream yet and follows
+separately.
 
-pw-bot: changes-requested
+This series was developed with the help of an LLM.
 
-Thanks,
-Conor.
+[1] https://lore.kernel.org/all/179459615032.87488.12726056214378307165.b4-ty@b4/
 
-> +
-> +  - if:
-> +      properties:
-> +        compatible:
-> +          enum:
-> +            - allwinner,sun252i-v861-r-ccu
-> +
-> +    then:
-> +      properties:
-> +        clocks:
-> +          items:
-> +            - description: High Frequency Oscillator (usually at 24MHz)
-> +            - description: Low Frequency Oscillator (usually at 32kHz)
-> +            - description: Internal Oscillator
-> +            - description: Peripherals PLL (200 MHz output)
-> +
-> +        clock-names:
-> +          items:
-> +            - const: hosc
-> +            - const: losc
-> +            - const: iosc
-> +            - const: pll-periph
-> +
-> +additionalProperties: false
-> +
-> +examples:
-> +  - |
-> +    clock-controller@2001000 {
-> +        compatible =3D "allwinner,sun252i-v861-ccu";
-> +        reg =3D <0x02001000 0x1000>;
-> +        clocks =3D <&osc24M>, <&rtc 0>, <&rtc 2>;
-> +        clock-names =3D "hosc", "losc", "iosc";
-> +        #clock-cells =3D <1>;
-> +        #reset-cells =3D <1>;
-> +    };
-> +
-> +...
-> diff --git a/include/dt-bindings/clock/sun252i-v861-ccu.h b/include/dt-bi=
-ndings/clock/sun252i-v861-ccu.h
-> new file mode 100644
-> index 000000000000..1123b894a493
-> --- /dev/null
-> +++ b/include/dt-bindings/clock/sun252i-v861-ccu.h
-> @@ -0,0 +1,127 @@
-> +/* SPDX-License-Identifier: (GPL-2.0-only OR MIT) */
-> +/*
-> + * Copyright (c) 2026 Han Gao <gaohan@iscas.ac.cn>
-> + */
-> +
-> +#ifndef _DT_BINDINGS_CLK_SUN252I_V861_CCU_H_
-> +#define _DT_BINDINGS_CLK_SUN252I_V861_CCU_H_
-> +
-> +#define CLK_PLL_DDR		0
-> +#define CLK_PLL_PERIPH0_4X	1
-> +#define CLK_PLL_PERIPH0_2X	2
-> +#define CLK_PLL_PERIPH0_800M	3
-> +#define CLK_PLL_PERIPH0_480M	4
-> +#define CLK_PLL_PERIPH0_600M	5
-> +#define CLK_PLL_PERIPH0_400M	6
-> +#define CLK_PLL_PERIPH0_300M	7
-> +#define CLK_PLL_PERIPH0_200M	8
-> +#define CLK_PLL_PERIPH0_160M	9
-> +#define CLK_PLL_PERIPH0_150M	10
-> +#define CLK_PLL_VIDEO_8X	11
-> +#define CLK_PLL_VIDEO_4X	12
-> +#define CLK_PLL_VIDEO_2X	13
-> +#define CLK_PLL_VIDEO_1X	14
-> +#define CLK_PLL_CSI_8X		15
-> +#define CLK_PLL_CSI_4X		16
-> +#define CLK_PLL_CSI_2X		17
-> +#define CLK_PLL_CSI_1X		18
-> +#define CLK_PLL_AUDIO		19
-> +#define CLK_PLL_AUDIO_DIV2	20
-> +#define CLK_PLL_AUDIO_DIV3	21
-> +#define CLK_PLL_AUDIO_DIV5	22
-> +#define CLK_PLL_AUDIO_4X	23
-> +#define CLK_PLL_AUDIO_1X	24
-> +#define CLK_PLL_NPU_8X		25
-> +#define CLK_PLL_NPU_4X		26
-> +#define CLK_PLL_NPU_2X		27
-> +#define CLK_PLL_NPU_1X		28
-> +#define CLK_AHB			29
-> +#define CLK_APB0		30
-> +#define CLK_APB1		31
-> +#define CLK_APB_UART		32
-> +#define CLK_DE			33
-> +#define CLK_BUS_DE		34
-> +#define CLK_G2D			35
-> +#define CLK_BUS_G2D		36
-> +#define CLK_CE			37
-> +#define CLK_BUS_CE		38
-> +#define CLK_BUS_CE_SYS		39
-> +#define CLK_VE			40
-> +#define CLK_BUS_VE		41
-> +#define CLK_NPU			42
-> +#define CLK_BUS_NPU		43
-> +#define CLK_BUS_SGDMA		44
-> +#define CLK_BUS_NDMA		45
-> +#define CLK_BUS_MSGBOX0		46
-> +#define CLK_BUS_MSGBOX1		47
-> +#define CLK_BUS_SPINLOCK	48
-> +#define CLK_BUS_HSTIMER		49
-> +#define CLK_AVS			50
-> +#define CLK_BUS_TIMER		51
-> +#define CLK_BUS_DBG		52
-> +#define CLK_BUS_PWM		53
-> +#define CLK_DRAM		54
-> +#define CLK_MBUS		55
-> +#define CLK_MBUS_DMA		56
-> +#define CLK_MBUS_VE		57
-> +#define CLK_MBUS_CE		58
-> +#define CLK_MBUS_CSI		59
-> +#define CLK_MBUS_ISP		60
-> +#define CLK_MBUS_G2D		61
-> +#define CLK_BUS_DRAM		62
-> +#define CLK_MMC0		63
-> +#define CLK_MMC1		64
-> +#define CLK_MMC2		65
-> +#define CLK_BUS_MMC0		66
-> +#define CLK_BUS_MMC1		67
-> +#define CLK_BUS_MMC2		68
-> +#define CLK_PSRAM		69
-> +#define CLK_BUS_PSRAM		70
-> +#define CLK_BUS_UART0		71
-> +#define CLK_BUS_UART1		72
-> +#define CLK_BUS_UART2		73
-> +#define CLK_BUS_UART3		74
-> +#define CLK_BUS_I2C0		75
-> +#define CLK_BUS_I2C1		76
-> +#define CLK_BUS_I2C2		77
-> +#define CLK_BUS_I2C3		78
-> +#define CLK_SPI0		79
-> +#define CLK_SPI1		80
-> +#define CLK_SPI2		81
-> +#define CLK_SPIF		82
-> +#define CLK_BUS_SPI0		83
-> +#define CLK_BUS_SPI1		84
-> +#define CLK_BUS_SPI2		85
-> +#define CLK_BUS_SPIF		86
-> +#define CLK_GMAC_25M		87
-> +#define CLK_BUS_GMAC		88
-> +#define CLK_BUS_GPADC		89
-> +#define CLK_BUS_THS		90
-> +#define CLK_I2S0		91
-> +#define CLK_BUS_I2S0		92
-> +#define CLK_AUDIO_CODEC_DAC	93
-> +#define CLK_AUDIO_CODEC_ADC	94
-> +#define CLK_BUS_AUDIO_CODEC	95
-> +#define CLK_USB_OHCI0		96
-> +#define CLK_BUS_OHCI0		97
-> +#define CLK_BUS_EHCI0		98
-> +#define CLK_BUS_OTG		99
-> +#define CLK_BUS_DPSS_TOP	100
-> +#define CLK_TCON_LCD		101
-> +#define CLK_BUS_TCON_LCD	102
-> +#define CLK_CSI			103
-> +#define CLK_CSI_MCLK0		104
-> +#define CLK_CSI_MCLK1		105
-> +#define CLK_CSI_MCLK2		106
-> +#define CLK_BUS_CSI		107
-> +#define CLK_FANOUT_24M		108
-> +#define CLK_FANOUT_12M		109
-> +#define CLK_FANOUT_16M		110
-> +#define CLK_FANOUT_25M		111
-> +#define CLK_FANOUT_27M		112
-> +#define CLK_FANOUT_PCLK		113
-> +#define CLK_FANOUT0		114
-> +#define CLK_FANOUT1		115
-> +#define CLK_FANOUT2		116
-> +
-> +#endif /* _DT_BINDINGS_CLK_SUN252I_V861_CCU_H_ */
-> diff --git a/include/dt-bindings/clock/sun252i-v861-r-ccu.h b/include/dt-=
-bindings/clock/sun252i-v861-r-ccu.h
-> new file mode 100644
-> index 000000000000..41eaf8aab2c0
-> --- /dev/null
-> +++ b/include/dt-bindings/clock/sun252i-v861-r-ccu.h
-> @@ -0,0 +1,14 @@
-> +/* SPDX-License-Identifier: (GPL-2.0-only OR MIT) */
-> +/*
-> + * Copyright (c) 2026 Han Gao <gaohan@iscas.ac.cn>
-> + */
-> +
-> +#ifndef _DT_BINDINGS_CLK_SUN252I_V861_R_CCU_H_
-> +#define _DT_BINDINGS_CLK_SUN252I_V861_R_CCU_H_
-> +
-> +#define CLK_R_AHB		0
-> +#define CLK_R_APB0		1
-> +#define CLK_BUS_R_PPU		2
-> +#define CLK_BUS_R_RTC		3
-> +
-> +#endif /* _DT_BINDINGS_CLK_SUN252I_V861_R_CCU_H_ */
-> diff --git a/include/dt-bindings/reset/sun252i-v861-ccu.h b/include/dt-bi=
-ndings/reset/sun252i-v861-ccu.h
-> new file mode 100644
-> index 000000000000..4e0245c6c99a
-> --- /dev/null
-> +++ b/include/dt-bindings/reset/sun252i-v861-ccu.h
-> @@ -0,0 +1,55 @@
-> +/* SPDX-License-Identifier: (GPL-2.0-only OR MIT) */
-> +/*
-> + * Copyright (c) 2026 Han Gao <gaohan@iscas.ac.cn>
-> + */
-> +
-> +#ifndef _DT_BINDINGS_RST_SUN252I_V861_CCU_H_
-> +#define _DT_BINDINGS_RST_SUN252I_V861_CCU_H_
-> +
-> +#define RST_MBUS		0
-> +#define RST_BUS_DE		1
-> +#define RST_BUS_G2D		2
-> +#define RST_BUS_CE		3
-> +#define RST_BUS_CE_SYS		4
-> +#define RST_BUS_VE		5
-> +#define RST_BUS_NPU		6
-> +#define RST_BUS_SGDMA		7
-> +#define RST_BUS_NDMA		8
-> +#define RST_BUS_MSGBOX0		9
-> +#define RST_BUS_MSGBOX1		10
-> +#define RST_BUS_SPINLOCK	11
-> +#define RST_BUS_HSTIMER		12
-> +#define RST_BUS_TIMER		13
-> +#define RST_BUS_DBG		14
-> +#define RST_BUS_PWM		15
-> +#define RST_BUS_DRAM		16
-> +#define RST_BUS_MMC0		17
-> +#define RST_BUS_MMC1		18
-> +#define RST_BUS_MMC2		19
-> +#define RST_BUS_PSRAM		20
-> +#define RST_BUS_UART0		21
-> +#define RST_BUS_UART1		22
-> +#define RST_BUS_UART2		23
-> +#define RST_BUS_UART3		24
-> +#define RST_BUS_I2C0		25
-> +#define RST_BUS_I2C1		26
-> +#define RST_BUS_I2C2		27
-> +#define RST_BUS_I2C3		28
-> +#define RST_BUS_SPI0		29
-> +#define RST_BUS_SPI1		30
-> +#define RST_BUS_SPI2		31
-> +#define RST_BUS_SPIF		32
-> +#define RST_BUS_GMAC		33
-> +#define RST_BUS_GPADC		34
-> +#define RST_BUS_THS		35
-> +#define RST_BUS_I2S0		36
-> +#define RST_BUS_AUDIO_CODEC	37
-> +#define RST_USB_PHY0		38
-> +#define RST_BUS_OHCI0		39
-> +#define RST_BUS_EHCI0		40
-> +#define RST_BUS_OTG		41
-> +#define RST_BUS_DPSS_TOP	42
-> +#define RST_BUS_TCON_LCD	43
-> +#define RST_BUS_CSI		44
-> +
-> +#endif /* _DT_BINDINGS_RST_SUN252I_V861_CCU_H_ */
-> diff --git a/include/dt-bindings/reset/sun252i-v861-r-ccu.h b/include/dt-=
-bindings/reset/sun252i-v861-r-ccu.h
-> new file mode 100644
-> index 000000000000..ed0f3063df49
-> --- /dev/null
-> +++ b/include/dt-bindings/reset/sun252i-v861-r-ccu.h
-> @@ -0,0 +1,12 @@
-> +/* SPDX-License-Identifier: (GPL-2.0-only OR MIT) */
-> +/*
-> + * Copyright (c) 2026 Han Gao <gaohan@iscas.ac.cn>
-> + */
-> +
-> +#ifndef _DT_BINDINGS_RST_SUN252I_V861_R_CCU_H_
-> +#define _DT_BINDINGS_RST_SUN252I_V861_R_CCU_H_
-> +
-> +#define RST_BUS_R_PPU		0
-> +#define RST_BUS_R_RTC		1
-> +
-> +#endif /* _DT_BINDINGS_RST_SUN252I_V861_R_CCU_H_ */
->=20
-> --=20
-> 2.55.0
->=20
->=20
+Signed-off-by: Ryan Brue <ryanbrue.dev@gmail.com>
+---
+Changes in v3:
+- rtc: name the new struct mtk_rtc_data member control_reg, rename wrtgr
+  to write_trigger_reg in a patch of its own, and the local con to
+  control (Lee)
+- dt-bindings: dropped, applied by Lee
+- rebased onto v7.4-rc2
+- Link to v2: https://lore.kernel.org/r/20261102-rbrue-suez-upstreaming-mt6397-rtc-32k-v2-0-19ca72815374@gmail.com
 
---jqXi36KkUpYdOM0M
-Content-Type: application/pgp-signature; name=signature.asc
+Changes in v2:
+- rtc: check for #clock-cells before reading the driver data, which is
+  NULL when the PMIC has no RTC node, as on mt8173-evb (Sashiko)
+- dt-bindings: add Krzysztof's Reviewed-by
+- Link to v1: https://lore.kernel.org/r/20261101-rbrue-suez-upstreaming-mt6397-rtc-32k-v1-0-9758f38d7053@gmail.com
 
------BEGIN PGP SIGNATURE-----
+---
+Ryan Brue (2):
+      rtc: mt6397: rename the write trigger register offset
+      rtc: mt6397: provide the 32 kHz output as a clock
 
-iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCavtNRAAKCRB4tDGHoIJi
-0s9KAQCX4Bs6wwg+pTycon8WFV2ntH+sKnw+Q81hcKt96NcBzAEA7J6TxHPWsnUN
-XyUZNGs0O+rQmq5NSbKFCG3P8mHbsQE=
-=LJxo
------END PGP SIGNATURE-----
+ drivers/rtc/rtc-mt6397.c       | 95 ++++++++++++++++++++++++++++++++++++++++--
+ include/linux/mfd/mt6397/rtc.h |  8 +++-
+ 2 files changed, 99 insertions(+), 4 deletions(-)
+---
+base-commit: 7475ea8b58616b33c04afb976cf0fbaad9dd63fb
+change-id: 20261024-rbrue-suez-upstreaming-mt6397-rtc-32k-0a1c16f63383
 
---jqXi36KkUpYdOM0M--
+Best regards,
+-- 
+Ryan Brue <ryanbrue.dev@gmail.com>
+
