@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794788999;
-	b=1sOA0cLXaZ8mBQrkPB0jZ+y0IKZjgdeKiUR3epYYkeeD+CcsUBiJVzjwGhsFpJ7xq/qb
-	 Jf4x7cwKpkD3o1W2Uhn+qajcVMcd6JMlzlguR7F5q2LLMZj6ekvq7JucHLHXKj1RahaGn
-	 GvNGv/AAdi50EsqsE3OokylYl+iJr+YaRXQEKTV8jVpTI0QWaks54WqPac/9Zgp+P4rG7
-	 ich+i+v/gsdHuE4hmREq/wBmLtmwKDqnXGi5W20n1O5mAi3M/49ZAqwgm+Z1NI68pGpma
-	 TiE+BhWBCoKdV7HcPMCnCum35JnWO8RMxMVzY2o4VO8yi0vHj444xriC9WeEeBLnlFQ==
+	t=1794789157;
+	b=mv+OvxJpy370r7BseM7/SZg2ky/FZSabW56fHIxk/m+1ougEx+U0UBJ757ATlZAekc26
+	 lry85vWV8LMlJjcMgniUIdVXZnCIhKxYshRiyuZvZqtEjDTivdi58W3VNNKU7P/AESfJu
+	 NbSAhBjjj2td2xcFvlRmmWqSDIe8JELpJBQiweGeQiWwCMnnNgchHGveKwIeyiVlqTzqw
+	 3IH5scyTWKI2+//BpGw244VxjkpUktT6Iad1rnYBSIZ6IzJrInvkwYa+B70HJoH2Rs3CX
+	 sGp9mbjrUy4N6dooaMUo4AB56nPHrNfqnhNybl0AsOBc6t3YOwBzynCtEX9VkvU9+Rg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794788999;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794789157;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=TvMGuDpAHSl2pdxQO0DUvOzw1cNM4UwbJwLvNIMBav8=;
-	b=tk5xepTJWkiZReD4OhcXRT3b4fx1dmOXRBZkwa9B8Y9NUAXJ5Y2xyj848yH2VcBl9eYJ
-	 z6Tg2SICAUCZRwBqN58A7Gdxns6doBBPOMJ0IoCjHH6Y91I+AXT60jp5IJHbdOF5fZZcq
-	 2Wg0L34N/To0RrNDTHxrMoHmEfogb4P/a+oVrd3KeHFwCb9yTT7x0V5KF1mD6+c+33crv
-	 V0kePFUCWRHt4ujnrlm4ss09TGRhXHGNckXGSkL+Hq/N/QC6UAnlMAHfIq1WxRoAMcQiz
-	 BXnSrrsTST2jc5JzD0w2OIMowPbkPJUD/44AkNExTszJ7UOZR6xg1r4sR1IYCw6nlug==
+	bh=3NYmLzxWRLdRJIkB/sr8O7Fs2gErBnGcgGGmw4E7Ols=;
+	b=C5Bk8tVrkud8ovbsK9d2hiYHw/LVd2yjjYdxAA0/7T5DmLvHyrACf6695TFtl0fsIDIa
+	 cBkiv0QGNePIaegzxL9h3aZpEGzcPldSdatkcZqFxiZ3JlAhXDXqVHZI+s5xGg0nd4l7N
+	 rPzQ27XXzEWF7tAtrYDXfdnqIAQA4Kp4w+bqVHFLraA6F03yLD7NkgguX86kN63e2t9NQ
+	 xd57zEdJkcZKGGx5c9XSPM+nLmKcQQZzx0LFwOj5OJMHRcTpt8oMqDN2VDJwVs+YQOf/z
+	 HgyJhoIlWDEr35WO+niQLBQysCw7aBvOM7XX5ZH2BqAtS0LPJnwLet/N2RXU+8FnCkg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Az2L78G5;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AxhXbuxW;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80F43606A31F
-	for <linux-rtc@vger.kernel.org>; Mon, 16 Nov 2026 00:29:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3DC7606A32C
+	for <linux-rtc@vger.kernel.org>; Mon, 16 Nov 2026 00:32:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Az2L78G5
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0755B1F000C4;
-	Mon, 16 Nov 2026 00:29:58 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AxhXbuxW
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EEF51F000C4;
+	Mon, 16 Nov 2026 00:32:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794788999;
-	bh=TvMGuDpAHSl2pdxQO0DUvOzw1cNM4UwbJwLvNIMBav8=;
+	s=k20260515; t=1794789157;
+	bh=3NYmLzxWRLdRJIkB/sr8O7Fs2gErBnGcgGGmw4E7Ols=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Az2L78G5qHBoEoMElSt3kLlcPRByap1kOkTNqZ8dIljxbuBVuGWD/xnmn0px/s9Em
-	 F21kLsXPm9u3VKkhmaGeSALp+FldIvWMG4yNdsp8+W13Bilmg8NmrdlH3PXjMsAjsn
-	 W1YiZjNkwQ7jYwzoj+LieoT7JlHhNuwkVPXiUUB+EqSg/OGusgIeN+EJWk67QERs2J
-	 RuXNpj9NNf9BdoAo8ZTcVvrehclFrprwNJiLbZSRrjp0vmwFh7LAyIEGlaRaYrffA1
-	 DZ/wW5kxtLOT77UuGxk6OXqa46G1oIqhLUBDufZtxFrafRaqVR1mUok9RkPkQVyvlh
-	 /KIHOsny4Qszw==
-Message-ID: <sashiko-outbox-215947@kernel.org>
+	b=AxhXbuxWWSLGpkgOGN5nDUUXXG6LqDbB3eB0pNUkWkqJmzHCJoBHShHPY5qm0hjDX
+	 XAajczKnYH1dLdoNaw6nTLjNHEgRlGmC0BRNGJFcVtImCToakW6O5FlNfj46cuEn73
+	 9yKAV8AG7hwojO4TXJNRuAHuuzJmH85QCN9X92d+wkAJsyRQ3mdrxfjCdY4L5S9nTx
+	 n/4EANZA6p7Kns+A7tdR2xeiM1B0xNNJJYzLbd6MVwJPS+QqKmCu02bCcJU3MWi+yR
+	 LuMYQgPO8xZPmTMjZ+fb3Zhl8atKS5orot5Biz4qDvN+vSLKQvmN96VUmW/5fD7olb
+	 kSshkQzUWBn5w==
+Message-ID: <sashiko-outbox-215949@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 1/8] alarmtimer: Replace alarmtimer_get_rtcdev() with
- alarmtimer_has_rtcdev()
+Subject: Re: [PATCH v2 8/8] arm64: dts: amlogic: meson-sm1-odroid-hc4:
+ Describe which RTC wakes the board
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Igor Velkov" <iav@iav.lv>
 Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20261116-b4-alarmtimer-rtc-priority-v2-1-b2c69721e489@iav.lv>
+In-Reply-To: <20261116-b4-alarmtimer-rtc-priority-v2-8-b2c69721e489@iav.lv>
 References: <20261116-b4-alarmtimer-rtc-priority-v2-0-b2c69721e489@iav.lv>
- <20261116-b4-alarmtimer-rtc-priority-v2-1-b2c69721e489@iav.lv>
+ <20261116-b4-alarmtimer-rtc-priority-v2-8-b2c69721e489@iav.lv>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 16 Nov 2026 00:29:58 +0000
+Date: Mon, 16 Nov 2026 00:32:36 +0000
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -63,23 +63,22 @@ Precedence: list
 
 > From: Igor Velkov <iav@iav.lv>
 >=20
-> alarmtimer_get_rtcdev() returns the wakeup RTC without taking a reference.
-> Apart from alarmtimer_suspend() and alarmtimer_resume(), its callers only
-> test the result for NULL: the alarm clock functions to tell whether alarm
-> clocks are supported, and charger-manager to decide whether to set up its
-> alarm.
+> The board has two RTCs with an alarm. The pcf8563 interrupt line goes
+> to GPIOX_5, so once that interrupt is described [1], its alarm wakes the
+> board from s2idle. meson-vrtc is a register the SoC firmware reads when
+> the application processors suspend, so it wakes the board from deep
+> sleep only, and only with a BL301 that handles its alarm.
 >=20
-> A later patch lets a different RTC wake the system from each suspend
-> state, so there is no single RTC to return.
+> List the states per RTC, so that alarmtimer programs the pcf8563 for
+> s2idle and meson-vrtc for deep sleep.
 >=20
-> Provide alarmtimer_has_rtcdev() for these tests and read rtcdev directly
-> in alarmtimer_suspend() and alarmtimer_resume().
->=20
+> Link: https://lore.kernel.org/r/20261019-hc4-rtc-alarm-irq-v1-1-078fc79e5=
+96f@iav.lv [1]
 > Signed-off-by: Igor Velkov <iav@iav.lv>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261116-b4-alarmti=
-mer-rtc-priority-v2-0-b2c69721e489@iav.lv?part=3D1
+mer-rtc-priority-v2-0-b2c69721e489@iav.lv?part=3D8
 
