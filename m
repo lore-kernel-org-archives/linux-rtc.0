@@ -1,57 +1,66 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794789296;
-	b=eiFtfTsfX1pB/UQZAeSzNkhPs1SyLeif7ewQuWU+MS3mHsDmr2kJ8cNehF5NwhWilkBZ
-	 7w3llNmF8FsuxGta/XyXcssjlgOcBHZFiXM09X+a/tVdzoZMz8OeP1mexItxr1tiWyKxW
-	 X4WC+ePqmRBCK9dG11UrLdbaRWYwRGy6JCRrIwFeOEdSHTzkEz/MbkZo2imB3b2x/ANIM
-	 8bobRHUb5emxZq6xxcY0IcgZrXVXgXneu+nx7/sYZwBgwc0sJPIqTw6Puk6cf/F0verWB
-	 Fewzw0eRvs17WOLpQmtMXJRjbb8Kc5Qtx0SEpnBwurJI4qrW8E836euCNWvKSxTBqRQ==
+	t=1794833242;
+	b=Zpf2VOVYHDD9ZHsibkHbhAr/89P0iq3TnVP1/mPBktyWwwrPQ7chHMZSiNtgS6xODzsj
+	 efCIDJURyTwKjkSxsEA2yoJPA6eDF1eqeia0/jrh2BR6QZGbu4N4KQ9yXUkVPKtvzmyrc
+	 lUupPsaOEoOmS314x420DSEl3QAyKoOWneaSZiWHUZ0KYZjItM9/TcqeQE5hLI+90X59/
+	 q16hPrwY6oXUyHplgZiZoIsG6Ht+rLdWpfI0B3ZBg6P8aOi9hHGVkp0F2ToNp5Kv+TmkT
+	 wWnj4m4HB2qaixu5IWw8SiR23IMzvekf8vedHaVPJOdxVf03sRDAG0wyCuaCbI9X9Tw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794789296;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=ZQ5s77pt7WuhcJMDWqyrTloAIFM7HridzheIVDA1k58=;
-	b=OPH4dSti3l9cBmNdWZYoQhzZCnhw2nAhVJm+cKmyGn396gvpsb/FbHQdYKqVuFqj29LE
-	 FTg7TK9ug2hC7okbyM9KHxAPUWIVBAQftg/tYNsuHgUYgcf7uu09OJyIygOp73121uFgX
-	 6QC4tcQcJiFB8w2Am415nFArrb3t120imiT0S8DOYW/kGkhQBq77gh2oEzZgPTTR8p+q1
-	 GtXvlBOfRyq4RtRyoagyRKxOLtIHaaX+guz3g554KSS7xGHIEdCCUWy6DFJHBX0beEuL/
-	 jLKisSd1ragDrU9WmJCwV136qT0VWAA7nMef+jzCoaNe0J04R0KSd1MJjy3+KUQygfg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794833242;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=NUiUgTi9wA7PEI92DOKS15QskouMnxo0HHKzo2bCrm0=;
+	b=rX0CZbM1GENXNlRSm9lMaw6+3S6CJ3DYrztCp6kXER8uIX3BBl4wzd42eQH7ikg2rvzb
+	 /kC+Ez13P4UbvEAqHPlw1b3NA8RpUf9RlXUbK//LyCKpiv6hKJ2Qs1KHPhtxcCKigegtD
+	 wDNscBy77FkWL+jEaL51f0OHWvp71Z9yOgcJonfhFJ0MPKFo0+5rQpA1hctIrqEuo0cBP
+	 2CltXghNOJuMo0GOTB0+c/dUnZsVNKLrn1QL2fE3aqZgHR6pshvwk3I/DEAvHcQD3uuqK
+	 /6MUyclQ877O4rGHWGQ2cmDbadFOFeblPgowfBoix+J0ti75MgvQEFliivuPQNHkaTw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nJwZzzTy;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=j6oNDrzY;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D062E606A329;
-	Mon, 16 Nov 2026 00:34:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A0F8606A31C;
+	Mon, 16 Nov 2026 12:47:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nJwZzzTy
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 508C31F000C4;
-	Mon, 16 Nov 2026 00:34:56 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=j6oNDrzY
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 176CE1F000C4;
+	Mon, 16 Nov 2026 12:47:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794789296;
-	bh=ZQ5s77pt7WuhcJMDWqyrTloAIFM7HridzheIVDA1k58=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=nJwZzzTyNB66BirWxEE1oKdQIhm54SYu6xYMbQlMdJ3NBYiE03VdBGWwxDpGJ5yJM
-	 2r6DPGz262tpLViy4FmOg1esO04NCuu7s2kPCmGpRR/woVF5Z8ZuB4ICBOY7T0UnWn
-	 ZZKOc+tDEcFFKH9+sHtk//sjIG8oRHop/PRcMknD70B3OiCJvS9tNt0+DED0BGr6Kt
-	 HR8qitmtH87475dH4RgWfTwWoKWSHoz2hs4N4b2m2GF3IJJZf9dWM7RY4Bi8MsGqS4
-	 9DNBZC35yiYA8lnon7jO+R1kcHHnDBAk83AVg7uNwH/qeGAhmjR47e1fhQgORznl6V
-	 HybfHQAyU/hFQ==
-Message-ID: <sashiko-outbox-215957@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 6/8] dt-bindings: rtc: Add linux,wakeup-states
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Igor Velkov" <iav@iav.lv>
-Cc: linux-rtc@vger.kernel.org, devicetree@vger.kernel.org, linux-amlogic@lists.infradead.org, robh@kernel.org, conor+dt@kernel.org, neil.armstrong@linaro.org, "Alexandre
- Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20261116-b4-alarmtimer-rtc-priority-v2-6-b2c69721e489@iav.lv>
-References: <20261116-b4-alarmtimer-rtc-priority-v2-0-b2c69721e489@iav.lv>
- <20261116-b4-alarmtimer-rtc-priority-v2-6-b2c69721e489@iav.lv>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 16 Nov 2026 00:34:55 +0000
+	s=k20260515; t=1794833242;
+	bh=NUiUgTi9wA7PEI92DOKS15QskouMnxo0HHKzo2bCrm0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=j6oNDrzY/QFTLmT4LN5cbHdvxqBU0xkgsTPREFIlOzk3IJOaq5UsPtKF6HN4R/DR6
+	 3KyYSjchxwnWO5yO6x1NglTnQUG5AMxeHwPeeync1dBlBU4SLcLDf7ihuYXJTFuBUz
+	 fVUXyCWPqZ7VU77Rz+3qZ2FlTFrfuhRqoUqhRpXt8eHauY/oSRm6SL32YXekLKaQg7
+	 J+Bw0bcXM1sDCNRkDzWN1NNy9UW1/2SUxa9+pfFXMY6d0ueCmVHdUKrBAvLr09a0kx
+	 cl+cc4KRZ8LFcZ2ROQGQYi23uXVVYWM/aOmP3FqNypkSi6hWiSuxmO51sQhi68KHZN
+	 DzkxhLJVDqIVg==
+Date: Mon, 16 Nov 2026 12:47:15 +0000
+From: Lee Jones <lee@kernel.org>
+To: Ryan Brue <ryanbrue.dev@gmail.com>
+Cc: Sen Chu <sen.chu@mediatek.com>, Sean Wang <sean.wang@mediatek.com>,
+	Macpaul Lin <macpaul.lin@mediatek.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	Eddie Huang <eddie.huang@mediatek.com>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	linux-pm@vger.kernel.org, mfd@lists.linux.dev,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-mediatek@lists.infradead.org, linux-rtc@vger.kernel.org
+Subject: Re: [PATCH 2/2] rtc: mt6397: provide the 32 kHz output as a clock
+Message-ID: <20261116124715.GO6323@joneslee-macbookpro.roam.internal>
+References: <20261101-rbrue-suez-upstreaming-mt6397-rtc-32k-v1-0-9758f38d7053@gmail.com>
+ <20261101-rbrue-suez-upstreaming-mt6397-rtc-32k-v1-2-9758f38d7053@gmail.com>
+ <20261113185047.GH6323@joneslee-macbookpro.roam.internal>
+ <a6bc9228-8e81-4f16-bd26-2d9c72e9998b@gmail.com>
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -60,97 +69,40 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a6bc9228-8e81-4f16-bd26-2d9c72e9998b@gmail.com>
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [Medium] dt-bindings: rtc: OS-specific mem_sleep states in
-  linux,wakeup-states
---
+On Fri, 13 Nov 2026, Ryan Brue wrote:
 
-commit 37e39721822efb2f3ac3e76aaec271ff0edbe18b
-Author: Igor Velkov <iav@iav.lv>
+> On 11/13/26 12:50 PM, Lee Jones wrote:
+> > On Sun, 01 Nov 2026, Ryan Brue wrote:
+> > 
+> > >   struct mtk_rtc_data {
+> > >   	u32                     wrtgr;
+> > > +	u32                     con;
+> > These are terrible variable names.
+> > 
+> > The nomenclature should be self-describing.
+> 
+> Hi Lee, two things:
+> 
+> 1. I have a v2 out [1] from early November that fixed a null pointer
+> dereference that Sashiko found. I can spin a v3 or resend v2 depending on
+> the response to (2).
 
-dt-bindings: rtc: Add linux,wakeup-states
+Happy with whatever makes sense.
 
-This commit adds a linux,wakeup-states property to the generic RTC binding
-schema to specify which suspend states an RTC alarm can wake the system
-from, and allows the property in the Amlogic Meson VRTC and NXP PCF8563
-bindings.
+> 2. would you like me to update wrtgr as well? I can add a patch to a v3 that
+> changes that name in addition to con.
 
-> diff --git a/Documentation/devicetree/bindings/rtc/amlogic,meson-vrtc.yam=
-l b/Documentation/devicetree/bindings/rtc/amlogic,meson-vrtc.yaml
-> index a89865fa676a6..51cce4b2a7ff3 100644
-> --- a/Documentation/devicetree/bindings/rtc/amlogic,meson-vrtc.yaml
-> +++ b/Documentation/devicetree/bindings/rtc/amlogic,meson-vrtc.yaml
-> @@ -30,6 +30,8 @@ properties:
->    reg:
->      maxItems: 1
-> =20
-> +  linux,wakeup-states: true
-> +
->  required:
->    - compatible
->    - reg
-> diff --git a/Documentation/devicetree/bindings/rtc/nxp,pcf8563.yaml b/Doc=
-umentation/devicetree/bindings/rtc/nxp,pcf8563.yaml
-> index 22909a96123e5..e464432e4690f 100644
-> --- a/Documentation/devicetree/bindings/rtc/nxp,pcf8563.yaml
-> +++ b/Documentation/devicetree/bindings/rtc/nxp,pcf8563.yaml
-> @@ -32,6 +32,8 @@ properties:
->    interrupts:
->      maxItems: 1
-> =20
-> +  linux,wakeup-states: true
-> +
->    start-year: true
->    wakeup-source: true
-> =20
-> diff --git a/Documentation/devicetree/bindings/rtc/rtc.yaml b/Documentati=
-on/devicetree/bindings/rtc/rtc.yaml
-> index e46d50b1063e4..54f41858dda47 100644
-> --- a/Documentation/devicetree/bindings/rtc/rtc.yaml
-> +++ b/Documentation/devicetree/bindings/rtc/rtc.yaml
-> @@ -26,6 +26,23 @@ properties:
->        0: not chargeable
->        1: chargeable
-> =20
-> +  linux,wakeup-states:
-> +    $ref: /schemas/types.yaml#/definitions/string-array
-> +    description:
-> +      Suspend states an alarm of this RTC wakes the system from, given
-> +      the board and its firmware, named as in /sys/power/mem_sleep. none,
-> +      given alone, means the alarm wakes the system from no suspend
-> +      state. An RTC without this property is taken to wake the system
-> +      from every suspend state.
-> +    oneOf:
-> +      - items:
-> +          enum:
-> +            - s2idle
-> +            - shallow
-> +            - deep
-> +      - items:
-> +          - const: none
-> +
->    quartz-load-femtofarads:
->      description:
->        The capacitive load of the quartz(x-tal), expressed in femto
+Yes please.
 
-[Severity: Medium]
-Does linux,wakeup-states encode Linux-specific /sys/power/mem_sleep labels
-and information already deducible from the hardware description into the
-Devicetree ABI?
+> [1] https://lore.kernel.org/all/20261102-rbrue-suez-upstreaming-mt6397-rtc-32k-v2-0-19ca72815374@gmail.com/
+> 
+> Thanks for the review,
+> Ryan Brue
 
-In particular, s2idle is a Linux software freeze state where wakeup
-capability is determined by whether the RTC has an OS interrupt wired via
-interrupts, rather than a list of sysfs state names. For
-amlogic,meson-vrtc, waking the system only from platform suspend is
-inherent to the compatible string because the device is a scratch register
-written during meson_vrtc_suspend() for the SCP firmware and has no OS
-interrupt line. Finally, allowing none duplicates the absence of the
-standard wakeup-source property and permits contradictory combinations such
-as setting both wakeup-source and linux,wakeup-states =3D "none" on the same
-node.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261116-b4-alarmti=
-mer-rtc-priority-v2-0-b2c69721e489@iav.lv?part=3D6
+-- 
+Lee Jones
