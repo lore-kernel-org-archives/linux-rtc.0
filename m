@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794853961;
-	b=fexE31CfGVufvl9O5mprzmXuqI11tLu0aPxaNAPeUWZKCzL+c62iRqMxx9bLdWu5Vv6V
-	 IMZs4S9fP4TXn5shE4BcyGe/r/kqtRjDQ4iEnguD0kA6iYUBDa+Sl0nyBFv3fe63jCtFB
-	 0gff4/ZfSkGee3Z+olidDlgFk1i+YtszVPS+P0b5vJ7puFKdS0qhT3JlaEjl06nnu7tzI
-	 qp+btVWNZBTu+uUmF5R/dMtCFXCJy4aqftadu0StXJU4r7+3ngKxEuIa+lrBp4xnpldHk
-	 ispN92+iwH5ereN2BtuxN4s1hTSgC1R87nhjA3CETrDxR66QbX/2WcUGA+aBqGX5orQ==
+	t=1794853986;
+	b=Hw/lRNeOvJarHvvHbJxvyXsuh1Hw+QBpirerrSodzc2653YdiImBgfMwcEcsVLthYOn3
+	 vbcvjmCdR++onM3O/SAexQ+p9s9/VIjSjluSGgqGQL/ybYaDp4JJHawy5utpjQIv5M84D
+	 GkrCfZiNA9Jx1U1On/SuFha5jPjAJgOzIVWQjIHcjn6mjdcyQv8f2oHgcG5mCyqrkXt1V
+	 XQCKcY9HPQC9uRBRC4Ehmkn+1GIHJm88ENnW04d+sH2NYt3FXKhTiMggsF0teVNSAPabC
+	 6Gv2VY7w1G9ilJTr78+dDaxicRc81QYC7dtqnVpnnP9ysl5OZmngyrsGflGS9vU9GXQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794853961;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794853986;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=u0amJXnNhvCqUYVosfqp8kda2/cuojxj7YCK3kHoL1c=;
-	b=gCWYu60vkRtsAZ3fJIK8eVEyHBF+lTaqXvW5/LCJ3bBbkFAt13rYofa2Si0iq7+fJ+yE
-	 DLgo6WA0FpCDr8DiBzgej1Jt8iFGmvkADMSyS7cRbfpxSrFBGjX575Dars0I6bI+4VA7N
-	 9qO8SW78a/sLgT6Klc/Wq5BetKz9GAM4RkhrQj/2dEsBGal5PxtEzN34dR9j+cXDdOXBo
-	 utc07IGHVhjqa18TsOaYkIfQwpOMFuoG7ndgyqHTIdJcUEpatzNcvd8pOG418OrUwdAv1
-	 2cDDUktO6I+ayGqNZQSfzNr5OuoYaBn4vDVWDGnA2jDUi1us5dRAuB4fEcRvJbC5j4A==
+	bh=W4DMrdgsLAUvBBrAedtVh2X2nrPi8BxrDXtCs7P+IMI=;
+	b=gf1oUHkq5w8BS9BnAgmTqrovKKaUIXrE9dZed3+XCDq7UkzNefXGLi4L32btzTOknkF5
+	 zGDFpVq/al+yiIXR/urAW9eoNNKd+SqnGg3jnFueN46dLVpkK5alQvRN/A5bX+pW/ebk7
+	 l3d4nu1H3xgzNkkPSkvn8gzK+20xRi8ssP0N5GyiHLXvz7vUtjAPhSwBcgS/AdlY9FwKC
+	 axhqHVY1ioP6WrzMjCNcx8hoKdA2NrWLsZ+VJzR83EJF3rp20fDaclySjPoaW94WDrUNX
+	 wc4VaI2mw5pghA1lWedgXSxd1fP7yfVXEndvlOW7OOCekzZpEBuvwmp6O8lh1WECiqA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BufQ4yB8;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WaluPPtm;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA943606A32A;
-	Mon, 16 Nov 2026 18:32:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9E29606A330;
+	Mon, 16 Nov 2026 18:33:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BufQ4yB8
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CB111F000C4;
-	Mon, 16 Nov 2026 18:32:34 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WaluPPtm
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E16001F000CC;
+	Mon, 16 Nov 2026 18:32:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794853960;
-	bh=u0amJXnNhvCqUYVosfqp8kda2/cuojxj7YCK3kHoL1c=;
+	s=k20260515; t=1794853986;
+	bh=W4DMrdgsLAUvBBrAedtVh2X2nrPi8BxrDXtCs7P+IMI=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=BufQ4yB8tNbR8TJ/Hnm/k0+qE6qxhRqGHHX46jkRGjToD5o4wDrOYPG7nvezFv0ij
-	 e00clQXsG373kdYmAXh8oCe3IdIVdiT7Iui5KI+tcxMLHi5sV3JE0MCYGqkDxIcaXG
-	 7gFlY44DXGIocwrYaoiYok5Qz2wfSVMvRrYiuUBEIyuQJO2rmvTxnoeAq5ciRmKYtF
-	 8jWVjuzRfesJCaPTKOdJGnjX00leLrKY96LkSJxp8fIyI8sTMQtc30D3p5LMJfS9hY
-	 WHff+hOG9ikpu+ry1kjea+En2yvY2vIpCCDVgojLaxx8EmurFzgfstWWNc3x0/FSjO
-	 xjWuXeQY+sZGQ==
-Date: Mon, 16 Nov 2026 18:32:32 +0000
+	b=WaluPPtmVQajcvp3iSn8n4nUrBdnmzjvcL8SQtCk/wc4+cJVkEcnzLmkx0S1GIB8n
+	 lTRfAEGpyhFjU4JMR6szToKlZxCFEdwOGLEDX2rxrQTq1rDBEt1SVAH5t+KuWrgO4P
+	 SqWI39DsGszLHHoHQRQGo9qVoX9DM1YyYJEGs+rO4aPdze0yoHYmIhv+84jh4DimRg
+	 oP48j2zl9gB3+kCyygIxdyd2P/ytRyTCUJOiLAeHn6cjZDwW/LsahzNz7CALmz+5Tl
+	 Y2Bo3LxPi1sPEjllqdCBWIfviaqNkSjKpXc8pMXzZUemcpTEn1L93wEom2dMTp/7y5
+	 m5zlvuwouxfRA==
+Date: Mon, 16 Nov 2026 18:32:57 +0000
 From: Conor Dooley <conor@kernel.org>
 To: gaohan@iscas.ac.cn
 Cc: Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
@@ -68,11 +68,11 @@ Cc: Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
 	linux-csky@vger.kernel.org, linux-sunxi@lists.linux.dev,
 	linux-clk@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
 	linux-rtc@vger.kernel.org, linux-gpio@vger.kernel.org
-Subject: Re: [PATCH 03/19] dt-bindings: interrupt-controller: add the
- Allwinner V861 PLIC
-Message-ID: <20261116-catsup-lethargic-45b29242cb79@spud>
+Subject: Re: [PATCH 17/19] dt-bindings: riscv: sunxi: add the YuzukiHD Avaota
+ F2
+Message-ID: <20261116-coerce-abroad-f6a0d972e7d6@spud>
 References: <20261114-v861-v1-0-eb71ec3ee523@iscas.ac.cn>
- <20261114-v861-v1-3-eb71ec3ee523@iscas.ac.cn>
+ <20261114-v861-v1-17-eb71ec3ee523@iscas.ac.cn>
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -83,26 +83,26 @@ List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="eBIsJ0dmZzflzkKm"
+	protocol="application/pgp-signature"; boundary="eAu7+tg1zQRG6YLP"
 Content-Disposition: inline
-In-Reply-To: <20261114-v861-v1-3-eb71ec3ee523@iscas.ac.cn>
+In-Reply-To: <20261114-v861-v1-17-eb71ec3ee523@iscas.ac.cn>
 
---eBIsJ0dmZzflzkKm
+--eAu7+tg1zQRG6YLP
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
 Acked-by: Conor Dooley <conor.dooley@microchip.com>
 pw-bot: not-applicable
 
---eBIsJ0dmZzflzkKm
+--eAu7+tg1zQRG6YLP
 Content-Type: application/pgp-signature; name=signature.asc
 
 -----BEGIN PGP SIGNATURE-----
 
-iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCavtMQAAKCRB4tDGHoIJi
-0gQ9AP9yFcU7elfIZfpsStDtWeKtAnPFAqBGCugfc09t6ejP6wD/arKyMr+JWozf
-FFL142vScOtV8F9Q7w85A31HzFStQgc=
-=1gXO
+iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCavtMWQAKCRB4tDGHoIJi
+0kqjAP46j2mw4L3q+jkKbSPU8KSsnHg0/9HtMnl3SxjhCkKDjQD/Zz+2au8n8mQC
+VWw54ziAbcJSElKAfoNDn+1Tq0vebgc=
+=7x1B
 -----END PGP SIGNATURE-----
 
---eBIsJ0dmZzflzkKm--
+--eAu7+tg1zQRG6YLP--
