@@ -1,57 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.251.105.195
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794915019;
-	b=N+MpkEYSdJJ5CIRjrzwItvGzz/BIBamigqFbJFczzY4yT/yp54a0HzJCb2wz/kdajnCe
-	 G/TKbJV6bOtHoi77/Le+nLzvR2IBx4IzRmcwr0ZDd3vNPPGyC1fZ+mlChT97ttML4BLhs
-	 D6B5C+Cypk9iVUP43m88l7GffASLqsRf8EfE1QrDkkXf0uQOuQuwMJRf5sXGtiYl1eBF3
-	 VD4JupXaFSNwo8B0P0V10fmh+ERa+a5HkkQmdk6kitwru5ToNgrhdFLbtRGVflhEH3M+3
-	 rR2I5P0Hj/OcTD4K3hkP1eHtzbgMkpTtIm6o3CskC3FvCC4pIYXPwFPsS4G9vmO8XCw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794915019;
-	h=DMARC-Filter:DKIM-Signature:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:From:Content-Language:In-Reply-To:
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.167.49
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794922751;
+	b=R3d/77g60AVuTvY+NWCToW9f+89OnhnDsb4JkrXD9Ywca0jf2X+TLYWDg3NdH8HQaqUu
+	 5MJqVeD8FY2ZkPfyWH6Ltc53wxxpulPDDoCOAVE+q7XHP0emBxz4KTq8v5P73WP89BM/o
+	 Gr+NUyJkUp224JXsakLTX5JHPHRGA5sfP0iE4+RlqemDdOvGHNfWztL0zuSFHiP7RzOl1
+	 IenvkuX2J1RHvviIYEQvGqPNlA7ifPN6Vg47qFT0cTnUsu/SmhFRxLQg05jUhAOocAC+p
+	 xQJRHZ78dhaC9WZrjvXu3YqVSUT2UiS/n55cTijTYSN6Z91Fo0GJ30Y7tKx9AKqxYGg==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794922751;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:References:
+	 In-Reply-To:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
 	 Content-Type:Content-Transfer-Encoding;
-	bh=zJAwjzj8A6UyZL9292pQYGGLxeGp4pMjNVMToHHKfLc=;
-	b=ZJna/lWxPCBamNbpDmqO2NSqyEMkT1Uya4/HStUhffF1b1W7gqDDc9jva0/Lp3wDz3Ys
-	 adyKFcYRAIvwc33VNAXytU40NqY+EXaRRU+aNEsXRqN20fpIkqh3ehZtokwL7JuRDxxDY
-	 hTPoHgCEa/c0Sj8+h9DIyqDXmdSqxZFCBPPZOycEtJzmmzsyup6IrgIKHWZ4OFeZbmEHI
-	 c8N4u5m2pGUltEHNUZnlZx8qGrMMXs3G4X3vscw+FQOJy1HWIiseeLSjv5AQvdWi/Ehy/
-	 VuiTeQWR3P1+tn0JS/AckIf70v85Wf1SF+kdLZNduFdLrpWfo0a/ankp9AEAxIpvv/Q==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=collabora.com;
-	spf=pass smtp.mailfrom=collabora.com;
-	dkim=pass header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=Jchot9U+;
-	arc=none smtp.remote-ip=148.251.105.195
-Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	bh=KPHA9VXi6250Y2f3/2jRY7wM7Io1FieoW17lwl35AjE=;
+	b=BT81/Tx9HgRU9EdKi7E/YZ1Jc9UdqTwt/uAC6+LgZgd8uxaTb5dVESd40v1MGk3/Mo7J
+	 yuk7Q8Shjq8qvJ+M3tsXCv85oxluMwQEceoitA0cDORkSvCiFMd6IUeo8qKeX7G55WsLG
+	 fbsFVOUGPu4TtWTg4ywsMo2lHDbSrzj8GcMDB7zM3U3rl/t/ENNxfRfv8jqUNB7MLYhYz
+	 JCmqTBXjoj9J+xLOq+YzS0IAl8z3DyvKBKFLOckVoFarVjaQyhwFiDSisfD2fzgb0xk/g
+	 gb50c6Au9RvLud01/SOsPJPO7CU/Pea0gxNHaVVlr2fjj5Vm+zE1pqx1nSBiVkI3yIQ==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=aa74ewLM;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.167.49
+Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com [209.85.167.49])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BC6C606A32A;
-	Tue, 17 Nov 2026 11:30:18 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3BC6C606A32A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7085E606A31C
+	for <linux-rtc@vger.kernel.org>; Tue, 17 Nov 2026 13:39:11 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7085E606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=Jchot9U+
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1794915016;
-	bh=4rrJaKwJlg6MCmlVQX/KfOrKxAoT2XQ7pGHqjYwrJ6g=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=Jchot9U+o4RxaCIJ27FWcHx524gFRsaWj1/nzyCl1f+pLc6+ayS+9z1bguMKusUOI
-	 lLbstW+OBVMsvgsdJbgAkeOho4YQ4Sq9gAxWaRR1op/G3rhSHiif+KPlp9RLfFe2XV
-	 byR5R47CF08xaTYCAZuA3BUVHXAfzC3pFjj3709ghVCFneMQsuZbXeRBfz0ubejYig
-	 WMFGk4Tu4JccCLiAdjYbEzlR1ZCDb4mHCeeeEv3RNlEG/dX8Y3ODoJlPLTQkEDcg7s
-	 WG/OTHaQub4ChOcGgTtM770xBZFFutX82kSISyfpW0yvAdIaL5++fnEYf5xx1mKD94
-	 x7heECPfjn75Q==
-Received: from [100.64.1.21] (unknown [100.64.1.21])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange x25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: kholk11)
-	by bali.collaboradmins.com (Postfix) with ESMTPSA id C3CFC17E00E8;
-	Tue, 17 Nov 2026 12:30:15 +0100 (CET)
-Message-ID: <fc0bb114-8781-43d2-bdfe-45135259a548@collabora.com>
-Date: Tue, 17 Nov 2026 12:30:15 +0100
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=aa74ewLM
+Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-5c1479be604so631461e87.1
+        for <linux-rtc@vger.kernel.org>; Tue, 17 Nov 2026 05:39:11 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1794922750; cv=none;
+        d=google.com; s=arc-20260327;
+        b=rQmg/TCw3p3wCkWzqAiWR0LSGDvrhd2Q0khdmnZ6M8GMUSxtqB0r0A8agI5oIj7sX7
+         p9ZHVZBtYci6DWm3kCFmxwyqoRNSibO356t3mDrfiPwBN1NCsBsmMybwamT6t41pezNt
+         YYZs3bNYZjcrsA+7zubl1Q+A/KflbCxY+Z0ppFzxcaCy5WE5y5EJguMAsGRLq2i/ulga
+         MMC2p/fM1jSzOttbsJ73CniyNKN24UEn0Il1Fr3ob6hIdrtK5nLDkNp1VZvJrwk3j4tl
+         CWY2hlYHeSMxLjoGhMR8rzljwFQMtUP8/+v/F+Rphc4LMxpGP7tR8H+r4gHAdOAm3z5K
+         6CNw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=KPHA9VXi6250Y2f3/2jRY7wM7Io1FieoW17lwl35AjE=;
+        fh=6AGiUmdWcWuJ6/irKTj/urGjseZRnwIyPgGyF3hKMDM=;
+        b=aXhYRQlujIitkqarXfmWQSWsSOcLWoLslLNiSxkNZvRJAshvxPdlPGvs2WkUE/3RpF
+         ubusKywVG4f+2MbRfmUsE4MTIEqRo1a1o+WZciSJxStXoAALikWzfE64dZ/iTHBIJiuV
+         3FaqRnrhdZt0rVhel9AyfK+ZgBUxkHcp+0s0P4UH/td66DcIQxsQwdVjUkLDnsDERz+V
+         ZlA+ERPcFpCIGPqZN4+26TJpIA1oPkU9MrXRUZNW4yO25OPaUZ1Ega87qn5rh2el63Bq
+         BfAoGleKyIQuKQz8ZZoD6S0IFAvm2HZJuubav4czUWrvgqi6xK3yz5XFC52uqSRrIUCo
+         gUTA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794922750; x=1795527550; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=KPHA9VXi6250Y2f3/2jRY7wM7Io1FieoW17lwl35AjE=;
+        b=aa74ewLM8u0pFHArMerl/NPIA6QhrkWCQBAmJPBUfpkbuq4xGmBhCjWGQnxy02mRdV
+         e1lolqblAUV2BAG+cbrUvFrCxxXtQE4Q06b9mE9HxMofJGUkHFXVn9qCU33RhoXCkPRn
+         UlU1I3oi/e7p061U/PQK98sG2jlG36M2h8C8CN1hnb8rfkdR515P3YM5ojFRhPvGB2+v
+         oLj9jmgk9rDqlXufA3fMkgCUJ9NSZkGrf/qP+HyssQRJNCT6L0rvjbOULQgGPInYv4Nk
+         ZjWtj+wI6BYs9PEyxyxubZdatQhA7ZCs/s2itv3SOJ6liYcC27NRWxzxvTv/3pvXSHVk
+         TF7w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794922750; x=1795527550;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=KPHA9VXi6250Y2f3/2jRY7wM7Io1FieoW17lwl35AjE=;
+        b=rjcRvZ43d4wenr1nvsOJfp7z9W6eSoEHV48Un1MzmGTdCzwRRXeBtey0n+TyMqGL6j
+         11iH33b1rHZNtScGiJrQzRZMwhMPcKPw5Tth/ddR/qjU8W7aIlpkQl+kV1FgmRmW8O0O
+         Vp3a2vZrGrVx8svD1wtTXJRCjmMs5/KQ6L/fNsVi/x39OAEc1TyCpONUAlad/EAt7EEO
+         Zc04B+u3qbdK9wpXp8t0wP6cchx0qaGWPKkgNx9TytIV5kiBjEblG8GZJVxSzyN04AAp
+         gSqMGgheWyIw4uCgTo2CyWzM6pBkOfo6o5KWJpdeX9JkUuOYq/Fbrpcg7lQvKiTVsPZ+
+         iffQ==
+X-Gm-Message-State: APuU4Z9qvOF+WddC3fW2vzEFHFtj6QzwPSUyX7bHU/eA96HTCHYT6KH3
+	R9tp97sDbtYmdq693xuDUrheNa0qO8jzVuwxfemxo2kPwC6Mt6XnISPE7oYF2mm+qqC2iP4xY2D
+	A6CowHpMqumdIWaGg5pR+xQfY/pPzlOzelQ==
+X-Gm-Gg: AYBFou3tU4sdFqiRn8yVHG7nTidzjX3iKfX/Q4MOZIhF7VO8YvgVj88beJSNhW2lPJp
+	E8wxh2AA2L3wPKZO968rrr0C5QVBJRPr2ZND8VCbqaSaO/HjOspz2xa6AkjEqt4oqoyxIvajwAP
+	+KiREQJalfwOm7WLEbBC0vJLnyyMozwLppov8YZV46ps6qazfGi4BYJHwgc1RHHWcOMRPPUogTr
+	BBiiRBUjhv8lhbPwTwuACr54JRacoH8lYOjHFOJwAC3vVjNLnZXTYeDIjNx3/Vh5iKPxbaBbLDo
+	lK3FH/9/63DcGzsdggL+XLhqTXSzj5275bCSQJuRhb11GngFH34sGkpXsTVBnwRVIRjU1NENjgn
+	nyAZvx7z9PfnZXUGtUStHESc6Vkw3yzttKDwnjcxFEqz6n63LfLwb/Pgkscmm8YmZnla7/m7r0i
+	AEnyWnKM9D4zvtpc7tHkhDcMY42A==
+X-Received: by 2002:ac2:4bc9:0:b0:5bf:b9e2:f69 with SMTP id
+ 2adb3069b0e04-5c17079512amr6512588e87.26.1794922749189; Tue, 17 Nov 2026
+ 05:39:09 -0800 (PST)
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -61,101 +104,53 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 0/2] rtc: mt6397: provide the RTC's 32 kHz output as a
- clock
-To: Ryan Brue <ryanbrue.dev@gmail.com>, Sen Chu <sen.chu@mediatek.com>,
- Sean Wang <sean.wang@mediatek.com>, Macpaul Lin <macpaul.lin@mediatek.com>,
- Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
- Eddie Huang <eddie.huang@mediatek.com>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: linux-pm@vger.kernel.org, mfd@lists.linux.dev,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org,
- linux-rtc@vger.kernel.org
-References: <20261116-rbrue-suez-upstreaming-mt6397-rtc-32k-v3-0-179145eb7e89@gmail.com>
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Content-Language: en-US
-In-Reply-To: <20261116-rbrue-suez-upstreaming-mt6397-rtc-32k-v3-0-179145eb7e89@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20260902125257.9882-1-festevam@gmail.com>
+In-Reply-To: <20260902125257.9882-1-festevam@gmail.com>
+From: Fabio Estevam <festevam@gmail.com>
+Date: Tue, 17 Nov 2026 10:38:57 -0300
+X-Gm-Features: Aa3M54oyAHsbFD8nMq9jaBt1dZLWrjTBp8OiUR1T9eI3IYbqLJKefoRVxzZ6SLk
+Message-ID: <CAOMZO5CcPr7EqU1GWoNXS5rkQuiximaH3T_Ek9DeFbnHGNeFew@mail.gmail.com>
+Subject: Re: [PATCH RESEND v4] rtc: abx80x: Don't warn about oscillator
+ failure after POR
+To: alexandre.belloni@bootlin.com
+Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org, seanga2@gmail.com, 
+	Sean Anderson <sean.anderson@seco.com>, Fabio Estevam <festevam@nabladev.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 11/16/26 19:46, Ryan Brue wrote:
-> The MT6397 RTC drives a 32 kHz clock out of the PMIC, which boards use as
-> the sleep clock of a Wi-Fi/Bluetooth combo chip. RTC_CON.F32KOB gates it,
-> and mainline never touches that bit, so the chip only works if the
-> bootloader happened to turn the output on.
-> 
-
-Not just mt6397, but way more than that - upstream never touches this one
-because the main targets have always been platforms both without any modem
-and without any *tight* power optimization (historically, chromebooks, and
-Genio IoT boards, where the first are equipped with big batteries, and the
-latter is typically powered with an AC-DC brick until it gets thunderstruck).
-
-Nice to see this getting upstreamed.
-
-Both patches of this series are
-
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-
-Cheers,
-Angelo
-
-> On the Amazon Fire HD 10 (2017), which can boot through U-Boot instead of
-> the vendor's LK, nothing sets it in the former - LK sets the bit at every
-> boot, and the MT6630 combo chip's Wi-Fi and Bluetooth never come up.
-> Letting the RTC provide the output as a clock lets the chip's
-> mmc-pwrseq-simple enable it. With the clock wired up both came up on that
-> board in two boots out of two, and in none of three without it.
-> 
-> The driver registers the clock only when the RTC node has #clock-cells,
-> so no existing board changes. The MT6323 shares the MT6397's driver data
-> and gets it too; every MediaTek PMIC RTC whose registers I could read has
-> F32KOB at bit 5 of RTC_CON, but for the MT6323 that is inferred from the
-> shared driver data rather than read from a datasheet.
-> 
-> Lee has applied the binding to mfd [1], so v3 is the driver part only:
-> patch 1 gives the existing write trigger member a name that says what it
-> is, as Lee asked for the new one, and patch 2 adds the clock. Both are
-> for rtc.
-> 
-> The board's devicetree that uses the clock is not upstream yet and follows
-> separately.
-> 
-> This series was developed with the help of an LLM.
-> 
-> [1] https://lore.kernel.org/all/179459615032.87488.12726056214378307165.b4-ty@b4/
-> 
-> Signed-off-by: Ryan Brue <ryanbrue.dev@gmail.com>
+On Wed, Sep 2, 2026 at 9:53=E2=80=AFAM Fabio Estevam <festevam@gmail.com> w=
+rote:
+>
+> From: Sean Anderson <sean.anderson@seco.com>
+>
+> According to the datasheet, the "oscillator failure" bit is set
+>
+>   ...on a power on reset, when both the system and battery voltages have
+>   dropped below acceptable levels. It is also set if an Oscillator Failur=
+e
+>   occurs....
+>
+> From testing, this bit is also set if a software reset is initiated.
+>
+> This bit has a confusing name; it really tells us whether the time data
+> is valid. We clear it when writing the time. If it is still set, that
+> means there is a persistent issue, such as an oscillator failure,
+> instead of a transient one, such as power loss.
+>
+> Because there are several other reasons which might cause this bit to be
+> set, including booting for the first time or a battery failure, do not
+> warn about oscillator failures unconditionally. This may cause system
+> integrators to waste time investigating the wrong issue.
+>
+> Continue printing a message about invalid time data before the time has
+> been set. Only report an oscillator failure after the driver has
+> successfully written the time and cleared the flag.
+>
+> Signed-off-by: Sean Anderson <sean.anderson@seco.com>
+> Signed-off-by: Fabio Estevam <festevam@nabladev.com>
 > ---
-> Changes in v3:
-> - rtc: name the new struct mtk_rtc_data member control_reg, rename wrtgr
->    to write_trigger_reg in a patch of its own, and the local con to
->    control (Lee)
-> - dt-bindings: dropped, applied by Lee
-> - rebased onto v7.4-rc2
-> - Link to v2: https://lore.kernel.org/r/20261102-rbrue-suez-upstreaming-mt6397-rtc-32k-v2-0-19ca72815374@gmail.com
-> 
-> Changes in v2:
-> - rtc: check for #clock-cells before reading the driver data, which is
->    NULL when the PMIC has no RTC node, as on mt8173-evb (Sashiko)
-> - dt-bindings: add Krzysztof's Reviewed-by
-> - Link to v1: https://lore.kernel.org/r/20261101-rbrue-suez-upstreaming-mt6397-rtc-32k-v1-0-9758f38d7053@gmail.com
-> 
-> ---
-> Ryan Brue (2):
->        rtc: mt6397: rename the write trigger register offset
->        rtc: mt6397: provide the 32 kHz output as a clock
-> 
->   drivers/rtc/rtc-mt6397.c       | 95 ++++++++++++++++++++++++++++++++++++++++--
->   include/linux/mfd/mt6397/rtc.h |  8 +++-
->   2 files changed, 99 insertions(+), 4 deletions(-)
-> ---
-> base-commit: 7475ea8b58616b33c04afb976cf0fbaad9dd63fb
-> change-id: 20261024-rbrue-suez-upstreaming-mt6397-rtc-32k-0a1c16f63383
-> 
-> Best regards,
+> Changes since v3:
+> - Rebase onto current mainline.
+> - Fix commit message wording and typos.
 
+Ping?
