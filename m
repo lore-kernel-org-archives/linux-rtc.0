@@ -1,75 +1,47 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=49.212.47.36
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794963069;
-	b=IcCd6yir7SxwFX7kkAF60vYQMAs/z5KJk6NuyhrrcKcplXiT9TswKzRSa/KQTqMp6q4W
-	 RmfyZ+N59yn+d2oxb257lPkF5y7fYcv3+bDGhZboEp/yvQ8HNmhVMRZ+lfD4258+JMLje
-	 /3zfIDory8r+yzvN8Q3aDpMAHGITeMg+uvdMaLiVEMajrLzAVTOreCzm/Cxxwc+F+fpw8
-	 orTc1lv/LqwF/pF6tDrqzVgzn8cb7HDWZtwzysyZVCB5brtuzexvRdELBBL+2zyl7E/+T
-	 XaVz94MjsATNHrr0UaJADb79VNdW5+yeEA6Dnqe1oXrDXZYqyt3lbD+MzLv0b4ZIi9Q==
+	t=1794965446;
+	b=HGb+WGmuFjoDS2B4fl/3DXbs5m2OLCIolXKgFW0Q9Ly2/uWAu20DVMUjOv3q12o/4J1a
+	 GGhQEhDEUQM/Qa8y7ftqcAXGhtUzpP3DKWJz5LrTOOWhgPXEst4fZv2yMGqnphGC+/CIo
+	 sQMmmvJ+1+BDLapAWC+hDjya7DlU71MsVS08P9iibVjBoyKaDixBq+Hg+lcOvKXYG5Lps
+	 eQLhTX6sL+0xLHHrPpTBGPnJL5GbwYxJ73k3lkw5eCHabcRn0okhkLcfJVKnnWD8wcNNZ
+	 YHEKfvDfWoiLM+p/MvlAvqSvn53ayfPukquHvC/R7Xu4zwCqUS7f05bEO+jLlNxe6xw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794963069;
-	h=Received:DKIM-Signature:Date:From:To:cc:Subject:In-Reply-To:
-	 Message-ID:References:MIME-Version:Content-Type;
-	bh=1UbMEHB0WKx0u4dst6bzVbW5BKGdyKKbsda1yqu6+p8=;
-	b=POBiRUzik8wfC4dKYWB69+522w/q7zN39KiMsz/Rtf3oX29W5bmN5YkwUbZqrhjxWZgo
-	 eQLILUGosZb6fKysf1MkEdGnfuVcA+HaMsc2skH3dt7MCOdobbmDnRcZggrWNxvWN7Sa8
-	 VPhLeZc4xdr5ju+P1KW4EPOKfhMQvOiF6g7n/iivIhvOxigIg57B0fhHm2OOOr6ZAeOmf
-	 yxwJrSOnEu8twAULD4gjftqR5Vm1hFApV4YYz+196N21qoqa0abNpf3m79+Mh9gs9DQhB
-	 vb2/aQF1ImVE/wmS1BvbeXHKP+M99DyzOzqUj0wg76El9NaRfTj3HkuCg+IJMe8cCTA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794965446;
+	h=DMARC-Filter:Received:DKIM-Filter:To:From:X-Ip:X-Ip-source:
+	 Precedence:List-Unsubscribe:List-Unsubscribe-Post:Subject:
+	 Mime-Version:Content-Type:Content-Transfer-Encoding:X-MagazineId:
+	 X-uId:X-Sender:X-Url:Message-Id:Date;
+	bh=sujvEF8pQRywcRUm6psw9C2ytbWDQ3jL7t/ThwskqTE=;
+	b=tcllyX3HCFEVwaPR3J6OS63M07tmnpQPXT/J6veosp6j2RxwfyorFtwGo2VZf9RQ8ZCb
+	 8I7rWBSE7VmDkgEz3BE8KGpGeRXuZghTX2xF8/q14WqrbUBSzP3nIzCHcrcNk6qhG2T4o
+	 qJfuLJyQ5QMaPpVI55uAo/TevBLVoy9RJBskYZ999Rvfu6ap3/FCNfPebYnds2DhxT2f4
+	 SsDgBOh5LKUW6y3ns7KDtsKwDv0qAHT/ILes8UQsFvjuhPcIMOZEF7BuTK6SQHpW4RxFa
+	 E35FrM1C04R00aWTuIJGMNtrlYrI6Yhgo10PiTuejaeVnnlVmKuU30+uV84tbtY/GGg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Vix5oa89;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=none header.from=ai-webseminar.jp;
+	spf=pass smtp.mailfrom=magerr.combzmail.jp;
+	arc=none smtp.remote-ip=49.212.47.36
+Received: from r9114.ps.combzmail.jp (r9114.ps.combzmail.jp [49.212.47.36])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00C98606A31C;
-	Wed, 18 Nov 2026 00:51:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Vix5oa89
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 874611F000C4;
-	Wed, 18 Nov 2026 00:51:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794963068;
-	bh=1UbMEHB0WKx0u4dst6bzVbW5BKGdyKKbsda1yqu6+p8=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=Vix5oa89sYVH+p/PIq4YrS+tl+Q2d4GuSof4iYPr1Jes1ukCV07Ax1mT31gYyRuBk
-	 KDVy1Xc7YkJFjBGk5YUHJzXhopjFDdL078g//rtk1yAnqg319z95CNtPuGG0OYycRO
-	 8Wa4KGYOH0uIUrNnDpu51YSb5byQaABCxt57BX04GkSmivdOSX53foyLpW6Hir1D/2
-	 Ojjfm7+wHiSWS3iuLZLjwaicqWHiDLEhCM8IKXgCSRYPXKRQo8/HxBpYGfmGkUl7uh
-	 +vbQm41d1rp042Qx55pJ1nSLVSkIsdEJ9zElVuG66GwEr7i5ZiJxXGuq6KYhnQeAcp
-	 dwuP02Th8yGRQ==
-Date: Tue, 17 Nov 2026 17:51:05 -0700 (MST)
-From: Paul Walmsley <pjw@kernel.org>
-To: Han Gao <gaohan@iscas.ac.cn>
-cc: Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
-    Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, 
-    Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-    Conor Dooley <conor+dt@kernel.org>, Guo Ren <guoren@kernel.org>, 
-    Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>, 
-    Samuel Holland <samuel.holland@sifive.com>, 
-    Daniel Lezcano <daniel.lezcano@kernel.org>, 
-    Anup Patel <anup@brainfault.org>, Stephen Boyd <sboyd@kernel.org>, 
-    Brian Masney <bmasney+clk@redhat.com>, 
-    Jerome Brunet <jbrunet+clk@baylibre.com>, Chen-Yu Tsai <wens@kernel.org>, 
-    Jernej Skrabec <jernej.skrabec@gmail.com>, 
-    Samuel Holland <samuel@sholland.org>, 
-    Philipp Zabel <p.zabel@pengutronix.de>, 
-    Alexandre Belloni <alexandre.belloni@bootlin.com>, 
-    Maxime Ripard <mripard@kernel.org>, Linus Walleij <linusw@kernel.org>, 
-    Andre Przywara <andre.przywara@arm.com>, Han Gao <rabenda.cn@gmail.com>, 
-    linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org, 
-    Paul Walmsley <paul.walmsley@sifive.com>, 
-    Palmer Dabbelt <palmer@sifive.com>, Conor Dooley <conor@kernel.org>, 
-    devicetree@vger.kernel.org, linux-csky@vger.kernel.org, 
-    linux-sunxi@lists.linux.dev, linux-clk@vger.kernel.org, 
-    linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org, 
-    linux-gpio@vger.kernel.org
-Subject: Re: [PATCH 01/19] riscv: sunxi: describe the wider Allwinner SoC
- family
-In-Reply-To: <20261114-v861-v1-1-eb71ec3ee523@iscas.ac.cn>
-Message-ID: <fc63c0c4-5b79-87f9-aa42-7ed541361052@kernel.org>
-References: <20261114-v861-v1-0-eb71ec3ee523@iscas.ac.cn> <20261114-v861-v1-1-eb71ec3ee523@iscas.ac.cn>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6740606A31C
+	for <linux-rtc@vger.kernel.org>; Wed, 18 Nov 2026 01:30:45 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D6740606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ai-webseminar.jp
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=magerr.combzmail.jp
+Received: by r9114.ps.combzmail.jp (Postfix, from userid 99)
+	id 99BA4307552; Wed, 18 Nov 2026 10:29:41 +0900 (JST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 r9114.ps.combzmail.jp 99BA4307552
+To: linux-rtc@vger.kernel.org
+From: =?ISO-2022-JP?B?GyRCTmtMWhsoQg==?= =?ISO-2022-JP?B?GyRCOkwhQxsoQg==?=
+ AI =?ISO-2022-JP?B?GyRCJSghPCU4JSclcyVIM2hNUSU7JV8lSiE8O3ZMMzZJGyhC?= <info@ai-webseminar.jp>
+X-Ip: 612009428419380
+X-Ip-source: k85gj7ft48dnsa51u0p6gd
+Precedence: bulk
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Subject: =?ISO-2022-JP?B?GyRCOkc2LyRORixHPiRIP008aiRyISMbKEI=?=
+ =?ISO-2022-JP?B?Q2xhdWRlGyRCJTslXyVKITwbKEI=?=
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -78,21 +50,72 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
+X-MagazineId: ft51
+X-uId: 6764325639486067714159411008
+X-Sender: CombzMailSender
+X-Url: http://www.combzmail.jp/
+Message-Id: <20261118013006.99BA4307552@r9114.ps.combzmail.jp>
+Date: Wed, 18 Nov 2026 10:29:41 +0900 (JST)
 
-On Sat, 14 Nov 2026, Han Gao via B4 Relay wrote:
+　
+　
+　自分の間違いを見つけて「自己進化」する
+　
+　最強の「頭脳」と「人手」を手に入れたい
+　経営層の方向けに
+　
+　2,000名超に講演してきたAIの専門家が
+　驚きと手触り感のある実演デモで解説します。
+　
+　 ・自己進化するAIとは
+　 ・受信メールから業務を自律実行
+　 ・競合分析、SWOT分析から戦略立案
+　 ・決算書から経営ダッシュボード生成
+　 ・AI導入につかえる助成金情報
+　
+　
+　 ＼ 明日から使えるプロンプトを進呈 ／
+───────────────────────
+　
+　　　　−人手不足での倒産を防ぐ−
+　　　　 　　Claude Code活用
+　　   最強の頭脳と人手を手に入れる
+　
+　　 https://ai-webseminar.jp/claude/
+　
+　日程：11月26日（木）12:00-13:00　残り9席
+　
+　備考：Zoom開催／無料／60分／1社2名まで
+　
+───────────────────────
+　
+　人手不足による倒産が過去最多を更新する今。
 
-> From: Han Gao <gaohan@iscas.ac.cn>
-> 
-> ARCH_SUNXI is about to cover the V861 as well. Update its prompt and
-> help text instead of adding another option.
-> 
-> Signed-off-by: Han Gao <gaohan@iscas.ac.cn>
+　自らの間違いや非効率を見つけて「自己進化」し
+　業務を動かしてくれる優秀な「人手」を逃す手はありません。
+　
+　そして、その人手をどう活かすかを決めるには
+　経営者やリーダー層の視座が欠かせません。
+　
+　事前知識は不要です。
+　非エンジニアの方にもイメージしやすい言葉でお話しします。
+　
+　今後の経営を変える60分。
+　その驚きの実力を、画面越しにぜひ体感してください。
+　
+　
+─…─…─…─…─…─…─…─…─…─…─…─…─…─…─…─…─
+　[窓 口] AIエージェント活用セミナー事務局（イーアシスト内）
+　[電 話] 0120-889-859
+　[住 所] 大阪市中央区日本橋1-17-17 604号室
 
-Assuming this series is going to go up through arm-soc -
+------------------------------------------------------------------
 
-Acked-by: Paul Walmsley <pjw@kernel.org> # arch/riscv
-
-
-- Paulk
+　メール受信を希望されない方は大変お手数ですが
+　以下より配信解除をお願いいたします。
+　※解除までに数日お時間をいただく場合がございます。
+　https://ai-webseminar.jp/teishi/
+─…─…─…─…─…─…─…─…─…─…─…─…─…─…─…─…─
