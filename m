@@ -1,47 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795094332;
-	b=RUwDsxjD5k/++4xgQOABddhLMKXVQLO0UxRyYCxPMFMjpEqwPJgZBw1mRe3fDy4Jc9xH
-	 mKoZ+qCeEBv0P1R6upzOADnqy8od8A6v0MOHVRLI2Z9Xq+cl6eAn2xQzvIX/0XuvrQ/zT
-	 b4ndGWneQ4PTcv+T/JXiasvOSpOPK2+xq2aC/QUh5gsELEyrOoeX1+RRjPXIkbX+OEsaH
-	 35fZpGyRbdyizftcwn0UKO70Ip2BPxkLu4oKHYF7VQsNmVnhcdspdy0MvPXMX0WJMPuyz
-	 tLarE7WNzXm5TkolnXqBrrDmTJ+Rn2Fv8Scdrv72SfttNTVnUp9IZmcH+h4WFatAGyg==
+	t=1795094408;
+	b=DDZD10v1nrtu5XxD/XYYaUltI7Pp/TfQ6QAJK1zqvoV7+NojLzlb2eKbZpYiDDhYr/+f
+	 J4zybaXDJNhCBy8RjdzPswrQ00DPnWWb3exQRZS797wBMGaXNwR652DI+RPJ1vOiiplY7
+	 iwuQYDYhk8Dr37Vn+8YgDj9FPEDUgTslHmb2+8Vqku+SzG2IuOPiCY0rt4DpAug5aU2RC
+	 3Hz1nCfmn8CI1UU90lV1x4458NpMwGROSvyXRNIBbAxo5UeIWK8tNBJYqvt+Q4T/cBP9p
+	 221hLHdXR+Wv6AlSk9cjRinAyCFVS10OD01zZ9jWqjDkuE+yRmV17ddo0yYLsgzxE5g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795094332;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795094408;
 	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
 	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
 	 Content-Type:Content-Transfer-Encoding;
-	bh=PYw+yIHbCk6FEY6nMEdIMEmrHll/vqS+AwXOriBIv1Y=;
-	b=5ZGNYXbSHeXEyT8LWzAkEPvgfjUKLmldxlEk7k7M6ITBi/Hm927BUXUzLwzQMKk+IaAs
-	 /OZ/Y9HfpSjUE7W2zvqYz4m/1+25pEZbfLOQseXBQZJoUwGbO0FCKsdExzxNGOisZrbnl
-	 BxtQaf43ouLVtgtVWm8MOPa3LV+nfzxAjnpvTtGlJSOJPm92bb5exS/XxLdWQJy8ZFzHh
-	 wpiFhjr5errlBjfkKcDcegfoF4JCyD6cENTPZ0O0dyzw2lEeNK2Z8Av+R+yN115M/D9WH
-	 naPhdE4jfinaoxCSqiMyY2k7ZxJPHHabUh6qByJ8mbDw1IwzweKUK6zuollXPfASV1A==
+	bh=uY2PPIMBqoVI5/qTGl4Vqr1h4cnYz6gEe8ywnrYUsEw=;
+	b=Uw9h1S3UvBMbQvtkQ9j0rk04oZdkR6oiOTLpG1Za7+385s2cGh31lttdqbbEWJqfwJfc
+	 /XwqjfLVZOXC1Nsd1+npbBCI0HijH4aBfF7gUrwl1cX8tKVbD26Gg9qIEuDph/4ZZE1zx
+	 BZCNRk0HisE6c9IIxfUUq2yBn6i+7JVDafXRUZHeyM0j/E2CWMA3qNMW+pIYtUTs14Iok
+	 B9YkSJyMxGhQIMC4N4Mjx4TGTN8X3m3bAzhNSeM8Zc4ikVNS+WR0q2l4hxcIfk8w0uKb6
+	 nCKaDMdUDjScyEO0X4TyO8KTD0Vw/7g+UYP4FrqsrylfJcTeILwBOG2DNhkYrbN+wng==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=W3ui8l6G;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=D0Ie0cpg;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F6CC606A320;
-	Thu, 19 Nov 2026 13:18:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E98C60A261C;
+	Thu, 19 Nov 2026 13:20:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=W3ui8l6G
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB3F91F000C5;
-	Thu, 19 Nov 2026 13:18:49 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=D0Ie0cpg
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C56A1F000C5;
+	Thu, 19 Nov 2026 13:20:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795094331;
-	bh=PYw+yIHbCk6FEY6nMEdIMEmrHll/vqS+AwXOriBIv1Y=;
+	s=k20260515; t=1795094407;
+	bh=uY2PPIMBqoVI5/qTGl4Vqr1h4cnYz6gEe8ywnrYUsEw=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=W3ui8l6GvBpcDBVDes4U12gk/t+vy0Aq4BDiY0zUU2QpRgsbOLcvhaMLA65fMpf44
-	 6kXgj9aXoqQxJs3AkerBJAm33TFV3uW9KOQh7CJCuM+JR9bbfycicCWw+QkYJ5CaAe
-	 do5ra4MlES9FE2ixQvCBjRTKUvbOpaG3Wh3Jkefyu4K8P5tCyb1lVYGahphQ8ehZOE
-	 nSR6vvfRym7wf7ATQPNjmWMNzq1Qf6eEpTswRnp9OcjimieUmC1WIPwHl5KMuQwzxv
-	 VMb5QOX9F7R7K6mQw57ofBBGprnw0i9I4S3aKxRzBL9mfq45fHJtlz6Yfmnl/SH7x1
-	 h39spHiZAnbHQ==
-Message-ID: <2676cb85-4fd0-4e92-b353-12b10e15eba5@kernel.org>
-Date: Thu, 19 Nov 2026 14:18:48 +0100
+	b=D0Ie0cpgY5adUG8F5DWmqtHk4kwVh8WPWXby+pI8HUfOyB9WIro5z37LcwAR5zY4Z
+	 qN4aJPvkeHEJfvg+OwWSez9IFn+OimHHC2EAN8+mP7Ni7mNbUgrJoNXJnzacltkzxN
+	 /dPDZ0PbK1il1+O4gldBtAs+9xuCKBq9lpe1YNPrVxQ698zLpiN/YGQ9ngsUMr9+ko
+	 /hCvILfjSnG+oV+lfHX/8uVj/qKtx/zYy7rcT6i1v3/wxfN7IYFP07olbUeeldLXvb
+	 uhRRpUXp4I69V5PxwJF+0XURDyf2TsQITDDGhOrOv4RRz8eiGN/XHWzYNnGKfUVwp2
+	 MB7QAdU9gfxzw==
+Message-ID: <7e207fea-8aae-4271-9e94-331464442ae9@kernel.org>
+Date: Thu, 19 Nov 2026 14:20:03 +0100
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -110,38 +110,13 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 19/11/2026 13:51, pjh456 wrote:
-> VDD is the HYM8563's main supply pin.  Describe it so boards can
-> express the regulator feeding the RTC; the property is optional
-> because many boards hardwire VDD to an always-on rail.  A side effect
-> of describing it is that fw_devlink orders the RTC probe after its
-> supply.  The Purple Pi OH board DTS (posted separately) relies on
-> that ordering.
-> 
-> AI assistance: the supply description was cross-checked against the
-> vendor schematic with Gemini 4 Hydrogen (Google AI Studio); the binding
-> change and this changelog were drafted with assistance from the
-> Qwen3.8 Flash Next and DeepSeek V4.1 Flash language models, driven
-> through the OpenCode coding agent, using the HYM8563 datasheet as
-> input; the submitter reviewed every line, validated the result with
+> the submitter reviewed every line, validated the result with
 > dt_binding_check and on the affected board, and takes full
 > responsibility for it.
+>
 
-Nothing in this paragraph is relevant to commit msg. That's changelog.
-
-> 
-> Link: https://lore.kernel.org/all/tencent_B11DE1495C3C54CE186ED508E2CE5CE41106@qq.com/
-> Link: https://lore.kernel.org/all/tencent_9B1CC4BF39DFA325C2B5384EA8B0319BAA07@qq.com/
-
-Not relevant, drop.
-
-> Signed-off-by: pjh456 <pengjunhao409@gmail.com>
-
-Nothing improved - still incomplete DCO. You MUST FINALLY read
-submitting patches, not send us LLM output.
-
-You were asked for that already. Read the output of LLM tool which you
-are using. What does it ask you? What did the LLM tell you? Why are you
-ignoring that parts?
+"The submitter"? So LLM wrote it for the "submitter" and you just
+blindly send it :/
 
 Best regards,
 Krzysztof
