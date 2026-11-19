@@ -1,112 +1,112 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=205.220.180.131
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795071354;
-	b=h33YSUTnedC0o548uztP72FthEXw8z48m2hMH/49KJhygNAFLEuYwoe28RpDlYvIWU8Z
-	 a4ClzTnkz7F+m9t5a0LdU7bekWuvfLxa1pLEbWEDxFZNElMKYuJGz7YNe01T1Cbrcz/Cc
-	 DDGvHkQ9Asoytjy4wBK/3ULseJ3GmOifLmlr8EGR8Vq+x4wmusn9sbcHhrVDMTP5+Cuah
-	 jFHUQ45SRfwSsZYUcMM/SP1l3hX5EymBgMEPgdfDF6OrfMlMD4n9hA9HfT+TutBwsVE13
-	 K5WJQT1OWVAl6I0tSz6sY1+twlZ0EFlF5oYkfM/KqU4jdhUkxvINPrIDXYBEAkarv7w==
+	t=1795071355;
+	b=xsB6K80WqjXscZZGwiP+cKp+ipqAty5m0vSqL8JaBqOxiOUU8LaLhvcmiXqw+mdbc41y
+	 GlCSus3Lm04pFqP0AcYsGC9Oqc91PwXto6YR08ATGBtz69nnVxigRk087xGTdM/zogAcU
+	 LbNgcK/gf2JwwG7aHTmOk3CPW0JDdGu6CdHOLcGT9JKoQo+j43fadlsISVD0/3+4Kuuax
+	 GxzasZxtDjs2tNN5hTeOsQJjGCT6qYOdU22wywN2jM8/u6NUDvFj4buAXboEfEzjYgWeJ
+	 2wIKRsWoO2wOakbzYf7TmLkhFIOv4ULlp+tJ4r1ZhvbqFyAIZN5C3T+Awb5GT+ThiRw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795071354;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795071355;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:
 	 DKIM-Signature:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:X-Received:Received:From:Date:
 	 Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
 	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Proofpoint-ORIG-GUID:
-	 X-Authority-Analysis:X-Proofpoint-Spam-Details-Enc:
-	 X-Proofpoint-Spam-Info:X-Proofpoint-GUID:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Info:X-Proofpoint-GUID:X-Authority-Analysis:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Virus-Version:
 	 X-Proofpoint-Spam-Details;
-	bh=6lqiPizOFwpBbqQmfMhfgOsgcohl+dtQSwF1zRN1cTU=;
-	b=SCOu3beuVS6JXa8Sv3AeN489MDK0xkyFNPUgBcDhbTNsJO2nkgGxkQ/UgioLzAlEZFkX
-	 1yCTb/diJYUy+fifGiTapLFr0nq5sEmaxMESnwyRPRUV4VnUzqEIp5fAznQf/leopWX30
-	 k0YphsjCF/QFBgJ4zMPrUivr69LGuYiEJ/LhGe1fbHjKdJnX6XmqRAP5zKApBMkLFGioR
-	 X5H/zIShkBeTRuDpyukmBJjjLXe3E8ghw46/EqcbiTkHHljPrAJQ5O1SSOpsnUGQJgPNK
-	 RiivgaSH+xAXMQvNtIkphxs5+hJGCBBWhsdzvHJOpa9XHfnxwZmZtWElztHnHM2vMGw==
+	bh=vozH6gtF91A3QH/YnlR3JvAAn5EZFcGaQk3Kz/3OvgA=;
+	b=cXzHgDAhNpJZUH9q4Q2CBEma4WkXzQKmoZKMWKbqX9xRDAc90AwoTt26tesKJKZXotHR
+	 fn7jBYbvNlR2Z1ZzRCKDLGir4uxj+SCtX8b9qj+Ie68uTH+VL5/KVgS79zushEo0s1XEC
+	 OvfZUasmMSrfvIZU6Uof1ybgMAY6FTq2Bw7r/XP8ptwYnOV7ZTWns5beG1d5FEooh1zTY
+	 gf/4RdA2lsJlp8WdduyY5q0UDqKwD+HFhc5VSM0m6VS3bd6uzSx6oYRq2lyAVwNyz/rmr
+	 GNd2uycauoX7VK1s8hbkil3xi5La1aZOaF94CyhR185exAPOMkUcYK84HsCh6Hj5EQw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=oss.qualcomm.com;
 	spf=pass smtp.mailfrom=oss.qualcomm.com;
-	dkim=pass header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=gbQU+rag;
-	dkim=pass header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=Kf3DiStw;
+	dkim=pass header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=bC4tWmpy;
+	dkim=pass header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=JtFi31to;
 	arc=none smtp.remote-ip=205.220.180.131
 Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B17B7606A337
-	for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2026 06:55:53 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B17B7606A337
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5CFA606A33E
+	for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2026 06:55:54 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E5CFA606A33E
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=gbQU+rag;
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=Kf3DiStw
-Received: from pps.filterd (m0279869.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AJ1AvvC1927771
-	for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2026 06:55:52 GMT
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=bC4tWmpy;
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=JtFi31to
+Received: from pps.filterd (m0279868.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AJ1BP1D936395
+	for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2026 06:55:54 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
 	cc:content-transfer-encoding:content-type:date:from:in-reply-to
 	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	6lqiPizOFwpBbqQmfMhfgOsgcohl+dtQSwF1zRN1cTU=; b=gbQU+ragYDr00/rt
-	Zje7cRfPjBh9jJJYbTuspFgVU25FpSrLh2kqaH3TwgxPQCKtC5PsSPbj7j7ZmsoR
-	rH4ycnHo1lIR+BmeVRtp3tiNZmGfeZSJHx0twvqXxamR3UY06NEkLcH1M3xIjo/B
-	jp0jl1/VAMq1JryYSMxJ+wEXQXEgLvEPYeMEwcMxBQUJziSrxCiU6BC73F4mGlwH
-	nG8FXv8+zYiZbbbofu6JQBnKrCHPtmm4ZIoiYMMpH9K3zfwFWZaZERq/jTASTAeK
-	oiwpqFDfb9JnnuXkcAx5nngUgv8CwDwNidYeJM/Ggc7abjTazlH66lrr35WK/g/K
-	L01uEQ==
-Received: from mail-ot1-f72.google.com (mail-ot1-f72.google.com [209.85.210.72])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4j1g9p32w6-1
+	vozH6gtF91A3QH/YnlR3JvAAn5EZFcGaQk3Kz/3OvgA=; b=bC4tWmpymXBuu8Tv
+	nxGGEhLBRfxzc8Dg0AqjFK2st0RInzUd5uXqnspYnrVHI/2fb+A1nrz0Flh4My+R
+	w8FeUyh10w0BdNYGe+bxnUSVurzPWq7DMkczB1ZBWe2sB5uCE3SuaNFMy76DRK0J
+	j9ELytoe/55sg3PJRsp6igjbIK0mWSb2DhNW0eKV52SeY2WbtVHaeS5tRNejRhCh
+	BZqXgiLMKUlhN7WmY4m3LRiMazgoJLgPrVYK/wVSs1CacSRNM9MgN03t96/12vyH
+	qGRjSvPm1yN/hos6LhFQX3+Sug4p89eS3ct9G9lYoaCYaglW5JgWfepnZQXw/tn/
+	RhElew==
+Received: from mail-ot1-f71.google.com (mail-ot1-f71.google.com [209.85.210.71])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4j1pdcsbu6-1
 	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2026 06:55:52 +0000 (GMT)
-Received: by mail-ot1-f72.google.com with SMTP id 46e09a7af769-86155a5b1c6so663335a34.1
-        for <linux-rtc@vger.kernel.org>; Wed, 18 Nov 2026 22:55:52 -0800 (PST)
+	for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2026 06:55:53 +0000 (GMT)
+Received: by mail-ot1-f71.google.com with SMTP id 46e09a7af769-862bca06702so2601216a34.0
+        for <linux-rtc@vger.kernel.org>; Wed, 18 Nov 2026 22:55:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1795071352; x=1795676152; darn=vger.kernel.org;
+        d=oss.qualcomm.com; s=google; t=1795071353; x=1795676153; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=6lqiPizOFwpBbqQmfMhfgOsgcohl+dtQSwF1zRN1cTU=;
-        b=Kf3DiStwfsdIIqkgM96VOb7tzpSLRyx2/6I/RzoKZWLt8q7JchuGgzxwGaIX3weruT
-         9DaFpN9AOnMevSRVdOHSnLpvKtprQa78Pj83c59XD/w2n/uBatEAY5l7JKPFrd6Mgtwe
-         LlYzzSnkUi258Vkv6XvRtdly225xrI8WqagtxJV3MrwPLi9kfNvxyo0REoqw00hn8Jau
-         TTAc38iFUcOnradUOmH3nIV0pc5Nr5XOD3ykApKwPLm1DS4zs3CJ12GfulvVbD7WFCvk
-         YqaCIdlpFL0RJd6rTESRjXLYpDgb+M7F2w3100qgL24DfuNElsGci+mcW/XLxMDW6g6X
-         /VEw==
+        bh=vozH6gtF91A3QH/YnlR3JvAAn5EZFcGaQk3Kz/3OvgA=;
+        b=JtFi31toYMZ6G3xNh8bRGTi3UG1s4iHWIde98K0rqHp3Pne/C0JIUg5uZOOBfY0DKX
+         Yi5IPpLIGUtCP5oRZgEwkKDNh9KHxnlMJpMW3osWUWkqKBUia+5rQ1ajj9FWn8pgqYB/
+         ASHxsLISuebrFloXE7459tX+3vjN2uhMN0YqdszKbS6xYvgTRa67VsJRlfeLxOi229MF
+         l+ZUFnU4bxSF2M/1X5usVyqs/euaCU9viGOlCkLo7dHmbYLjwA5cQXJ+S6rZ/brHee0F
+         a1ELTY5bkmBkT1rIi+5KB4g6kd0/TmNfB6oltsDMWNVXu+1FpFh67uFTRNxJN2DZuR5K
+         eIpQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795071352; x=1795676152;
+        d=1e100.net; s=20260707; t=1795071353; x=1795676153;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=6lqiPizOFwpBbqQmfMhfgOsgcohl+dtQSwF1zRN1cTU=;
-        b=up/hAT+Q6XKXjuMTkKUK8oXQN2mQ69KxdCXER2AJOP8O2vEIPcACXsPp/zU54uXbP8
-         pBUZXxq102V6xMRK1JDqS5mhpQ/5DoYdHYDp/DKvl+dU2YcVWtG6huVzzlQ3Fv65Q+Wh
-         Jv7mh2yEFz0k6JE+vDVr93YIo5LYNP2X76OYszZVd4UgI0nvgfZOKwLu7DFtdOoA6fOT
-         /B4DcyrZDunvlY+aW+gah62aELNngHlVMVNY7M63HJ0g7EBM8p11+n0o0Z0ro98gmdcV
-         QEt13PDO/2J273CCh/KT0VUeUl1S3ToRdwAgvkuxshcYrFIaymuOtLdJZ0iMPJjGiWsY
-         MKoA==
-X-Forwarded-Encrypted: i=1; AL+hErFkIwCJNtEfZ6J6ZJCdfCWf4F1iXV4SNVbmSw3Gi9mH7SjbCP60CnlpxQDMxOJ7G/hDWQ7Oq8sr7Lk=@vger.kernel.org
-X-Gm-Message-State: APuU4Z+flFzzRdgAIcG0nHc9pUI96iglIa3IcifJW1+8ayPft94eg8Tx
-	EfEawjshyhX/rAVw2ra8qWFhJaqCerPlw8BT2Ki2SsCnW2jxL49qmzdGUIe1nFmiOtVR7dpwpO8
-	2tr8NpkSr/8sm2Xa4a0cpv3muQXIGyY6bjdMmkAuoyMmyOCjHyb10RemotEp6afU=
-X-Gm-Gg: AYBFou2Mg/MH0FqVf3HPt15lLSPQ6MkPMlYH7Hyguoyn2azSs101vrLaXeqtRAGDMFm
-	KidH5JnUTGqF5NUx3m3D1XchBtHkK/HTuIaWTro9M8VDfv0bPPaFSNeJZmd07bfNB44L8mP4usD
-	oAh24RDz6ORao6pbe/H1QdgwiEH1bNfMvb3Gt9jX7XUgv3b0gYebMfxs5681kAejzn/aulUC8HW
-	UimzvMR+A8Ft6m2qw/KezOvYE/Ai37ZSyonnjui7oB7ruWSlcWxFKz6AyzCbuVzp9Okfz4+PEKS
-	lcURW4xNGfiIbSjHEDWbnsZMnCbr16xV/hvQyHyZskDVwO00zHlh0TH0H13Iwo4hnWU0xjI5d0T
-	wa6etIILO/xPMS6+Zx/zfixBbaUuxi2+4wdHMjLvsk0lNcrB/k9vVHLPBoj051qGXgbK1XlgkTx
-	vhZr+crUTkrqtXbCc3SIHV9hwlTA==
-X-Received: by 2002:a05:6830:230a:b0:862:b733:c7ae with SMTP id 46e09a7af769-863092aa19emr136310a34.29.1795071351249;
+        bh=vozH6gtF91A3QH/YnlR3JvAAn5EZFcGaQk3Kz/3OvgA=;
+        b=duzNlImT4c2cdUg5J8+YaUWHjcDAlKju3sx7ApIyYM29ux6XS2jFzon2DDpRuN44tC
+         koO8AGOTuc/izxRfA8C8CdVv7iup5u7oMnut06jbJhqpjlbFVK9qwIyiR9wFBuxWikSa
+         Osv8MpE/Pnho9MKh7CgRrMvjSFq+E9xRNcUdH/K2BOdp4eDyo3qe3reGapuUk24AGsgw
+         9iRaG27VaRawcflAkTbsD78YNqx5a/Ob5UCly9YgYEDpKPvFG5X7marm/TWo624M6JxO
+         ydFLY400Zo5DgvxNDzXi4U2N4i2OEqIpj1sZtOhV9cgiGsVUjLrDwREyjv93jwyO8h5Y
+         jWBQ==
+X-Forwarded-Encrypted: i=1; AL+hErGsWjtgK4zd6QQQLlnUnofOqOVbKvv0mohLwPh7Q77Fs/RWSEpA2PNS/PMzgNLoaOzxZZyzSVFc89w=@vger.kernel.org
+X-Gm-Message-State: APuU4Z/eG3/dMLk0gEIOHcJheWrlm22K5RV3eoRf3hSg8CH/IFsAqakS
+	HH8plXUYDOczOaXnwujl2ajeL9tzeE4rqBsPvS9nrroCktdkp+JC6wF2cbTsWSKXNVNXufO+my6
+	vXuWkzWMt+JB3yOnTTf7lvVEpvBIAK+cotUCPNlU6WHhHTuh6RYPtQnB32h+zyxQ=
+X-Gm-Gg: AYBFou1MKyUT20uX0RX5MBIRfoA24OW4VtFexZjPvDQf1MxmdVWLjsZF/WcU2t9Lmak
+	1h2aqzH4ishjUJwTnfl6/4Q6+6zpzcH4ynE8Ue3+xIl4ecr+PiTMLTSqt7Z0jWjOSO52k7hoDcQ
+	siXDeKrupZw0TizYPqdgthovpCpuN2PEiSaTPKkQ8bKffdsjQ9zNflN73w4oKyJ3CoqCP8fczwE
+	qIHcaWnwjWzI7dZ0d+hARjB7+cx8ryzvjqZU+ICcbylMvqGCb946C5Wq3rdc8SQ+YVBndlVACl9
+	JjVqxIcyTZ09LCiHlitA0imTLiufdTrCdpGWbfUKXEhWoI+SVzQs/K3eedzOb4AZo/+3cKfXJe+
+	gXkmxx1Vs4zs2qhGTKM0x69v/d0aXIuhkAteLAxNbBigf58Jl0s+jDRLlr91WSFSguZF14s2Qm7
+	6LqzVYJ2h8QLF9auHGPzjY/SYahw==
+X-Received: by 2002:a05:6830:25d6:b0:862:19e7:af04 with SMTP id 46e09a7af769-862f0926cbcmr5679380a34.19.1795071352609;
+        Wed, 18 Nov 2026 22:55:52 -0800 (PST)
+X-Received: by 2002:a05:6830:25d6:b0:862:19e7:af04 with SMTP id 46e09a7af769-862f0926cbcmr5679361a34.19.1795071351999;
         Wed, 18 Nov 2026 22:55:51 -0800 (PST)
-X-Received: by 2002:a05:6830:230a:b0:862:b733:c7ae with SMTP id 46e09a7af769-863092aa19emr136295a34.29.1795071350528;
-        Wed, 18 Nov 2026 22:55:50 -0800 (PST)
 Received: from hu-fenglinw-lv.qualcomm.com (Global_NAT1.qualcomm.com. [129.46.96.20])
-        by smtp.gmail.com with ESMTPSA id 46e09a7af769-862f00891e6sm3753070a34.0.2026.11.18.22.55.49
+        by smtp.gmail.com with ESMTPSA id 46e09a7af769-862f00891e6sm3753070a34.0.2026.11.18.22.55.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 Nov 2026 22:55:50 -0800 (PST)
+        Wed, 18 Nov 2026 22:55:51 -0800 (PST)
 From: Fenglin Wu <fenglin.wu@oss.qualcomm.com>
-Date: Wed, 18 Nov 2026 22:55:44 -0800
-Subject: [PATCH v3 1/3] soc: qcom: Add pmic-gio GIO framework driver
+Date: Wed, 18 Nov 2026 22:55:45 -0800
+Subject: [PATCH v3 2/3] soc: qcom: pmic_glink: Add GIO pmic_glink instance
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -118,7 +118,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261118-gio-framework-rtc-driver-2026-10-12-v3-1-52d78a8f43ee@oss.qualcomm.com>
+Message-Id: <20261118-gio-framework-rtc-driver-2026-10-12-v3-2-52d78a8f43ee@oss.qualcomm.com>
 References: <20261118-gio-framework-rtc-driver-2026-10-12-v3-0-52d78a8f43ee@oss.qualcomm.com>
 In-Reply-To: <20261118-gio-framework-rtc-driver-2026-10-12-v3-0-52d78a8f43ee@oss.qualcomm.com>
 To: linux-arm-msm@vger.kernel.org, Bjorn Andersson <andersson@kernel.org>,
@@ -129,1192 +129,752 @@ Cc: David Collins <david.collins@oss.qualcomm.com>,
         Subbaraman Narayanamurthy <subbaraman.narayanamurthy@oss.qualcomm.com>,
         Kamal Wadhwa <kamal.wadhwa@oss.qualcomm.com>,
         linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
-        Fenglin Wu <fenglin.wu@oss.qualcomm.com>
+        Fenglin Wu <fenglin.wu@oss.qualcomm.com>,
+        Tingguo Cheng <tingguo.cheng@oss.qualcomm.com>
 X-Mailer: b4 0.16-dev-17187
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1795071348; l=40241;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1795071348; l=21984;
  i=fenglin.wu@oss.qualcomm.com; s=20260324; h=from:subject:message-id;
- bh=/6l+9InIRlh6czwryGYQBfh5TwhT+gAPzRzA7+UtvMU=;
- b=L9v9sLC3yc7SFaU7+9y7jy0kfF5FtqP0LYwPfI1ES6vHFZrC18Gsw58MQy5mg9mwh1keEQML1
- ro6KFW3gvp+DRFcaYNhaN5+uf+4hR4s6vtLjwZB429WvCW2kaUIhWNZ
+ bh=N5WGq32/h4RTNGSM3pEP/S3lvqxKP7aVBnF6tp5ScSg=;
+ b=3fu8/GlXdPkYH19YdGp1d/APrexglH6+UY+qDFKCfClsH3tkkhTKV/LV++ImlGsVUa5/UxcFz
+ 2js132L+YWGA+tdMqSfFt6I1zHzpZgy501iqPoYnYIGS63NZukwczaP
 X-Developer-Key: i=fenglin.wu@oss.qualcomm.com; a=ed25519;
  pk=hJdt3E7o54lql+miD2GaxwF74cDyhgNwMbmFOZ46bRU=
-X-Proofpoint-ORIG-GUID: H6nx2ilFBni1lhSxSd1iQJjfFtAIszz6
-X-Authority-Analysis: v=2.4 cv=LooHWXdc c=1 sm=1 tr=0 ts=6afe9d78 cx=c_pps
- a=+3WqYijBVYhDct2f5Fivkw==:117 a=ouPCqIW2jiPt+lZRy3xVPw==:17
+X-Proofpoint-ORIG-GUID: QQNvvus7eD-iasQzQpjUs3lYn0sFNCXJ
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTE5MDAyNyBTYWx0ZWRfX9hTBmVZpC6nN
+ HOy7jTs/L9+xGv/pPA188+PvrGSNpm0chKrfyl7TbVKuwTr8jkFtUdqjlMNEn833ykBmjFBmXvA
+ qj8RiGHR9tO/jZ/ReZTSnoH73mi+SMw=
+X-Proofpoint-GUID: QQNvvus7eD-iasQzQpjUs3lYn0sFNCXJ
+X-Authority-Analysis: v=2.4 cv=Ma/5KJ/f c=1 sm=1 tr=0 ts=6afe9d79 cx=c_pps
+ a=OI0sxtj7PyCX9F1bxD/puw==:117 a=ouPCqIW2jiPt+lZRy3xVPw==:17
  a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=_glEPmIy2e8OvE2BGh3C:22
- a=EUspDBNiAAAA:8 a=gODgIEoSDgxgNiEkC8QA:9 a=QEXdDO2ut3YA:10
- a=eYe2g0i6gJ5uXG_o6N4q:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTE5MDAyNyBTYWx0ZWRfX4a9XbVSaIgMI
- rtLcC+cOpeguTU7SmuN6pIsIAn3WFGWxLUPbavqht719T/EWaCfrrAO1JNZV7/VN+8pZieM1pWU
- MDNTWqe+LJH4C1piHyZX/+/30MsUQlKcz/kR6EgpJolxANsFY9xhjS+hV3yCzaogjK59sB21qmh
- YIXS9ENzVV2xGwg8NH7v1p97u5s35Cm6shvR8v7eGKDPoujgsKZi3Qwj0mcLDo/DijPT3znOgyH
- 6ZzM6iKr1DPgxppUikEaFLRiJfL7f5EUKh24TyBqW9Rn44A5++jRov3HXdoTOVXp3wi60PsWILE
- ifXRTNhje50I9Eb1rGkuPqeqdhU7emcUaGryz8eOu/KRyw4ObKREjkS1iV1qTgSoNPzlX6Gnpfw
- oeCig3H+CtClE29n/vvlHUdPOSVScbrdNs4s97ufaN8OaOFKoBqNHuVcmUsY0vbIDZ+B4WT0IJq
- m0xHrASMFuMLoAToxuA==
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTE5MDAyNyBTYWx0ZWRfX2a1CWEds9iUV
- K/goBu3yJSPw8ilHKJ+I/doAQnnP2uSrljUgoBObkZgxP7jtOx5DU4pK/QHw5yMcJWtpimTfjmr
- ZC//A3ksa48bCMkXQuiwPAnST7/c2ts=
-X-Proofpoint-GUID: H6nx2ilFBni1lhSxSd1iQJjfFtAIszz6
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=ZpdpYltYx_vBUK5n70dp:22
+ a=EUspDBNiAAAA:8 a=Xe68GOy1h7Bi-u-YiFIA:9 a=QEXdDO2ut3YA:10
+ a=Z1Yy7GAxqfX1iEi80vsk:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTE5MDAyNyBTYWx0ZWRfXzI5jqEfRfF4q
+ gIqdJz0eiXQGeq8Z6iK5FF9I3sQZgTJuMAQIMFnBi7uBEVh/pP6shaeFiDqe6JoEuw1NHri3H6i
+ MtAjDiIYE09g4n5Cm4AFADlp0BEZBi2hPJ6cWIPS+wVDR31dS4CJGiA+Hoi8Q+ueOuRJ/Vt2yI5
+ HR9SFpeCjiZIF3A2/LitMU8roMX3l/AJaUxFP1RMoYkydceG/QWVHXOLvM9Fm5AcmmoHQc9LtV2
+ TZcfKYvwNnTzbhVdqvNmNu2IIfz92vNnT+Mh9nSBMC9kZzTZPRIa9qCN+lqOphcNxzhg7ypoiV9
+ eMyj6iTkTeVJfsvr+WknvlYuo64JE8t+QZ5S5+RzyE8KtqhPVa3DXwaZq+r3hxf7ZJrq9uAX4Ht
+ mk4JN1hLrFfkDcTAnOrlYpA1KrDq2syQTlWpH3KBEogAQwcHA2L3kS9NdYdV35uYEvE4yFH9JLM
+ HDd7vBxeVJfc/cft1nQ==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
  definitions=2026-11-19_01,2026-11-16_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 clxscore=1015 malwarescore=0 impostorscore=0 phishscore=0
- adultscore=0 spamscore=0 priorityscore=1501 bulkscore=0 suspectscore=0
+ bulkscore=0 adultscore=0 clxscore=1015 priorityscore=1501 spamscore=0
+ malwarescore=0 impostorscore=0 phishscore=0 lowpriorityscore=0 suspectscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611190027
 
-Qualcomm SoCCP battery-management firmware on Glymur platform
-introduces a new interface which is called General I/O (GIO).
-It exposes functions through fixed-size register blocks grouped
-into virtual peripherals such as core, battery, USB-C, service,
-settings, debug, and OEM, etc. The data blocks must be accessed
-using block-aligned transactions. It also generates alert
-notifications which could be identified by a pair of peripheral
-and alert ID.
+Add a PMIC GLINK transport instance for GIO (General I/O) which is a
+new communication model used by the SoCCP battery-management firmware
+on some of the Qualcomm platforms (e.g. Glymur): it turns the
+GIO_OPCODE_BLOCK_READ/_WRITE requests and the GIO_OPCODE_ALERT_IND
+notification exchanged over the pmic-glink rpmsg channel into a regmap
+and per-alert IRQ delivery. It registers as a "pmic_glink.gio"
+auxiliary driver and bound to a new "gio" auxiliary device that's created
+on GIO-capable platforms.
 
-Add a transport-agnostic PMIC GIO framework that validates register
-accesses against the common GIO register definitions, and exposes the
-firmware register space through regmap using transport-provided read
-and write operations. The framework tracks transport availability
-and notify consumers when its state changes, and route alerts through
-a virtual IRQ domain while retaining their payload data. It also
-provides a group of managed helpers for registering GIO transports,
-state notifiers, IRQ mappings, and auxiliary consumer devices required
-by the transport and the consumer drivers.
+Also, update the client_mask to additionally request the GIO client on
+Glymur, which is the 1st platform to support GIO. Even through the legacy
+clients (battmgr, ucsi, altmode) can also be supported using the new GIO
+interface, their per-client bits are still kept with the functionalities
+continue to be provided by the existing pmic_glink.* auxiliary devices
+using the pmic_glink interfaces, to minimize the risks associated with
+transitioning all of them to use the new GIO interface.
 
+Co-developed-by: Tingguo Cheng <tingguo.cheng@oss.qualcomm.com>
+Signed-off-by: Tingguo Cheng <tingguo.cheng@oss.qualcomm.com>
 Signed-off-by: Fenglin Wu <fenglin.wu@oss.qualcomm.com>
 ---
- drivers/soc/qcom/Kconfig               |  16 +
- drivers/soc/qcom/Makefile              |   1 +
- drivers/soc/qcom/pmic_gio.c            | 672 +++++++++++++++++++++++++++++++++
- include/linux/soc/qcom/pmic_gio.h      | 153 ++++++++
- include/linux/soc/qcom/pmic_gio_regs.h | 239 ++++++++++++
- 5 files changed, 1081 insertions(+)
+ drivers/soc/qcom/Kconfig            |  13 +
+ drivers/soc/qcom/Makefile           |   1 +
+ drivers/soc/qcom/pmic_glink.c       |  25 +-
+ drivers/soc/qcom/pmic_glink_gio.c   | 543 ++++++++++++++++++++++++++++++++++++
+ include/linux/soc/qcom/pmic_glink.h |   1 +
+ 5 files changed, 581 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/soc/qcom/Kconfig b/drivers/soc/qcom/Kconfig
-index 535c8619197b..266a1babc108 100644
+index 266a1babc108..64f21fe6911e 100644
 --- a/drivers/soc/qcom/Kconfig
 +++ b/drivers/soc/qcom/Kconfig
-@@ -121,6 +121,22 @@ config QCOM_PMIC_GLINK
- 	  Say yes here to support USB-C and battery status on modern Qualcomm
- 	  platforms.
+@@ -137,6 +137,19 @@ config QCOM_PMIC_GIO
+ 	  Say yes here to enable the GIO interface on a SoCCP based battery
+ 	  management firmware platform.
  
-+config QCOM_PMIC_GIO
-+	tristate "Qualcomm PMIC GIO framework"
-+	depends on ARM64 || COMPILE_TEST
-+	select AUXILIARY_BUS
-+	select IRQ_DOMAIN
-+	select REGMAP
++config QCOM_PMIC_GLINK_GIO
++	tristate "Qualcomm PMIC GLINK GIO driver"
++	depends on QCOM_PMIC_GLINK && QCOM_PMIC_GIO
++	default QCOM_PMIC_GLINK && QCOM_PMIC_GIO
 +	help
-+	  A generic framework driver for Qualcomm's General I/O (GIO) interface
-+	  that is used to access SoCCP battery-managed firmware. It provides a
-+	  register-space abstraction built on top of transport-supplied
-+	  read/write operations, along with a virtual irqchip that distributes
-+	  async alert messages to the consumers.
++	  The Qualcomm PMIC GLINK GIO driver provides access, over GLINK, to
++	  the General I/O (GIO) register space and alerts exposed by the
++	  SoCCP coprocessor on some modern Qualcomm platforms.
 +
-+	  Say yes here to enable the GIO interface on a SoCCP based battery
-+	  management firmware platform.
++	  Say yes here to support USB-C and battery functions through GIO
++	  interface with the PMIC Glink transport exposed by SoCCP coprocessor
++	  on a Qualcomm platform.
 +
  config QCOM_RAMP_CTRL
  	tristate "Qualcomm Ramp Controller driver"
  	help
 diff --git a/drivers/soc/qcom/Makefile b/drivers/soc/qcom/Makefile
-index bddd6f0a5836..c3170757b012 100644
+index c3170757b012..5a0167e8fa55 100644
 --- a/drivers/soc/qcom/Makefile
 +++ b/drivers/soc/qcom/Makefile
-@@ -10,6 +10,7 @@ obj-$(CONFIG_QCOM_OCMEM)	+= ocmem.o
- obj-$(CONFIG_QCOM_PD_MAPPER)	+= qcom_pd_mapper.o
- obj-$(CONFIG_QCOM_PDR_HELPERS)	+= pdr_interface.o
- obj-$(CONFIG_QCOM_PDR_MSG)	+= qcom_pdr_msg.o
-+obj-$(CONFIG_QCOM_PMIC_GIO)	+= pmic_gio.o
+@@ -13,6 +13,7 @@ obj-$(CONFIG_QCOM_PDR_MSG)	+= qcom_pdr_msg.o
+ obj-$(CONFIG_QCOM_PMIC_GIO)	+= pmic_gio.o
  obj-$(CONFIG_QCOM_PMIC_GLINK)	+= pmic_glink.o
  obj-$(CONFIG_QCOM_PMIC_GLINK)	+= pmic_glink_altmode.o
++obj-$(CONFIG_QCOM_PMIC_GLINK_GIO)	+= pmic_glink_gio.o
  obj-$(CONFIG_QCOM_PMIC_PDCHARGER_ULOG)	+= pmic_pdcharger_ulog.o
-diff --git a/drivers/soc/qcom/pmic_gio.c b/drivers/soc/qcom/pmic_gio.c
+ CFLAGS_pmic_pdcharger_ulog.o	:=  -I$(src)
+ obj-$(CONFIG_QCOM_QMI_TMD) += qmi_tmd.o
+diff --git a/drivers/soc/qcom/pmic_glink.c b/drivers/soc/qcom/pmic_glink.c
+index 84fd0c82c0c4..059f4fd7a5d7 100644
+--- a/drivers/soc/qcom/pmic_glink.c
++++ b/drivers/soc/qcom/pmic_glink.c
+@@ -2,7 +2,9 @@
+ /*
+  * Copyright (c) 2019-2020, The Linux Foundation. All rights reserved.
+  * Copyright (c) 2022, Linaro Ltd
++ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+  */
++
+ #include <linux/auxiliary_bus.h>
+ #include <linux/cleanup.h>
+ #include <linux/delay.h>
+@@ -21,6 +23,7 @@ enum {
+ 	PMIC_GLINK_CLIENT_BATT = 0,
+ 	PMIC_GLINK_CLIENT_ALTMODE,
+ 	PMIC_GLINK_CLIENT_UCSI,
++	PMIC_GLINK_CLIENT_GIO,
+ };
+ 
+ struct pmic_glink_data {
+@@ -40,6 +43,7 @@ struct pmic_glink {
+ 	struct auxiliary_device altmode_aux;
+ 	struct auxiliary_device ps_aux;
+ 	struct auxiliary_device ucsi_aux;
++	struct auxiliary_device gio_aux;
+ 
+ 	/* serializing client_state and pdr_state updates */
+ 	struct mutex state_lock;
+@@ -326,10 +330,15 @@ static int pmic_glink_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
++	if (pg->data->client_mask & BIT(PMIC_GLINK_CLIENT_GIO)) {
++		ret = pmic_glink_add_aux_device(pg, &pg->gio_aux, "gio");
++		if (ret)
++			goto out_release_pdr_handle;
++	}
+ 	if (pg->data->client_mask & BIT(PMIC_GLINK_CLIENT_UCSI)) {
+ 		ret = pmic_glink_add_aux_device(pg, &pg->ucsi_aux, "ucsi");
+ 		if (ret)
+-			goto out_release_pdr_handle;
++			goto out_release_gio_aux;
+ 	}
+ 	if (pg->data->client_mask & BIT(PMIC_GLINK_CLIENT_ALTMODE)) {
+ 		ret = pmic_glink_add_aux_device(pg, &pg->altmode_aux, "altmode");
+@@ -367,6 +376,9 @@ static int pmic_glink_probe(struct platform_device *pdev)
+ out_release_ucsi_aux:
+ 	if (pg->data->client_mask & BIT(PMIC_GLINK_CLIENT_UCSI))
+ 		pmic_glink_del_aux_device(pg, &pg->ucsi_aux);
++out_release_gio_aux:
++	if (pg->data->client_mask & BIT(PMIC_GLINK_CLIENT_GIO))
++		pmic_glink_del_aux_device(pg, &pg->gio_aux);
+ out_release_pdr_handle:
+ 	pdr_handle_release(pg->pdr);
+ 
+@@ -385,6 +397,8 @@ static void pmic_glink_remove(struct platform_device *pdev)
+ 		pmic_glink_del_aux_device(pg, &pg->altmode_aux);
+ 	if (pg->data->client_mask & BIT(PMIC_GLINK_CLIENT_UCSI))
+ 		pmic_glink_del_aux_device(pg, &pg->ucsi_aux);
++	if (pg->data->client_mask & BIT(PMIC_GLINK_CLIENT_GIO))
++		pmic_glink_del_aux_device(pg, &pg->gio_aux);
+ 
+ 	guard(mutex)(&__pmic_glink_lock);
+ 	__pmic_glink = NULL;
+@@ -404,8 +418,15 @@ static const struct pmic_glink_data pmic_glink_soccp_data = {
+ 		       BIT(PMIC_GLINK_CLIENT_UCSI),
+ };
+ 
++static const struct pmic_glink_data pmic_glink_glymur_data = {
++	.client_mask = BIT(PMIC_GLINK_CLIENT_GIO) |
++		       BIT(PMIC_GLINK_CLIENT_BATT) |
++		       BIT(PMIC_GLINK_CLIENT_ALTMODE) |
++		       BIT(PMIC_GLINK_CLIENT_UCSI),
++};
++
+ static const struct of_device_id pmic_glink_of_match[] = {
+-	{ .compatible = "qcom,glymur-pmic-glink", .data = &pmic_glink_soccp_data },
++	{ .compatible = "qcom,glymur-pmic-glink", .data = &pmic_glink_glymur_data },
+ 	{ .compatible = "qcom,kaanapali-pmic-glink", .data = &pmic_glink_soccp_data },
+ 	{ .compatible = "qcom,pmic-glink", .data = &pmic_glink_adsp_data },
+ 	{}
+diff --git a/drivers/soc/qcom/pmic_glink_gio.c b/drivers/soc/qcom/pmic_glink_gio.c
 new file mode 100644
-index 000000000000..6eab97720164
+index 000000000000..0ea338518873
 --- /dev/null
-+++ b/drivers/soc/qcom/pmic_gio.c
-@@ -0,0 +1,672 @@
++++ b/drivers/soc/qcom/pmic_glink_gio.c
+@@ -0,0 +1,543 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
 + */
 +
++#include <linux/atomic.h>
 +#include <linux/auxiliary_bus.h>
++#include <linux/bitfield.h>
++#include <linux/bits.h>
++#include <linux/cleanup.h>
++#include <linux/completion.h>
 +#include <linux/device.h>
-+#include <linux/err.h>
-+#include <linux/export.h>
-+#include <linux/irq.h>
-+#include <linux/irqdomain.h>
 +#include <linux/module.h>
-+#include <linux/mutex.h>
-+#include <linux/property.h>
 +#include <linux/regmap.h>
 +#include <linux/slab.h>
-+#include <linux/string.h>
++#include <linux/soc/qcom/pdr.h>
++#include <linux/soc/qcom/pmic_glink.h>
 +#include <linux/soc/qcom/pmic_gio.h>
 +#include <linux/soc/qcom/pmic_gio_regs.h>
-+#include <linux/unaligned.h>
++#include <linux/spinlock.h>
++#include <linux/stddef.h>
++#include <linux/string.h>
++#include <linux/workqueue.h>
 +
-+#define PMIC_GIO_REG_ADDR_BYTES		4
-+#define PMIC_GIO_MAX_XFER_SIZE		1024
++#define PMIC_GLINK_SEND_TIMEOUT		(5 * HZ)
 +
-+struct pmic_gio_reg_block {
-+	u32 base;
-+	u16 size;
-+	bool writeable;
++/* GIO (Generic I/O) pmic_glink transaction opcode and mask */
++#define GIO_OPCODE_BLOCK_READ		0x90
++#define GIO_OPCODE_BLOCK_WRITE		0x91
++#define GIO_OPCODE_ALERT_IND		0x92
++#define GIO_OPCODE_MASK			GENMASK(15, 0)
++
++#define GIO_RW_BUFFER_SIZE		1024
++#define GIO_ALERT_MAX_PENDING		32
++
++struct gio_alert_hdr {
++	u8	revision;
++	u8	reserved_1;
++	__le16	serial_no;
++} __packed;
++
++struct gio_alert_info {
++	u8	peripheral_id;
++	u8	reserved_1;
++	u8	alert_id;
++	u8	reserved_2;
++} __packed;
++
++struct gio_alert_data {
++	struct gio_alert_hdr	hdr;
++	struct gio_alert_info	info;
++	u8			payload[PMIC_GIO_ALERT_PAYLOAD_SIZE];
++} __packed;
++
++struct gio_alert_msg {
++	struct pmic_glink_hdr	hdr;
++	__le32			reserved;
++	struct gio_alert_data	alt_data;
++} __packed;
++
++struct gio_read_req {
++	struct pmic_glink_hdr	hdr;
++	__le32			reserved;
++	__le32			offset;
++	__le32			length;
++} __packed;
++
++struct gio_read_resp {
++	struct pmic_glink_hdr	hdr;
++	u8			data[GIO_RW_BUFFER_SIZE];
++	__le32			ret_code;
++} __packed;
++
++struct gio_write_req {
++	struct pmic_glink_hdr	hdr;
++	__le32			reserved;
++	__le32			offset;
++	__le32			length;
++	u8			data[GIO_RW_BUFFER_SIZE];
++} __packed;
++
++struct gio_write_resp {
++	struct pmic_glink_hdr	hdr;
++	__le32			ret_code;
++} __packed;
++
++struct gio_alert_work {
++	struct work_struct	work;
++	struct pmic_glink_gio	*pgio;
++	u8			peripheral_id;
++	u8			alert_id;
++	u8			payload[PMIC_GIO_ALERT_PAYLOAD_SIZE];
 +};
 +
-+/*
-+ * Every register block defined for the GIO peripherals. The firmware
-+ * requires all registers of a block to be fetched/stored in a single
-+ * block-aligned transaction.
-+ */
-+static const struct pmic_gio_reg_block pmic_gio_reg_blocks[] = {
-+	/* CORE */
-+	{ GIO_CORE_IF_VERSION_ADDR, GIO_CORE_IF_VERSION_SIZE, false },
-+	{ GIO_CORE_ALERT_STATUS_ADDR, GIO_CORE_ALERT_STATUS_SIZE, false },
-+	{ GIO_CORE_LAST_ALERT_ADDR, GIO_CORE_LAST_ALERT_SIZE, false },
-+	{ GIO_CORE_GLOBAL_ALERT_CTRL_ADDR, GIO_CORE_GLOBAL_ALERT_CTRL_SIZE, true },
-+	{ GIO_CORE_HOST_STATE_ADDR, GIO_CORE_HOST_STATE_SIZE, true },
-+	{ GIO_CORE_SYSTEM_STATE_ADDR, GIO_CORE_SYSTEM_STATE_SIZE, true },
-+	{ GIO_CORE_LAST_ERROR_ADDR, GIO_CORE_LAST_ERROR_SIZE, true },
++struct pmic_glink_gio {
++	struct device *dev;
 +
-+	/* BATT */
-+	{ GIO_BATT_IF_VERSION_ADDR, GIO_BATT_IF_VERSION_SIZE, false },
-+	{ GIO_BATT_ALERT_STATUS_ADDR, GIO_BATT_ALERT_STATUS_SIZE, false },
-+	{ GIO_BATT_LAST_ALERT_ADDR, GIO_BATT_LAST_ALERT_SIZE, false },
-+	{ GIO_BATT_BPRT_ADDR, GIO_BATT_BPRT_SIZE, false },
-+	{ GIO_BATT_BCTI_ADDR, GIO_BATT_BCTI_SIZE, true },
-+	{ GIO_BATT_BCT_ADDR, GIO_BATT_BCT_SIZE, false },
-+	{ GIO_BATT_BIX_ADDR, GIO_BATT_BIX_SIZE, false },
-+	{ GIO_BATT_BPC_ADDR, GIO_BATT_BPC_SIZE, false },
-+	{ GIO_BATT_BPS_ADDR, GIO_BATT_BPS_SIZE, false },
-+	{ GIO_BATT_BPT_ADDR, GIO_BATT_BPT_SIZE, true },
-+	{ GIO_BATT_BPTS_ADDR, GIO_BATT_BPTS_SIZE, false },
-+	{ GIO_BATT_BST_ADDR, GIO_BATT_BST_SIZE, false },
-+	{ GIO_BATT_BATTERY_PRESENT_OCV_ADDR, GIO_BATT_BATTERY_PRESENT_OCV_SIZE, false },
-+	{ GIO_BATT_BTH_ADDR, GIO_BATT_BTH_SIZE, true },
-+	{ GIO_BATT_BTMI_ADDR, GIO_BATT_BTMI_SIZE, true },
-+	{ GIO_BATT_BTM_ADDR, GIO_BATT_BTM_SIZE, false },
-+	{ GIO_BATT_BTP_ADDR, GIO_BATT_BTP_SIZE, true },
-+	{ GIO_BATT_PSR_ADDR, GIO_BATT_PSR_SIZE, false },
-+	{ GIO_BATT_PIF_ADDR, GIO_BATT_PIF_SIZE, false },
-+	{ GIO_BATT_SHIP_MODE_EN_ADDR, GIO_BATT_SHIP_MODE_EN_SIZE, true },
-+	{ GIO_BATT_PCS_ADDR, GIO_BATT_PCS_SIZE, false },
-+	{ GIO_BATT_MNO_ADDR, GIO_BATT_MNO_SIZE, false },
-+	{ GIO_BATT_SNO_ADDR, GIO_BATT_SNO_SIZE, false },
-+	{ GIO_BATT_OTY_ADDR, GIO_BATT_OTY_SIZE, false },
-+	{ GIO_BATT_OIF_ADDR, GIO_BATT_OIF_SIZE, false },
-+	{ GIO_BATT_PORTABLE_BATTERY_INFO_ADDR, GIO_BATT_PORTABLE_BATTERY_INFO_SIZE, false },
-+	{ GIO_BATT_BMD_ADDR, GIO_BATT_BMD_SIZE, false },
-+	{ GIO_BATT_BMC_ADDR, GIO_BATT_BMC_SIZE, true },
-+	{ GIO_BATT_MISC_CONFIG_ADDR, GIO_BATT_MISC_CONFIG_SIZE, true },
-+
-+	/* USBC */
-+	{ GIO_USBC_IF_VERSION_ADDR, GIO_USBC_IF_VERSION_SIZE, false },
-+	{ GIO_USBC_ALERT_STATUS_ADDR, GIO_USBC_ALERT_STATUS_SIZE, false },
-+	{ GIO_USBC_LAST_ALERT_ADDR, GIO_USBC_LAST_ALERT_SIZE, false },
-+	{ GIO_USBC_UCSI_VERSION_REG, GIO_USBC_UCSI_VERSION_SIZE, false },
-+	{ GIO_USBC_UCSI_CCI_REG, GIO_USBC_UCSI_CCI_SIZE, false },
-+	{ GIO_USBC_UCSI_CONTROL_REG, GIO_USBC_UCSI_CONTROL_SIZE, true },
-+	{ GIO_USBC_UCSI_MESSAGE_IN_REG, GIO_USBC_UCSI_MESSAGE_IN_SIZE, false },
-+	{ GIO_USBC_UCSI_MSGINX_REG, GIO_USBC_UCSI_MSGINX_SIZE, false },
-+	{ GIO_USBC_UCSI_MESSAGE_OUT_REG, GIO_USBC_UCSI_MESSAGE_OUT_SIZE, true },
-+	{ GIO_USBC_UCSI_MSGOUTX_ADDR, GIO_USBC_UCSI_MSGOUTX_SIZE, true },
-+	{ GIO_USBC_UCSI_PAN_ADDR, GIO_USBC_UCSI_PAN_SIZE, false },
-+	{ GIO_USBC_PAN_CMD_ADDR, GIO_USBC_PAN_CMD_SIZE, true },
-+	{ GIO_USBC_RTMR_INFO_ADDR, GIO_USBC_RTMR_INFO_SIZE, false },
-+	{ GIO_USBC_RTMR_FW_UPDATE_ADDR, GIO_USBC_RTMR_FW_UPDATE_SIZE, true },
-+	{ GIO_USBC_USBCFG_ADDR, GIO_USBC_USBCFG_SIZE, true },
-+	{ GIO_USBC_DAM_CTRL_ADDR, GIO_USBC_DAM_CTRL_SIZE, true },
-+	{ GIO_USBC_DAM_CTRL_CFG_ADDR, GIO_USBC_DAM_CTRL_CFG_SIZE, false },
-+
-+	/* SVC */
-+	{ GIO_SVC_IF_VERSION_ADDR, GIO_SVC_IF_VERSION_SIZE, false },
-+	{ GIO_SVC_ALERT_STATUS_ADDR, GIO_SVC_ALERT_STATUS_SIZE, false },
-+	{ GIO_SVC_LAST_ALERT_ADDR, GIO_SVC_LAST_ALERT_SIZE, false },
-+	{ GIO_SVC_UEFI_ACTION_ADDR, GIO_SVC_UEFI_ACTION_SIZE, false },
-+	{ GIO_SVC_POWER_OK_ADDR, GIO_SVC_POWER_OK_SIZE, false },
-+	{ GIO_SVC_OOB_REQUEST_ACTION_ADDR, GIO_SVC_OOB_REQUEST_ACTION_SIZE, true },
-+	{ GIO_SVC_OOB_RTCTMR_VOTE_ADDR, GIO_SVC_OOB_RTCTMR_VOTE_SIZE, true },
-+	{ GIO_SVC_CLT0_REQUEST_ACTION_ADDR, GIO_SVC_CLT0_REQUEST_ACTION_SIZE, true },
-+	{ GIO_SVC_CLT0_RTCTMR_VOTE_ADDR, GIO_SVC_CLT0_RTCTMR_VOTE_SIZE, true },
-+	{ GIO_SVC_SYS_SET_POWER_STATE_ADDR, GIO_SVC_SYS_SET_POWER_STATE_SIZE, true },
-+	{ GIO_SVC_TAD_RT_ADDR, GIO_SVC_TAD_RT_SIZE, true },
-+	{ GIO_SVC_TAD_GWS_ADDR, GIO_SVC_TAD_GWS_SIZE, false },
-+	{ GIO_SVC_TAD_CWS_ADDR, GIO_SVC_TAD_CWS_SIZE, true },
-+	{ GIO_SVC_TAD_TPA_ADDR, GIO_SVC_TAD_TPA_SIZE, true },
-+	{ GIO_SVC_TAD_TPD_ADDR, GIO_SVC_TAD_TPD_SIZE, true },
-+	{ GIO_SVC_TAD_TVA_ADDR, GIO_SVC_TAD_TVA_SIZE, true },
-+	{ GIO_SVC_TAD_TVD_ADDR, GIO_SVC_TAD_TVD_SIZE, true },
-+	{ GIO_SVC_LID_SETTING_ADDR, GIO_SVC_LID_SETTING_SIZE, true },
-+
-+	/* SETTING */
-+	{ GIO_SETTING_IF_VERSION_ADDR, GIO_SETTING_IF_VERSION_SIZE, false },
-+	{ GIO_SETTING_ALERT_STATUS_ADDR, GIO_SETTING_ALERT_STATUS_SIZE, false },
-+	{ GIO_SETTING_LAST_ALERT_ADDR, GIO_SETTING_LAST_ALERT_SIZE, false },
-+	{ GIO_SETTING_SYS_PWR_CFG_ADDR, GIO_SETTING_SYS_PWR_CFG_SIZE, true },
-+	{ GIO_SETTING_BATT_AUTH_ADDR, GIO_SETTING_BATT_AUTH_SIZE, true },
-+	{ GIO_SETTING_CHG_LIMIT_ADDR, GIO_SETTING_CHG_LIMIT_SIZE, true },
-+	{ GIO_SETTING_BOOT_ADDR, GIO_SETTING_BOOT_SIZE, true },
-+	{ GIO_SETTING_USBC_ADDR, GIO_SETTING_USBC_SIZE, true },
-+	{ GIO_SETTING_HOST_MAC_ADDR_ADDR, GIO_SETTING_HOST_MAC_ADDR_SIZE, true },
-+	{ GIO_SETTING_AOU_ADDR, GIO_SETTING_AOU_SIZE, true },
-+	{ GIO_SETTING_PSM_ADDR, GIO_SETTING_PSM_SIZE, true },
-+	{ GIO_SETTING_USB_WAKE_ON_LAN_ADDR, GIO_SETTING_USB_WAKE_ON_LAN_SIZE, true },
-+	{ GIO_SETTING_EPM_USBC_ADDR, GIO_SETTING_EPM_USBC_SIZE, true },
-+	{ GIO_SETTING_OFFMODE_SHIPMODE_ADDR, GIO_SETTING_OFFMODE_SHIPMODE_SIZE, true },
-+	{ GIO_SETTING_RTC_TIMER_FOR_EOC_ADDR, GIO_SETTING_RTC_TIMER_FOR_EOC_SIZE, true },
-+	{ GIO_SETTING_INTL_CHG_ADDR, GIO_SETTING_INTL_CHG_SIZE, true },
-+	{ GIO_SETTING_CMD_ADDR, GIO_SETTING_CMD_SIZE, true },
-+
-+	/* DBG */
-+	{ GIO_DBG_IF_VERSION_ADDR, GIO_DBG_IF_VERSION_SIZE, false },
-+	{ GIO_DBG_ALERT_STATUS_ADDR, GIO_DBG_ALERT_STATUS_SIZE, false },
-+	{ GIO_DBG_LAST_ALERT_ADDR, GIO_DBG_LAST_ALERT_SIZE, false },
-+	{ GIO_DBG_BCLIBAT_ADDR, GIO_DBG_BCLIBAT_SIZE, true },
-+	{ GIO_DBG_BCLVBAT_ADDR, GIO_DBG_BCLVBAT_SIZE, true },
-+	{ GIO_DBG_BCLIBAT_DGL_TIMER_ADDR, GIO_DBG_BCLIBAT_DGL_TIMER_SIZE, true },
-+	{ GIO_DBG_BCLVBAT_DGL_TIMER_ADDR, GIO_DBG_BCLVBAT_DGL_TIMER_SIZE, true },
-+	{ GIO_DBG_BCL_CLR_TIMER_ADDR, GIO_DBG_BCL_CLR_TIMER_SIZE, true },
-+	{ GIO_DBG_CHG_DIE_TEMP_TH_ADDR, GIO_DBG_CHG_DIE_TEMP_TH_SIZE, true },
-+	{ GIO_DBG_CHG_CONN_TEMP_TH_ADDR, GIO_DBG_CHG_CONN_TEMP_TH_SIZE, true },
-+	{ GIO_DBG_SPMI_WRITE_ADDR, GIO_DBG_SPMI_WRITE_SIZE, true },
-+	{ GIO_DBG_LOG_LEVEL_ADDR, GIO_DBG_LOG_LEVEL_SIZE, true },
-+	{ GIO_DBG_LOG_CAT_ADDR, GIO_DBG_LOG_CAT_SIZE, true },
-+
-+	/* OEM */
-+	{ GIO_OEM_IF_VERSION_ADDR, GIO_OEM_IF_VERSION_SIZE, false },
-+	{ GIO_OEM_ALERT_STATUS_ADDR, GIO_OEM_ALERT_STATUS_SIZE, false },
-+	{ GIO_OEM_LAST_ALERT_ADDR, GIO_OEM_LAST_ALERT_SIZE, false },
-+	{ GIO_OEM_OP_RW_ADDR, GIO_OEM_OP_RW_SIZE, true },
-+	{ GIO_OEM_I2C_PROXY_CONFIG_ADDR, GIO_OEM_I2C_PROXY_CONFIG_SIZE, true },
-+	{ GIO_OEM_I2C_PROXY_DATA_ADDR, GIO_OEM_I2C_PROXY_DATA_SIZE, true },
-+};
-+
-+static const struct pmic_gio_reg_block *pmic_gio_find_reg_block(unsigned int reg)
-+{
-+	const struct pmic_gio_reg_block *block;
-+	int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(pmic_gio_reg_blocks); i++) {
-+		block = &pmic_gio_reg_blocks[i];
-+		if (reg == block->base)
-+			return block;
-+	}
-+
-+	return NULL;
-+}
-+
-+static const struct pmic_gio_reg_block *pmic_gio_validate_access(unsigned int reg,
-+								 size_t len)
-+{
-+	const struct pmic_gio_reg_block *block = pmic_gio_find_reg_block(reg);
-+
-+	if (!block || !len)
-+		return NULL;
-+
-+	if (reg != block->base || len != block->size)
-+		return NULL;
-+
-+	return block;
-+}
-+
-+static bool pmic_gio_readable_reg(struct device *dev, unsigned int reg)
-+{
-+	const struct pmic_gio_reg_block *block = pmic_gio_find_reg_block(reg);
-+
-+	return block ? true : false;
-+}
-+
-+static bool pmic_gio_writeable_reg(struct device *dev, unsigned int reg)
-+{
-+	const struct pmic_gio_reg_block *block = pmic_gio_find_reg_block(reg);
-+
-+	return block && block->writeable;
-+}
-+
-+/*
-+ * For registers in a block whose size exceeds 4 bytes, mark them as
-+ * precious registers to prevent regmap debugfs from accessing a torn
-+ * register one at a time.
-+ */
-+static bool pmic_gio_precious_reg(struct device *dev, unsigned int reg)
-+{
-+	const struct pmic_gio_reg_block *block = pmic_gio_find_reg_block(reg);
-+
-+	return block && block->size > PMIC_GIO_REG_GRANULARITY;
-+}
-+
-+static const struct regmap_config pmic_gio_default_regmap_config = {
-+	.reg_bits	= 32,
-+	.val_bits	= PMIC_GIO_REG_GRANULARITY * 8,
-+	.reg_stride	= PMIC_GIO_REG_GRANULARITY,
-+	.max_register	= GIO_MAX_REG_ADDR,
-+	.readable_reg	= pmic_gio_readable_reg,
-+	.writeable_reg	= pmic_gio_writeable_reg,
-+	.precious_reg	= pmic_gio_precious_reg,
-+	.name		= "pmic-gio",
-+};
-+
-+static const struct pmic_gio_irq pmic_gio_default_irqs[] = {
-+	{ GIO_BATT_PERIPHERAL_ID, GIO_ALERT_BATT_STATUS_CHANGE },
-+	{ GIO_BATT_PERIPHERAL_ID, GIO_ALERT_BATT_INFO_CHANGE },
-+	{ GIO_BATT_PERIPHERAL_ID, GIO_ALERT_BATT_MAINTENANCE_STATUS_CHANGE },
-+	{ GIO_BATT_PERIPHERAL_ID, GIO_ALERT_BATT_POWER_STATE_CHANGE },
-+	{ GIO_BATT_PERIPHERAL_ID, GIO_ALERT_BATT_POWER_SOURCE_INFO_CHANGE },
-+	{ GIO_USBC_PERIPHERAL_ID, GIO_ALERT_USBC_UCSI_CCI },
-+	{ GIO_USBC_PERIPHERAL_ID, GIO_ALERT_USBC_PAN },
-+	{ GIO_SVC_PERIPHERAL_ID, GIO_ALERT_SVC_POWER_OK_CHANGED },
-+	{ GIO_SVC_PERIPHERAL_ID, GIO_ALERT_SVC_SHUTDOWN },
-+	{ GIO_SVC_PERIPHERAL_ID, GIO_ALERT_SVC_RESET },
-+	{ GIO_OEM_PERIPHERAL_ID, GIO_ALERT_OEM_OP_NOTIFY },
-+};
-+
-+static const struct pmic_gio_irq_chip pmic_gio_default_irq_chip = {
-+	.irqs = pmic_gio_default_irqs,
-+	.num_irqs = ARRAY_SIZE(pmic_gio_default_irqs),
-+};
-+
-+static int pmic_gio_regmap_bus_read(void *context, const void *reg, size_t reg_size,
-+				    void *val, size_t val_size)
-+{
-+	const struct pmic_gio_reg_block *block;
-+	struct pmic_gio_device *gio = context;
-+	u32 addr;
-+
-+	if (!READ_ONCE(gio->online))
-+		return -ENOTCONN;
-+
-+	if (reg_size != PMIC_GIO_REG_ADDR_BYTES)
-+		return -EINVAL;
-+
-+	addr = get_unaligned_le32(reg);
-+	block = pmic_gio_validate_access(addr, val_size);
-+	if (!block)
-+		return -EINVAL;
-+
-+	return gio->ops->read(gio, addr, val, val_size);
-+}
-+
-+static int pmic_gio_regmap_bus_gather_write(void *context, const void *reg, size_t reg_size,
-+					    const void *val, size_t val_size)
-+{
-+	const struct pmic_gio_reg_block *block;
-+	struct pmic_gio_device *gio = context;
-+	u32 addr;
-+
-+	if (!READ_ONCE(gio->online))
-+		return -ENOTCONN;
-+
-+	if (reg_size != PMIC_GIO_REG_ADDR_BYTES)
-+		return -EINVAL;
-+
-+	addr = get_unaligned_le32(reg);
-+	block = pmic_gio_validate_access(addr, val_size);
-+	if (!block || !block->writeable)
-+		return -EINVAL;
-+
-+	return gio->ops->write(gio, addr, val, val_size);
-+}
-+
-+static int pmic_gio_regmap_bus_write(void *context, const void *data, size_t count)
-+{
-+	const u8 *val;
-+
-+	if (count < PMIC_GIO_REG_ADDR_BYTES)
-+		return -EINVAL;
-+
-+	val = (const u8 *)data + PMIC_GIO_REG_ADDR_BYTES;
-+
-+	return pmic_gio_regmap_bus_gather_write(context, data, PMIC_GIO_REG_ADDR_BYTES,
-+						val, count - PMIC_GIO_REG_ADDR_BYTES);
-+}
-+
-+static const struct regmap_bus pmic_gio_regmap_bus = {
-+	.read = pmic_gio_regmap_bus_read,
-+	.write = pmic_gio_regmap_bus_write,
-+	.gather_write = pmic_gio_regmap_bus_gather_write,
-+	.reg_format_endian_default = REGMAP_ENDIAN_LITTLE,
-+	.val_format_endian_default = REGMAP_ENDIAN_LITTLE,
-+	.max_raw_read = PMIC_GIO_MAX_XFER_SIZE,
-+	.max_raw_write = PMIC_GIO_MAX_XFER_SIZE,
-+};
-+
-+struct pmic_gio_alert_data {
-+	struct mutex dispatch_lock; /* Serialize alert publication and dispatch */
-+	struct mutex data_lock; /* Protect alert data payload */
-+	u8 payload[PMIC_GIO_ALERT_PAYLOAD_SIZE];
-+};
-+
-+struct pmic_gio_irq_chip_data {
-+	const struct pmic_gio_irq_chip	*chip;
-+	struct fwnode_handle *fwnode;
-+	struct irq_domain *domain;
-+	unsigned int *virqs;
-+	struct pmic_gio_alert_data *alerts;
-+};
-+
-+struct pmic_gio_notifier {
++	struct pmic_glink_client *client;
 +	struct pmic_gio_device *gio;
-+	struct notifier_block *nb;
++
++	struct workqueue_struct *wq;
++	struct work_struct init_work;
++	struct completion ack;
++	atomic_t alert_pending;
++
++	spinlock_t lock;	/* protects the transaction state and flags */
++	bool pending;
++	u16 pending_opcode;
++	int ack_error;
++	unsigned int buf_size;
++	u8 *buf;
++	bool removing;
++	bool service_up;
++
++	struct gio_write_req write_req;
 +};
 +
-+/* The alert IRQ couldn't be masked/unmasked separately */
-+static void pmic_gio_irq_dummy(struct irq_data *data)
++/* Must be called with pgio->lock held. */
++static void pmic_glink_gio_reset_transaction(struct pmic_glink_gio *pgio)
 +{
++	pgio->pending = false;
++	pgio->pending_opcode = 0;
++	pgio->ack_error = 0;
++	pgio->buf = NULL;
++	pgio->buf_size = 0;
 +}
 +
-+static const struct irq_chip pmic_gio_irq_chip_ops = {
-+	.name = "pmic-gio",
-+	.irq_mask = pmic_gio_irq_dummy,
-+	.irq_unmask = pmic_gio_irq_dummy,
-+};
-+
-+static int pmic_gio_irq_domain_map(struct irq_domain *d, unsigned int virq,
-+				   irq_hw_number_t hwirq)
++/* Must be called with pgio->lock held. */
++static void pmic_glink_gio_complete_transaction(struct pmic_glink_gio *pgio)
 +{
-+	irq_set_chip_data(virq, d->host_data);
-+	irq_set_chip_and_handler(virq, &pmic_gio_irq_chip_ops, handle_simple_irq);
-+	irq_set_nested_thread(virq, true);
-+	irq_set_noprobe(virq);
++	pgio->pending = false;
++	pgio->pending_opcode = 0;
++	pgio->buf = NULL;
++	pgio->buf_size = 0;
++	complete(&pgio->ack);
++}
++
++static int pmic_glink_gio_prepare_transaction(struct pmic_glink_gio *pgio, u16 opcode,
++					      void *buf, size_t buf_size)
++{
++	guard(spinlock_irqsave)(&pgio->lock);
++
++	if (pgio->removing)
++		return -ENODEV;
++
++	if (!pgio->service_up)
++		return -ENETRESET;
++
++	reinit_completion(&pgio->ack);
++	pgio->pending = true;
++	pgio->pending_opcode = opcode;
++	pgio->ack_error = 0;
++	pgio->buf = buf;
++	pgio->buf_size = buf_size;
 +
 +	return 0;
 +}
 +
-+static int pmic_gio_irq_to_hwirq(const struct pmic_gio_irq_chip *chip, u8 peripheral_id,
-+				 u8 alert_id, irq_hw_number_t *hwirq)
++static int pmic_glink_gio_wait_ack(struct pmic_glink_gio *pgio)
 +{
-+	int i;
-+
-+	for (i = 0; i < chip->num_irqs; i++) {
-+		if (chip->irqs[i].peripheral_id == peripheral_id &&
-+		    chip->irqs[i].alert_id == alert_id) {
-+			*hwirq = i;
-+			return 0;
-+		}
-+	}
-+
-+	return -ENOENT;
-+}
-+
-+static int pmic_gio_irq_domain_xlate(struct irq_domain *d, struct device_node *node,
-+				     const u32 *intspec, unsigned int intsize,
-+				     unsigned long *out_hwirq, unsigned int *out_type)
-+{
-+	struct pmic_gio_irq_chip_data *chip_data = d->host_data;
-+
-+	if (intsize != 2 || intspec[0] > 0xff || intspec[1] > 0xff)
-+		return -EINVAL;
-+
-+	*out_type = IRQ_TYPE_NONE;
-+
-+	return pmic_gio_irq_to_hwirq(chip_data->chip, intspec[0], intspec[1], out_hwirq);
-+}
-+
-+static const struct irq_domain_ops pmic_gio_irq_domain_ops = {
-+	.map = pmic_gio_irq_domain_map,
-+	.xlate = pmic_gio_irq_domain_xlate,
-+};
-+
-+static int pmic_gio_add_irq_chip(struct pmic_gio_device *gio,
-+				 struct pmic_gio_irq_chip_data **data)
-+{
-+	const struct pmic_gio_irq_chip *chip = &pmic_gio_default_irq_chip;
-+	int virq;
-+
-+	struct pmic_gio_irq_chip_data *chip_data __free(kfree) =
-+				kzalloc_obj(*chip_data, GFP_KERNEL);
-+	if (!chip_data)
-+		return -ENOMEM;
-+
-+	unsigned int *virqs __free(kfree) =
-+		kcalloc(chip->num_irqs, sizeof(*virqs), GFP_KERNEL);
-+	if (!virqs)
-+		return -ENOMEM;
-+
-+	struct pmic_gio_alert_data *alerts __free(kfree) =
-+		kcalloc(chip->num_irqs, sizeof(*alerts), GFP_KERNEL);
-+	if (!alerts)
-+		return -ENOMEM;
-+
-+	chip_data->chip = chip;
-+
-+	chip_data->fwnode = dev_fwnode(gio->dev);
-+	if (!chip_data->fwnode)
-+		return -ENODEV;
-+
-+	chip_data->domain = irq_domain_create_linear(chip_data->fwnode, chip->num_irqs,
-+						     &pmic_gio_irq_domain_ops, chip_data);
-+	if (!chip_data->domain)
-+		return -ENOMEM;
-+
-+	for (int i = 0; i < chip->num_irqs; i++) {
-+		mutex_init(&alerts[i].dispatch_lock);
-+		mutex_init(&alerts[i].data_lock);
-+
-+		virq = irq_create_mapping(chip_data->domain, i);
-+		if (!virq) {
-+			while (i--)
-+				irq_dispose_mapping(virqs[i]);
-+			irq_domain_remove(chip_data->domain);
-+			return -EINVAL;
-+		}
-+		virqs[i] = virq;
-+	}
-+
-+	chip_data->virqs = no_free_ptr(virqs);
-+	chip_data->alerts = no_free_ptr(alerts);
-+	*data = chip_data;
-+	gio->chip_data = no_free_ptr(chip_data);
-+
-+	return 0;
-+}
-+
-+static void pmic_gio_irq_chip_devm_release(void *data)
-+{
-+	struct pmic_gio_irq_chip_data *chip_data = data;
-+
-+	for (int i = 0; i < chip_data->chip->num_irqs; i++)
-+		irq_dispose_mapping(chip_data->virqs[i]);
-+
-+	irq_domain_remove(chip_data->domain);
-+	kfree(chip_data->alerts);
-+	kfree(chip_data->virqs);
-+	kfree(chip_data);
-+}
-+
-+struct pmic_gio_device *devm_pmic_gio_register(struct device *dev,
-+					       const struct pmic_gio_device_ops *ops,
-+					       void *drvdata)
-+{
-+	struct pmic_gio_irq_chip_data *chip_data;
-+	struct pmic_gio_device *gio;
++	unsigned long left;
 +	int ret;
 +
-+	if (!ops || !ops->read || !ops->write)
-+		return ERR_PTR(-EINVAL);
++	left = wait_for_completion_timeout(&pgio->ack, PMIC_GLINK_SEND_TIMEOUT);
 +
-+	gio = devm_kzalloc(dev, sizeof(*gio), GFP_KERNEL);
-+	if (!gio)
-+		return ERR_PTR(-ENOMEM);
++	scoped_guard(spinlock_irqsave, &pgio->lock) {
++		ret = pgio->ack_error;
++		pmic_glink_gio_reset_transaction(pgio);
++	}
 +
-+	gio->dev = dev;
-+	gio->ops = ops;
-+	gio->drvdata = drvdata;
-+	ATOMIC_INIT_NOTIFIER_HEAD(&gio->state_notifiers);
++	/*
++	 * If a BLOCK_READ/BLOCK_WRITE request times out, its response may still
++	 * arrive later and be mistaken for a newer request with the same opcode:
++	 * neither gio_read_resp nor gio_write_resp carries any offset/length/
++	 * sequence identifier, so a late response cannot be distinguished from
++	 * the response to whichever transaction is pending when it arrives.
++	 * Fixing this would need a per-transaction generation counter/sequence
++	 * number threaded through the request and checked against the response
++	 * before trusting it. However, this has not been implemented at the
++	 * firmware side, so just print an error message and abort the current
++	 * request instead.
++	 */
++	if (!left) {
++		dev_err(pgio->dev,
++			"GIO transaction timed out, response may still be in flight\n");
++		return -ETIMEDOUT;
++	}
 +
-+	gio->regmap = devm_regmap_init(gio->dev, &pmic_gio_regmap_bus, gio,
-+				       &pmic_gio_default_regmap_config);
-+	if (IS_ERR(gio->regmap))
-+		return ERR_CAST(gio->regmap);
-+
-+	ret = pmic_gio_add_irq_chip(gio, &chip_data);
-+	if (ret)
-+		return ERR_PTR(ret);
-+
-+	ret = devm_add_action_or_reset(dev, pmic_gio_irq_chip_devm_release, chip_data);
-+	if (ret)
-+		return ERR_PTR(ret);
-+
-+	return gio;
-+}
-+EXPORT_SYMBOL_GPL(devm_pmic_gio_register);
-+
-+void pmic_gio_set_state(struct pmic_gio_device *gio, enum pmic_gio_state state)
-+{
-+	bool online;
-+
-+	if (!gio)
-+		return;
-+
-+	online = state == PMIC_GIO_STATE_UP;
-+	if (READ_ONCE(gio->online) == online)
-+		return;
-+
-+	WRITE_ONCE(gio->online, online);
-+	atomic_notifier_call_chain(&gio->state_notifiers, state, gio);
-+}
-+EXPORT_SYMBOL_GPL(pmic_gio_set_state);
-+
-+bool pmic_gio_is_online(struct device *dev)
-+{
-+	struct pmic_gio_device *gio;
-+
-+	if (!dev)
-+		return false;
-+
-+	gio = dev_get_platdata(dev);
-+
-+	return gio && READ_ONCE(gio->online);
-+}
-+EXPORT_SYMBOL_GPL(pmic_gio_is_online);
-+
-+static void pmic_gio_unregister_notifier(void *data)
-+{
-+	struct pmic_gio_notifier *notifier = data;
-+
-+	atomic_notifier_chain_unregister(&notifier->gio->state_notifiers, notifier->nb);
++	return ret;
 +}
 +
-+/**
-+ * devm_pmic_gio_register_notifier - register a GIO state notifier
-+ * @dev: GIO consumer device
-+ * @nb: notifier block to register
-+ *
-+ * State notifier callbacks may run in atomic context and must not sleep.
-+ *
-+ * Return: 0 on success or a negative error code on failure.
-+ */
-+int devm_pmic_gio_register_notifier(struct device *dev, struct notifier_block *nb)
++static int pmic_glink_gio_write_sync(struct pmic_glink_gio *pgio, u32 addr,
++				     const u8 *data, size_t length)
 +{
-+	struct pmic_gio_notifier *notifier;
-+	struct pmic_gio_device *gio;
++	struct gio_write_req *req = &pgio->write_req;
 +	int ret;
 +
-+	if (!dev || !nb)
++	if (!data || !length)
++		return -EFAULT;
++
++	if (length > GIO_RW_BUFFER_SIZE) {
++		dev_err(pgio->dev, "Write length %zu exceeds maximum buffer size %d\n",
++			length, GIO_RW_BUFFER_SIZE);
 +		return -EINVAL;
++	}
 +
-+	gio = dev_get_platdata(dev);
-+	if (!gio)
-+		return -ENODEV;
++	req->hdr.owner = cpu_to_le32(PMIC_GLINK_OWNER_GIO);
++	req->hdr.type = cpu_to_le32(PMIC_GLINK_REQ_RESP);
++	req->hdr.opcode = cpu_to_le32(GIO_OPCODE_BLOCK_WRITE);
++	req->offset = cpu_to_le32(addr);
++	req->length = cpu_to_le32(length);
++	memcpy(req->data, data, length);
 +
-+	notifier = devm_kzalloc(dev, sizeof(*notifier), GFP_KERNEL);
-+	if (!notifier)
-+		return -ENOMEM;
-+
-+	notifier->gio = gio;
-+	notifier->nb = nb;
-+
-+	ret = atomic_notifier_chain_register(&gio->state_notifiers, nb);
++	ret = pmic_glink_gio_prepare_transaction(pgio, GIO_OPCODE_BLOCK_WRITE, NULL, 0);
 +	if (ret)
 +		return ret;
 +
-+	return devm_add_action_or_reset(dev, pmic_gio_unregister_notifier, notifier);
++	ret = pmic_glink_send(pgio->client, req, offsetof(struct gio_write_req, data) + length);
++	if (ret) {
++		dev_err(pgio->dev, "Failed to send GIO write request to 0x%05x: %d\n", addr, ret);
++
++		scoped_guard(spinlock_irqsave, &pgio->lock)
++			pmic_glink_gio_reset_transaction(pgio);
++
++		return ret;
++	}
++
++	ret = pmic_glink_gio_wait_ack(pgio);
++	if (ret)
++		dev_err(pgio->dev, "GIO write to 0x%05x failed: %d\n", addr, ret);
++
++	return ret;
 +}
-+EXPORT_SYMBOL_GPL(devm_pmic_gio_register_notifier);
 +
-+/**
-+ * pmic_gio_irq_find - map a GIO alert to a Linux IRQ
-+ * @dev: GIO consumer device
-+ * @peripheral_id: GIO peripheral identifier
-+ * @alert_id: alert identifier within the peripheral
-+ *
-+ * Maps a given (@peripheral_id, @alert_id) pair to the Linux IRQ associated
-+ * with the consumer's GIO auxiliary parent, for example:
-+ *
-+ *	virq = pmic_gio_irq_find(dev, GIO_USBC_PERIPHERAL_ID,
-+ *				 GIO_ALERT_USBC_UCSI_CCI);
-+ *
-+ * Return: A Linux IRQ number on success or a negative error code on failure.
-+ */
-+int pmic_gio_irq_find(struct device *dev, u8 peripheral_id, u8 alert_id)
++static int pmic_glink_gio_read(struct pmic_gio_device *gio, unsigned int reg,
++			       void *val, size_t val_size)
 +{
-+	struct irq_fwspec fwspec = {};
-+	int virq;
++	struct pmic_glink_gio *pgio = gio->drvdata;
++	struct gio_read_req req = {};
++	int ret;
 +
-+	if (!dev || !dev->parent)
++	if (!val || !val_size)
++		return -EFAULT;
++
++	if (val_size > GIO_RW_BUFFER_SIZE) {
++		dev_err(pgio->dev, "Read length %zu exceeds maximum buffer size %d\n",
++			val_size, GIO_RW_BUFFER_SIZE);
 +		return -EINVAL;
++	}
 +
-+	fwspec.fwnode = dev_fwnode(dev->parent);
-+	if (!fwspec.fwnode)
-+		return -ENODEV;
++	req.hdr.owner = cpu_to_le32(PMIC_GLINK_OWNER_GIO);
++	req.hdr.type = cpu_to_le32(PMIC_GLINK_REQ_RESP);
++	req.hdr.opcode = cpu_to_le32(GIO_OPCODE_BLOCK_READ);
++	req.offset = cpu_to_le32(reg);
++	req.length = cpu_to_le32(val_size);
 +
-+	fwspec.param_count = 2;
-+	fwspec.param[0] = peripheral_id;
-+	fwspec.param[1] = alert_id;
++	ret = pmic_glink_gio_prepare_transaction(pgio, GIO_OPCODE_BLOCK_READ, val, val_size);
++	if (ret)
++		return ret;
 +
-+	virq = irq_create_fwspec_mapping(&fwspec);
++	ret = pmic_glink_send(pgio->client, &req, sizeof(req));
++	if (ret) {
++		dev_err(pgio->dev, "Failed to send GIO read request to 0x%05x: %d\n", reg, ret);
 +
-+	return virq ?: -EINVAL;
-+}
-+EXPORT_SYMBOL_GPL(pmic_gio_irq_find);
++		scoped_guard(spinlock_irqsave, &pgio->lock) {
++			pmic_glink_gio_reset_transaction(pgio);
++		}
 +
-+int pmic_gio_irq_get_payload(unsigned int irq, void *payload, size_t payload_size)
-+{
-+	struct irq_data *irq_data = irq_get_irq_data(irq);
-+	struct pmic_gio_irq_chip_data *data;
-+	irq_hw_number_t hwirq;
++		return ret;
++	}
 +
-+	if (!irq_data || irq_data->chip != &pmic_gio_irq_chip_ops || !payload)
-+		return -EINVAL;
++	ret = pmic_glink_gio_wait_ack(pgio);
++	if (ret)
++		dev_err(pgio->dev, "GIO read from 0x%05x failed: %d\n", reg, ret);
 +
-+	if (payload_size < PMIC_GIO_ALERT_PAYLOAD_SIZE)
-+		return -EMSGSIZE;
-+
-+	data = irq_data->chip_data;
-+	hwirq = irqd_to_hwirq(irq_data);
-+	if (hwirq >= data->chip->num_irqs)
-+		return -EINVAL;
-+
-+	guard(mutex)(&data->alerts[hwirq].data_lock);
-+	memcpy(payload, data->alerts[hwirq].payload, PMIC_GIO_ALERT_PAYLOAD_SIZE);
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(pmic_gio_irq_get_payload);
-+
-+struct auxiliary_device *
-+devm_pmic_gio_add_consumer(struct pmic_gio_device *gio, const char *name)
-+{
-+	return devm_auxiliary_device_create(gio->dev, name, gio);
-+}
-+EXPORT_SYMBOL_GPL(devm_pmic_gio_add_consumer);
-+
-+/**
-+ * pmic_gio_handle_alert - dispatch a GIO alert to its IRQ handler
-+ * @gio: GIO device receiving the alert
-+ * @peripheral_id: GIO peripheral identifier
-+ * @alert_id: alert identifier within the peripheral
-+ * @payload: alert payload
-+ *
-+ * The transport layer calls this function when a GIO alert arrives. This
-+ * function may sleep and must be called from sleepable context.
-+ */
-+void pmic_gio_handle_alert(struct pmic_gio_device *gio,
-+			   u8 peripheral_id, u8 alert_id,
-+			   const void *payload)
-+{
-+	struct pmic_gio_irq_chip_data *data = gio->chip_data;
-+	struct pmic_gio_alert_data *alert;
-+	irq_hw_number_t hwirq;
-+	int virq;
-+
-+	if (!payload || !READ_ONCE(gio->online))
-+		return;
-+
-+	if (gio->ops->handle_alert &&
-+	    gio->ops->handle_alert(gio, peripheral_id, alert_id, payload))
-+		return;
-+
-+	if (pmic_gio_irq_to_hwirq(data->chip, peripheral_id, alert_id, &hwirq))
-+		return;
-+
-+	virq = irq_find_mapping(data->domain, hwirq);
-+	if (!virq)
-+		return;
-+
-+	alert = &data->alerts[hwirq];
-+	guard(mutex)(&alert->dispatch_lock);
-+
-+	scoped_guard(mutex, &alert->data_lock)
-+		memcpy(alert->payload, payload, PMIC_GIO_ALERT_PAYLOAD_SIZE);
-+
-+	handle_nested_irq(virq);
-+}
-+EXPORT_SYMBOL_GPL(pmic_gio_handle_alert);
-+
-+MODULE_DESCRIPTION("Qualcomm PMIC GIO common driver");
-+MODULE_LICENSE("GPL");
-diff --git a/include/linux/soc/qcom/pmic_gio.h b/include/linux/soc/qcom/pmic_gio.h
-new file mode 100644
-index 000000000000..e62fa6a9ccc7
---- /dev/null
-+++ b/include/linux/soc/qcom/pmic_gio.h
-@@ -0,0 +1,153 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
-+ */
-+#ifndef __SOC_QCOM_PMIC_GIO_H__
-+#define __SOC_QCOM_PMIC_GIO_H__
-+
-+#include <linux/auxiliary_bus.h>
-+#include <linux/err.h>
-+#include <linux/kconfig.h>
-+#include <linux/notifier.h>
-+#include <linux/types.h>
-+
-+/* Native access granularity of the GIO regmap: bytes per register. */
-+#define PMIC_GIO_REG_GRANULARITY	4
-+#define PMIC_GIO_ALERT_PAYLOAD_SIZE	16
-+
-+/* GIO peripherals id */
-+#define GIO_CORE_PERIPHERAL_ID	0x00
-+#define GIO_BATT_PERIPHERAL_ID	0x01
-+#define GIO_USBC_PERIPHERAL_ID	0x02
-+#define GIO_SVC_PERIPHERAL_ID	0x03
-+#define GIO_OEM_PERIPHERAL_ID	0x0C
-+
-+/* GIO Alert IDs in each peripherals */
-+#define GIO_ALERT_BATT_STATUS_CHANGE			0x80
-+#define GIO_ALERT_BATT_INFO_CHANGE			0x81
-+#define GIO_ALERT_BATT_MAINTENANCE_STATUS_CHANGE	0x82
-+#define GIO_ALERT_BATT_POWER_STATE_CHANGE		0x83
-+#define GIO_ALERT_BATT_POWER_SOURCE_INFO_CHANGE		0x90
-+
-+#define GIO_ALERT_USBC_UCSI_CCI				0x80
-+#define GIO_ALERT_USBC_PAN				0x40
-+
-+#define GIO_ALERT_SVC_POWER_OK_CHANGED			0x01
-+#define GIO_ALERT_SVC_SHUTDOWN				0x02
-+#define GIO_ALERT_SVC_RESET				0x03
-+
-+#define GIO_ALERT_OEM_OP_NOTIFY				0x80
-+
-+struct device;
-+struct regmap;
-+
-+struct pmic_gio_device;
-+
-+enum pmic_gio_state {
-+	PMIC_GIO_STATE_DOWN,
-+	PMIC_GIO_STATE_UP,
-+};
-+
-+/*
-+ * struct pmic_gio_device_ops - transport callbacks for a GIO device
-+ * @read: read @val_size bytes starting at @reg
-+ * @write: write @val_size bytes starting at @reg
-+ * @handle_alert: optional hook letting the transport intercept an alert
-+ *	before it is dispatched through the irqchip, with direct access to
-+ *	the transport-defined alert @payload. Returns true if the alert was
-+ *	fully handled and no further (irqchip) dispatch is wanted.
-+ */
-+struct pmic_gio_device_ops {
-+	int (*read)(struct pmic_gio_device *gio, unsigned int reg, void *val, size_t val_size);
-+	int (*write)(struct pmic_gio_device *gio, unsigned int reg, const void *val,
-+		     size_t val_size);
-+	bool (*handle_alert)(struct pmic_gio_device *gio, u8 peripheral_id, u8 alert_id,
-+			     const void *payload);
-+};
-+
-+struct pmic_gio_irq_chip_data;
-+
-+struct pmic_gio_device {
-+	struct device *dev;
-+	const struct pmic_gio_device_ops *ops;
-+	void *drvdata;
-+
-+	struct regmap *regmap;
-+	struct pmic_gio_irq_chip_data *chip_data;
-+	struct atomic_notifier_head state_notifiers;
-+	bool online;
-+};
-+
-+struct pmic_gio_irq {
-+	u8 peripheral_id;
-+	u8 alert_id;
-+};
-+
-+struct pmic_gio_irq_chip {
-+	const struct pmic_gio_irq *irqs;
-+	int num_irqs;
-+};
-+
-+#if IS_REACHABLE(CONFIG_QCOM_PMIC_GIO)
-+struct pmic_gio_device *devm_pmic_gio_register(struct device *dev,
-+					       const struct pmic_gio_device_ops *ops,
-+					       void *drvdata);
-+struct auxiliary_device *
-+devm_pmic_gio_add_consumer(struct pmic_gio_device *gio, const char *name);
-+void pmic_gio_set_state(struct pmic_gio_device *gio, enum pmic_gio_state state);
-+bool pmic_gio_is_online(struct device *dev);
-+int devm_pmic_gio_register_notifier(struct device *dev, struct notifier_block *nb);
-+int pmic_gio_irq_find(struct device *dev, u8 peripheral_id, u8 alert_id);
-+void pmic_gio_handle_alert(struct pmic_gio_device *gio, u8 peripheral_id, u8 alert_id,
-+			   const void *payload);
-+int pmic_gio_irq_get_payload(unsigned int irq, void *payload,
-+			     size_t payload_size);
-+#else
-+static inline struct pmic_gio_device *devm_pmic_gio_register(struct device *dev,
-+							     const struct pmic_gio_device_ops *ops,
-+							     void *drvdata)
-+{
-+	return ERR_PTR(-EOPNOTSUPP);
++	return ret;
 +}
 +
-+static inline struct auxiliary_device *
-+devm_pmic_gio_add_consumer(struct pmic_gio_device *gio, const char *name)
++static int pmic_glink_gio_write(struct pmic_gio_device *gio, unsigned int reg,
++				const void *val, size_t val_size)
 +{
-+	return NULL;
++	struct pmic_glink_gio *pgio = gio->drvdata;
++
++	return pmic_glink_gio_write_sync(pgio, reg, val, val_size);
 +}
 +
-+static inline void pmic_gio_set_state(struct pmic_gio_device *gio,
-+				      enum pmic_gio_state state)
++static bool pmic_glink_gio_handle_alert(struct pmic_gio_device *gio,
++					u8 peripheral_id, u8 alert_id,
++					const void *payload)
 +{
-+}
++	dev_dbg(gio->dev,
++		"GIO alert: peripheral_id=0x%02x alert_id=0x%02x payload=%*ph\n",
++		peripheral_id, alert_id, PMIC_GIO_ALERT_PAYLOAD_SIZE, payload);
 +
-+static inline bool pmic_gio_is_online(struct device *dev)
-+{
 +	return false;
 +}
 +
-+static inline int devm_pmic_gio_register_notifier(struct device *dev,
-+						  struct notifier_block *nb)
++static const struct pmic_gio_device_ops pmic_glink_gio_ops = {
++	.read = pmic_glink_gio_read,
++	.write = pmic_glink_gio_write,
++	.handle_alert = pmic_glink_gio_handle_alert,
++};
++
++static void pmic_glink_gio_pdr_notify(void *priv, int state)
 +{
-+	return -EOPNOTSUPP;
++	struct pmic_glink_gio *pgio = priv;
++	bool service_up;
++
++	guard(spinlock_irqsave)(&pgio->lock);
++
++	service_up = state == SERVREG_SERVICE_STATE_UP;
++
++	if (pgio->removing)
++		return;
++
++	WRITE_ONCE(pgio->service_up, service_up);
++	if (!service_up && pgio->pending) {
++		pgio->ack_error = -ENETRESET;
++		pmic_glink_gio_complete_transaction(pgio);
++	}
++
++	if (!service_up)
++		pmic_gio_set_state(pgio->gio, PMIC_GIO_STATE_DOWN);
++	else
++		queue_work(pgio->wq, &pgio->init_work);
 +}
 +
-+static inline int pmic_gio_irq_find(struct device *dev, u8 peripheral_id,
-+				    u8 alert_id)
++static void pmic_glink_gio_init_work(struct work_struct *work)
 +{
-+	return -EOPNOTSUPP;
++	struct pmic_glink_gio *pgio = container_of(work, struct pmic_glink_gio, init_work);
++
++	if (!READ_ONCE(pgio->service_up))
++		return;
++
++	scoped_guard(spinlock_irqsave, &pgio->lock) {
++		if (pgio->removing || !pgio->service_up)
++			return;
++
++		pmic_gio_set_state(pgio->gio, PMIC_GIO_STATE_UP);
++	}
 +}
 +
-+static inline int pmic_gio_irq_get_payload(unsigned int irq, void *payload,
-+					   size_t payload_size)
++static void pmic_glink_gio_alert_work(struct work_struct *work)
 +{
-+	return -EOPNOTSUPP;
++	struct gio_alert_work *alert_work = container_of(work, struct gio_alert_work, work);
++
++	pmic_gio_handle_alert(alert_work->pgio->gio, alert_work->peripheral_id,
++			      alert_work->alert_id, alert_work->payload);
++	atomic_dec(&alert_work->pgio->alert_pending);
++	kfree(alert_work);
 +}
 +
-+static inline void pmic_gio_handle_alert(struct pmic_gio_device *gio, u8 peripheral_id,
-+					 u8 alert_id, const void *payload)
++static void pmic_glink_gio_callback(const void *data, size_t len, void *priv)
 +{
++	const struct pmic_glink_hdr *hdr = data;
++	const struct gio_alert_msg *alert_msg;
++	const struct gio_write_resp *tx_resp;
++	const struct gio_read_resp *rx_resp;
++	struct pmic_glink_gio *pgio = priv;
++	size_t copy_size;
++	u16 opcode;
++
++	if (!data || len < sizeof(*hdr)) {
++		dev_warn(pgio->dev, "Invalid packet received (len: %zu)\n", len);
++		return;
++	}
++
++	opcode = FIELD_GET(GIO_OPCODE_MASK, le32_to_cpu(hdr->opcode));
++
++	switch (opcode) {
++	case GIO_OPCODE_BLOCK_READ:
++		if (len != sizeof(struct gio_read_resp)) {
++			dev_warn(pgio->dev, "Invalid read response message, length: %zu\n", len);
++			return;
++		}
++
++		rx_resp = data;
++
++		scoped_guard(spinlock_irqsave, &pgio->lock) {
++			if (!pgio->pending || pgio->pending_opcode != GIO_OPCODE_BLOCK_READ) {
++				dev_warn(pgio->dev, "Unexpected GIO read response, dropping\n");
++				return;
++			}
++
++			if (le32_to_cpu(rx_resp->ret_code) != 0) {
++				pgio->ack_error = -EREMOTEIO;
++				dev_warn(pgio->dev, "GIO read response failed (%u)\n",
++					 le32_to_cpu(rx_resp->ret_code));
++			} else if (pgio->buf) {
++				copy_size = min_t(size_t, pgio->buf_size, GIO_RW_BUFFER_SIZE);
++				memcpy(pgio->buf, rx_resp->data, copy_size);
++			}
++			pmic_glink_gio_complete_transaction(pgio);
++		}
++		break;
++
++	case GIO_OPCODE_BLOCK_WRITE:
++		if (len != sizeof(struct gio_write_resp)) {
++			dev_warn(pgio->dev, "Invalid write response message, length: %zu\n", len);
++			return;
++		}
++
++		tx_resp = data;
++
++		scoped_guard(spinlock_irqsave, &pgio->lock) {
++			if (!pgio->pending || pgio->pending_opcode != GIO_OPCODE_BLOCK_WRITE) {
++				dev_warn(pgio->dev, "Unexpected GIO write response, dropping\n");
++				return;
++			}
++
++			if (le32_to_cpu(tx_resp->ret_code) != 0) {
++				pgio->ack_error = -EREMOTEIO;
++				dev_warn(pgio->dev, "GIO write response failed (%u)\n",
++					 le32_to_cpu(tx_resp->ret_code));
++			}
++			pmic_glink_gio_complete_transaction(pgio);
++		}
++		break;
++
++	case GIO_OPCODE_ALERT_IND:
++		if (len != sizeof(struct gio_alert_msg)) {
++			dev_warn(pgio->dev, "Invalid alert message, length: %zu\n", len);
++			return;
++		}
++
++		if (atomic_read(&pgio->alert_pending) >= GIO_ALERT_MAX_PENDING) {
++			dev_warn_ratelimited(pgio->dev,
++					     "Too many pending GIO alerts, dropping\n");
++			return;
++		}
++
++		struct gio_alert_work *alert_work __free(kfree) =
++				kmalloc_obj(*alert_work, GFP_ATOMIC);
++		if (!alert_work)
++			return;
++
++		alert_msg = data;
++
++		INIT_WORK(&alert_work->work, pmic_glink_gio_alert_work);
++		alert_work->pgio = pgio;
++		alert_work->peripheral_id = alert_msg->alt_data.info.peripheral_id;
++		alert_work->alert_id = alert_msg->alt_data.info.alert_id;
++		memcpy(alert_work->payload,
++		       alert_msg->alt_data.payload,
++		       PMIC_GIO_ALERT_PAYLOAD_SIZE);
++
++		scoped_guard(spinlock_irqsave, &pgio->lock) {
++			if (pgio->removing || !pgio->service_up)
++				return;
++
++			atomic_inc(&pgio->alert_pending);
++			if (queue_work(pgio->wq, &alert_work->work))
++				retain_and_null_ptr(alert_work);
++			else
++				atomic_dec(&pgio->alert_pending);
++		}
++		break;
++	}
 +}
-+#endif
 +
-+#endif
-diff --git a/include/linux/soc/qcom/pmic_gio_regs.h b/include/linux/soc/qcom/pmic_gio_regs.h
-new file mode 100644
-index 000000000000..7081d5a5abda
---- /dev/null
-+++ b/include/linux/soc/qcom/pmic_gio_regs.h
-@@ -0,0 +1,239 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
-+ */
-+#ifndef __SOC_QCOM_PMIC_GIO_REGS_H__
-+#define __SOC_QCOM_PMIC_GIO_REGS_H__
++static void pmic_glink_gio_destroy_wq(void *data)
++{
++	struct workqueue_struct *wq = data;
 +
-+/* Register block base addresses and sizes for the GIO PMIC peripherals. */
-+/* CORE */
-+#define GIO_CORE_IF_VERSION_ADDR		0x00000
-+#define GIO_CORE_IF_VERSION_SIZE		4
-+#define GIO_CORE_ALERT_STATUS_ADDR		0x00010
-+#define GIO_CORE_ALERT_STATUS_SIZE		4
-+#define GIO_CORE_LAST_ALERT_ADDR		0x00014
-+#define GIO_CORE_LAST_ALERT_SIZE		20
-+#define GIO_CORE_GLOBAL_ALERT_CTRL_ADDR		0x00100
-+#define GIO_CORE_GLOBAL_ALERT_CTRL_SIZE		4
-+#define GIO_CORE_HOST_STATE_ADDR		0x00180
-+#define GIO_CORE_HOST_STATE_SIZE		4
-+#define GIO_CORE_SYSTEM_STATE_ADDR		0x00184
-+#define GIO_CORE_SYSTEM_STATE_SIZE		4
-+#define GIO_CORE_LAST_ERROR_ADDR		0x00200
-+#define GIO_CORE_LAST_ERROR_SIZE		4
++	destroy_workqueue(wq);
++}
 +
-+/* BATT */
-+#define GIO_BATT_IF_VERSION_ADDR		0x10000
-+#define GIO_BATT_IF_VERSION_SIZE		4
-+#define GIO_BATT_ALERT_STATUS_ADDR		0x10010
-+#define GIO_BATT_ALERT_STATUS_SIZE		4
-+#define GIO_BATT_LAST_ALERT_ADDR		0x10014
-+#define GIO_BATT_LAST_ALERT_SIZE		20
-+#define GIO_BATT_BPRT_ADDR			0x10100
-+#define GIO_BATT_BPRT_SIZE			4
-+#define GIO_BATT_BCTI_ADDR			0x10104
-+#define GIO_BATT_BCTI_SIZE			4
-+#define GIO_BATT_BCT_ADDR			0x10108
-+#define GIO_BATT_BCT_SIZE			4
-+#define GIO_BATT_BIX_ADDR			0x10110
-+#define GIO_BATT_BIX_SIZE			68
-+#define GIO_BATT_BPC_ADDR			0x10160
-+#define GIO_BATT_BPC_SIZE			16
-+#define GIO_BATT_BPS_ADDR			0x10178
-+#define GIO_BATT_BPS_SIZE			20
-+#define GIO_BATT_BPT_ADDR			0x10190
-+#define GIO_BATT_BPT_SIZE			12
-+#define GIO_BATT_BPTS_ADDR			0x1019c
-+#define GIO_BATT_BPTS_SIZE			4
-+#define GIO_BATT_BST_ADDR			0x101a8
-+#define GIO_BATT_BST_SIZE			16
-+#define GIO_BATT_BATTERY_PRESENT_OCV_ADDR	0x101b8
-+#define GIO_BATT_BATTERY_PRESENT_OCV_SIZE	4
-+#define GIO_BATT_BTH_ADDR			0x101c0
-+#define GIO_BATT_BTH_SIZE			4
-+#define GIO_BATT_BTMI_ADDR			0x101c8
-+#define GIO_BATT_BTMI_SIZE			4
-+#define GIO_BATT_BTM_ADDR			0x101cc
-+#define GIO_BATT_BTM_SIZE			4
-+#define GIO_BATT_BTP_ADDR			0x101d0
-+#define GIO_BATT_BTP_SIZE			4
-+#define GIO_BATT_PSR_ADDR			0x101d8
-+#define GIO_BATT_PSR_SIZE			4
-+#define GIO_BATT_PIF_ADDR			0x101dc
-+#define GIO_BATT_PIF_SIZE			12
-+#define GIO_BATT_SHIP_MODE_EN_ADDR		0x101e8
-+#define GIO_BATT_SHIP_MODE_EN_SIZE		4
-+#define GIO_BATT_PCS_ADDR			0x101ec
-+#define GIO_BATT_PCS_SIZE			12
-+#define GIO_BATT_MNO_ADDR			0x10200
-+#define GIO_BATT_MNO_SIZE			128
-+#define GIO_BATT_SNO_ADDR			0x10280
-+#define GIO_BATT_SNO_SIZE			128
-+#define GIO_BATT_OTY_ADDR			0x10300
-+#define GIO_BATT_OTY_SIZE			128
-+#define GIO_BATT_OIF_ADDR			0x10380
-+#define GIO_BATT_OIF_SIZE			128
-+#define GIO_BATT_PORTABLE_BATTERY_INFO_ADDR	0x10400
-+#define GIO_BATT_PORTABLE_BATTERY_INFO_SIZE	128
-+#define GIO_BATT_BMD_ADDR			0x10480
-+#define GIO_BATT_BMD_SIZE			20
-+#define GIO_BATT_BMC_ADDR			0x10494
-+#define GIO_BATT_BMC_SIZE			4
-+#define GIO_BATT_MISC_CONFIG_ADDR		0x104a0
-+#define GIO_BATT_MISC_CONFIG_SIZE		4
++static int pmic_glink_gio_probe(struct auxiliary_device *adev,
++				const struct auxiliary_device_id *id)
++{
++	struct pmic_glink_gio *pgio;
++	struct device *dev = &adev->dev;
++	int ret;
 +
-+/* USBC */
-+#define GIO_USBC_IF_VERSION_ADDR		0x20000
-+#define GIO_USBC_IF_VERSION_SIZE		4
-+#define GIO_USBC_ALERT_STATUS_ADDR		0x20010
-+#define GIO_USBC_ALERT_STATUS_SIZE		4
-+#define GIO_USBC_LAST_ALERT_ADDR		0x20014
-+#define GIO_USBC_LAST_ALERT_SIZE		20
-+#define GIO_USBC_UCSI_VERSION_REG		0x20100
-+#define GIO_USBC_UCSI_VERSION_SIZE		4
-+#define GIO_USBC_UCSI_CCI_REG			0x20104
-+#define GIO_USBC_UCSI_CCI_SIZE			4
-+#define GIO_USBC_UCSI_CONTROL_REG		0x20108
-+#define GIO_USBC_UCSI_CONTROL_SIZE		8
-+#define GIO_USBC_UCSI_MESSAGE_IN_REG		0x20200
-+#define GIO_USBC_UCSI_MESSAGE_IN_SIZE		64
-+#define GIO_USBC_UCSI_MSGINX_REG		0x20240
-+#define GIO_USBC_UCSI_MSGINX_SIZE		192
-+#define GIO_USBC_UCSI_MESSAGE_OUT_REG		0x20300
-+#define GIO_USBC_UCSI_MESSAGE_OUT_SIZE		64
-+#define GIO_USBC_UCSI_MSGOUTX_ADDR		0x20340
-+#define GIO_USBC_UCSI_MSGOUTX_SIZE		192
-+#define GIO_USBC_UCSI_PAN_ADDR			0x20400
-+#define GIO_USBC_UCSI_PAN_SIZE			64
-+#define GIO_USBC_PAN_CMD_ADDR			0x20440
-+#define GIO_USBC_PAN_CMD_SIZE			0x08
-+#define GIO_USBC_RTMR_INFO_ADDR			0x20600
-+#define GIO_USBC_RTMR_INFO_SIZE			64
-+#define GIO_USBC_RTMR_FW_UPDATE_ADDR		0x20640
-+#define GIO_USBC_RTMR_FW_UPDATE_SIZE		4
-+#define GIO_USBC_USBCFG_ADDR			0x20700
-+#define GIO_USBC_USBCFG_SIZE			4
-+#define GIO_USBC_DAM_CTRL_ADDR			0x20708
-+#define GIO_USBC_DAM_CTRL_SIZE			4
-+#define GIO_USBC_DAM_CTRL_CFG_ADDR		0x2070c
-+#define GIO_USBC_DAM_CTRL_CFG_SIZE		4
++	pgio = devm_kzalloc(dev, sizeof(*pgio), GFP_KERNEL);
++	if (!pgio)
++		return -ENOMEM;
 +
-+/* SVC */
-+#define GIO_SVC_IF_VERSION_ADDR			0x30000
-+#define GIO_SVC_IF_VERSION_SIZE			4
-+#define GIO_SVC_ALERT_STATUS_ADDR		0x30010
-+#define GIO_SVC_ALERT_STATUS_SIZE		4
-+#define GIO_SVC_LAST_ALERT_ADDR			0x30014
-+#define GIO_SVC_LAST_ALERT_SIZE			20
-+#define GIO_SVC_UEFI_ACTION_ADDR		0x30100
-+#define GIO_SVC_UEFI_ACTION_SIZE		4
-+#define GIO_SVC_POWER_OK_ADDR			0x30104
-+#define GIO_SVC_POWER_OK_SIZE			4
-+#define GIO_SVC_OOB_REQUEST_ACTION_ADDR		0x30110
-+#define GIO_SVC_OOB_REQUEST_ACTION_SIZE		4
-+#define GIO_SVC_OOB_RTCTMR_VOTE_ADDR		0x30114
-+#define GIO_SVC_OOB_RTCTMR_VOTE_SIZE		8
-+#define GIO_SVC_CLT0_REQUEST_ACTION_ADDR	0x30120
-+#define GIO_SVC_CLT0_REQUEST_ACTION_SIZE	4
-+#define GIO_SVC_CLT0_RTCTMR_VOTE_ADDR		0x30124
-+#define GIO_SVC_CLT0_RTCTMR_VOTE_SIZE		8
-+#define GIO_SVC_SYS_SET_POWER_STATE_ADDR	0x30150
-+#define GIO_SVC_SYS_SET_POWER_STATE_SIZE	4
-+#define GIO_SVC_TAD_RT_ADDR			0x30200
-+#define GIO_SVC_TAD_RT_SIZE			16
-+#define GIO_SVC_TAD_GWS_ADDR			0x30210
-+#define GIO_SVC_TAD_GWS_SIZE			8
-+#define GIO_SVC_TAD_CWS_ADDR			0x30218
-+#define GIO_SVC_TAD_CWS_SIZE			4
-+#define GIO_SVC_TAD_TPA_ADDR			0x3021c
-+#define GIO_SVC_TAD_TPA_SIZE			4
-+#define GIO_SVC_TAD_TPD_ADDR			0x30220
-+#define GIO_SVC_TAD_TPD_SIZE			4
-+#define GIO_SVC_TAD_TVA_ADDR			0x30224
-+#define GIO_SVC_TAD_TVA_SIZE			4
-+#define GIO_SVC_TAD_TVD_ADDR			0x30228
-+#define GIO_SVC_TAD_TVD_SIZE			4
-+#define GIO_SVC_LID_SETTING_ADDR		0x3022c
-+#define GIO_SVC_LID_SETTING_SIZE		4
++	pgio->dev = dev;
++	spin_lock_init(&pgio->lock);
++	init_completion(&pgio->ack);
++	INIT_WORK(&pgio->init_work, pmic_glink_gio_init_work);
++	dev_set_drvdata(dev, pgio);
 +
-+/* SETTING */
-+#define GIO_SETTING_IF_VERSION_ADDR		0x40000
-+#define GIO_SETTING_IF_VERSION_SIZE		4
-+#define GIO_SETTING_ALERT_STATUS_ADDR		0x40010
-+#define GIO_SETTING_ALERT_STATUS_SIZE		4
-+#define GIO_SETTING_LAST_ALERT_ADDR		0x40014
-+#define GIO_SETTING_LAST_ALERT_SIZE		20
-+#define GIO_SETTING_SYS_PWR_CFG_ADDR		0x40100
-+#define GIO_SETTING_SYS_PWR_CFG_SIZE		4
-+#define GIO_SETTING_BATT_AUTH_ADDR		0x40104
-+#define GIO_SETTING_BATT_AUTH_SIZE		4
-+#define GIO_SETTING_CHG_LIMIT_ADDR		0x40108
-+#define GIO_SETTING_CHG_LIMIT_SIZE		4
-+#define GIO_SETTING_BOOT_ADDR			0x4010c
-+#define GIO_SETTING_BOOT_SIZE			4
-+#define GIO_SETTING_USBC_ADDR			0x40110
-+#define GIO_SETTING_USBC_SIZE			4
-+#define GIO_SETTING_HOST_MAC_ADDR_ADDR		0x40114
-+#define GIO_SETTING_HOST_MAC_ADDR_SIZE		8
-+#define GIO_SETTING_AOU_ADDR			0x4011c
-+#define GIO_SETTING_AOU_SIZE			4
-+#define GIO_SETTING_PSM_ADDR			0x40120
-+#define GIO_SETTING_PSM_SIZE			4
-+#define GIO_SETTING_USB_WAKE_ON_LAN_ADDR	0x40124
-+#define GIO_SETTING_USB_WAKE_ON_LAN_SIZE	4
-+#define GIO_SETTING_EPM_USBC_ADDR		0x40128
-+#define GIO_SETTING_EPM_USBC_SIZE		4
-+#define GIO_SETTING_OFFMODE_SHIPMODE_ADDR	0x4012c
-+#define GIO_SETTING_OFFMODE_SHIPMODE_SIZE	4
-+#define GIO_SETTING_RTC_TIMER_FOR_EOC_ADDR	0x40130
-+#define GIO_SETTING_RTC_TIMER_FOR_EOC_SIZE	4
-+#define GIO_SETTING_INTL_CHG_ADDR		0x40134
-+#define GIO_SETTING_INTL_CHG_SIZE		32
-+#define GIO_SETTING_CMD_ADDR			0x40800
-+#define GIO_SETTING_CMD_SIZE			4
++	pgio->client = devm_pmic_glink_client_alloc(dev, PMIC_GLINK_OWNER_GIO,
++						    pmic_glink_gio_callback,
++						    pmic_glink_gio_pdr_notify,
++						    pgio);
++	if (IS_ERR(pgio->client))
++		return PTR_ERR(pgio->client);
 +
-+/* DBG */
-+#define GIO_DBG_IF_VERSION_ADDR			0x70000
-+#define GIO_DBG_IF_VERSION_SIZE			4
-+#define GIO_DBG_ALERT_STATUS_ADDR		0x70010
-+#define GIO_DBG_ALERT_STATUS_SIZE		4
-+#define GIO_DBG_LAST_ALERT_ADDR			0x70014
-+#define GIO_DBG_LAST_ALERT_SIZE			20
-+#define GIO_DBG_BCLIBAT_ADDR			0x70100
-+#define GIO_DBG_BCLIBAT_SIZE			8
-+#define GIO_DBG_BCLVBAT_ADDR			0x70110
-+#define GIO_DBG_BCLVBAT_SIZE			12
-+#define GIO_DBG_BCLIBAT_DGL_TIMER_ADDR		0x70120
-+#define GIO_DBG_BCLIBAT_DGL_TIMER_SIZE		12
-+#define GIO_DBG_BCLVBAT_DGL_TIMER_ADDR		0x70130
-+#define GIO_DBG_BCLVBAT_DGL_TIMER_SIZE		12
-+#define GIO_DBG_BCL_CLR_TIMER_ADDR		0x70140
-+#define GIO_DBG_BCL_CLR_TIMER_SIZE		12
-+#define GIO_DBG_CHG_DIE_TEMP_TH_ADDR		0x70150
-+#define GIO_DBG_CHG_DIE_TEMP_TH_SIZE		4
-+#define GIO_DBG_CHG_CONN_TEMP_TH_ADDR		0x70154
-+#define GIO_DBG_CHG_CONN_TEMP_TH_SIZE		4
-+#define GIO_DBG_SPMI_WRITE_ADDR			0x70160
-+#define GIO_DBG_SPMI_WRITE_SIZE			8
-+#define GIO_DBG_LOG_LEVEL_ADDR			0x70170
-+#define GIO_DBG_LOG_LEVEL_SIZE			4
-+#define GIO_DBG_LOG_CAT_ADDR			0x70174
-+#define GIO_DBG_LOG_CAT_SIZE			8
++	pgio->gio = devm_pmic_gio_register(dev, &pmic_glink_gio_ops, pgio);
++	if (IS_ERR(pgio->gio))
++		return dev_err_probe(dev, PTR_ERR(pgio->gio), "failed to register GIO device\n");
 +
-+/* OEM */
-+#define GIO_OEM_IF_VERSION_ADDR			0xc0000
-+#define GIO_OEM_IF_VERSION_SIZE			4
-+#define GIO_OEM_ALERT_STATUS_ADDR		0xc0010
-+#define GIO_OEM_ALERT_STATUS_SIZE		4
-+#define GIO_OEM_LAST_ALERT_ADDR			0xc0014
-+#define GIO_OEM_LAST_ALERT_SIZE			20
-+#define GIO_OEM_OP_RW_ADDR			0xc0100
-+#define GIO_OEM_OP_RW_SIZE			64
-+#define GIO_OEM_I2C_PROXY_CONFIG_ADDR		0xc0200
-+#define GIO_OEM_I2C_PROXY_CONFIG_SIZE		4
-+#define GIO_OEM_I2C_PROXY_DATA_ADDR		0xc0204
-+#define GIO_OEM_I2C_PROXY_DATA_SIZE		72
++	pgio->wq = alloc_ordered_workqueue("pmic_glink_gio", 0);
++	if (!pgio->wq)
++		return -ENOMEM;
 +
-+#define GIO_MAX_REG_ADDR			0xcffff
++	ret = devm_add_action_or_reset(dev, pmic_glink_gio_destroy_wq, pgio->wq);
++	if (ret)
++		return ret;
 +
-+#endif
++	pmic_glink_client_register(pgio->client);
++
++	return 0;
++}
++
++static void pmic_glink_gio_remove(struct auxiliary_device *adev)
++{
++	struct pmic_glink_gio *pgio = dev_get_drvdata(&adev->dev);
++
++	scoped_guard(spinlock_irqsave, &pgio->lock) {
++		pgio->removing = true;
++		WRITE_ONCE(pgio->service_up, false);
++		if (pgio->pending) {
++			pgio->ack_error = -ENODEV;
++			pmic_glink_gio_complete_transaction(pgio);
++		}
++		pmic_gio_set_state(pgio->gio, PMIC_GIO_STATE_DOWN);
++	}
++
++	cancel_work_sync(&pgio->init_work);
++	flush_workqueue(pgio->wq);
++}
++
++static const struct auxiliary_device_id pmic_glink_gio_id_table[] = {
++	{ .name = "pmic_glink.gio", },
++	{},
++};
++MODULE_DEVICE_TABLE(auxiliary, pmic_glink_gio_id_table);
++
++static struct auxiliary_driver pmic_glink_gio_driver = {
++	.name = "pmic_glink_gio",
++	.probe = pmic_glink_gio_probe,
++	.remove = pmic_glink_gio_remove,
++	.id_table = pmic_glink_gio_id_table,
++};
++
++module_auxiliary_driver(pmic_glink_gio_driver);
++
++MODULE_DESCRIPTION("Qualcomm PMIC GLINK GIO driver");
++MODULE_LICENSE("GPL");
+diff --git a/include/linux/soc/qcom/pmic_glink.h b/include/linux/soc/qcom/pmic_glink.h
+index 7cddf1027752..6283495a2396 100644
+--- a/include/linux/soc/qcom/pmic_glink.h
++++ b/include/linux/soc/qcom/pmic_glink.h
+@@ -11,6 +11,7 @@ struct pmic_glink_client;
+ #define PMIC_GLINK_OWNER_BATTMGR	32778
+ #define PMIC_GLINK_OWNER_USBC		32779
+ #define PMIC_GLINK_OWNER_USBC_PAN	32780
++#define PMIC_GLINK_OWNER_GIO		32785
+ 
+ #define PMIC_GLINK_REQ_RESP		1
+ #define PMIC_GLINK_NOTIFY		2
 
 -- 
 2.43.0
