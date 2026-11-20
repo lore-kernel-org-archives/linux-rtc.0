@@ -1,90 +1,92 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.33
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.229.8
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795107114;
-	b=vxWy8nZFkuYresBl9BV4Yfau8Lelvo2FqH3T8/pjwM/DTZoTK4dXXnVaY/drwgMhK6xl
-	 eOh33CltpaIB6DdNJC+j8aFqSZOgXan8pk/esQHdl44ZoK+6kkywUNQQli9GAKn+u5NtW
-	 VCLWGCUon9niBDKZPB8RDP26e7dMrORIjRkacWH7gls3BaHMls9xnGkQTYFtYngjTyS7u
-	 TBNZ0eCr0BIaNo2u51Wf6RIIeDYDB/tBNQaZi6dJBts6zKqtbZ14a3rk3kbZW1tzTya0Y
-	 AfN435gcWoAIe4YFslBY0gLTLRoqhcesTTycESs7lzSf9O0ybxOopNJCYJimoUxKCdw==
+	t=1795174548;
+	b=vp1eCVOmCjEKzJ87py29QF28RlV42F9gaOykjQh3SF3f2YM6h2Z72PPqiiUI6X/vQV7S
+	 l7X9mufW/LysZv1iKYz9Edkv/TTGbop64C0dSlYvrXI0cgEjEX6b9kdmsa8g1Jg/Omo7q
+	 e3GYvmj4djT9Ev5/ZwV8fPORivPlllpdmz0JIJ7MXKdn9FCIwspfZ3hWdiSuZA6TEgtkN
+	 DLbpne5hykQ5rvUgWouDi8hhKnv+uA9b2XSa+0Mo+BrG7aLeZChbB5B5k5s+ffyHimlDG
+	 nYh+LiNVLfVmASqJUyjaBYkho8MFUMkGdehZc57HNGw+2ICFRtnBzZtEWfbDZcpoyyg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795107114;
-	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
-	 Received:Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To:X-AntiAbuse:X-AntiAbuse:
-	 X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:
-	 X-Source-L:X-Exim-ID:X-Source:X-Source-Args:X-Source-Dir:
-	 X-Source-Sender:X-Source-Auth:X-Email-Count:X-Org:X-Source-Cap:
-	 X-Local-Domain:X-CMAE-Envelope;
-	bh=VyuLjUWlndm/ZBOLKhEN/lw43++AjMQwOBflJ5LOk6s=;
-	b=gkezT0KmaxhZg6bhP1C7qkRtYdJ/yO6GLwLI0WLQtSqOHozTxw3fZZinKhC1UFqf6Jzh
-	 jSn2t4RAmWydY/tkRyKjK+rSKom/9V4XYwF55i+kJFwgRv1IwcL0SMvQHzpmoXn35ukUY
-	 +uPeqMdNBEec+yt3X7dOaxMKZ/fhVPgSuObVrIA4QOwMVkShjSN8UyGkdH8xxxNz+J6kN
-	 W83vm+vxxcEeODPshdbHlVe9jF68eyOKse/XItaSssHZwNT0aH1NOCa/uZWEh5LmfvoIc
-	 7NBdrRLosQULOZX3iin+Osxe+7BlbJteSAMiSxvTKwl9RJ5re/0p6Bsfuq94C29yH4w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795174548;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
+	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=HvhrYvkQJ5ZpS127ix42A5EcPEqRi5eUCbysMzVh1pA=;
+	b=ztUfIy1s5rHwENDcIIvMUy7G/u92ar7a6a76cXP75HSvLtDCm0EoirlgsKakAuT2Hv90
+	 EWKhGq7ziNyJFjfeqfPL1dUSWQkFbp7ljSYIznr0uwy/Q1ucxLSivgXbwrQpxghy88C2L
+	 XgE98ydHBsGzRq8vW+zirUOCBBD3c+2NFQ7eCKJIJWGLMQZsb3ohSMUUfKF5cTTMgGcoL
+	 5t3TB/aKKO15pYWFPQnDqm/eTEEIEjQmmkfkDmp15YvdK8OoLNx5y46tbOsM/P4uI3BLW
+	 YcIVADTDUv4XiNCDXkir1t2KnGGmozZbryvbsJ+rbIo5C5xEP53qbrLHlUsoq2lBNag==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=roeck-us.net;
-	spf=fail smtp.mailfrom=roeck-us.net;
-	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=TpqgAi2t;
-	arc=none smtp.remote-ip=35.89.44.33
-Received: from omta34.uswest2.a.cloudfilter.net (omta34.uswest2.a.cloudfilter.net [35.89.44.33])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=F8804Fsh;
+	arc=none smtp.remote-ip=74.125.229.8
+Received: from mail-dy2-f8.google.com (mail-dy2-f8.google.com [74.125.229.8])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3AF3606A331
-	for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2026 16:51:53 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E3AF3606A331
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0854A606A325
+	for <linux-rtc@vger.kernel.org>; Fri, 20 Nov 2026 11:35:47 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0854A606A325
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=TpqgAi2t
-Received: from eig-obgw-6006b.ext.cloudfilter.net ([10.0.30.211])
-	by cmsmtp with ESMTPS
-	id U1tHxChVlAR1iU5MXx6aZO; Thu, 19 Nov 2026 16:51:53 +0000
-Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
-	by cmsmtp with ESMTPS
-	id U5MWx4haAFhzrU5MXxZiKf; Thu, 19 Nov 2026 16:51:53 +0000
-X-Authority-Analysis: v=2.4 cv=JY+8rVKV c=1 sm=1 tr=0 ts=6aff2929
- a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
- a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10 a=pGLkceISAAAA:8
- a=VwQbUJbxAAAA:8 a=_jlGtV7tAAAA:8 a=IvRCNjoTNcy513YpXOgA:9 a=CjuIK1q_8ugA:10
- a=nlm17XC03S6CtCLSeiRr:22 a=KPbNTLLc3YvdawN95zVk:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=roeck-us.net; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
-	:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding
-	:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-	List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=VyuLjUWlndm/ZBOLKhEN/lw43++AjMQwOBflJ5LOk6s=; b=TpqgAi2tfvQr8FgT+aFEOK34fc
-	3BysAvJ3YX/SX8uqux912onyChgt5l0XwEoTIgfdY/1lBqm7IMEn6J/8+aGDb33+H/lB0s39d8TnS
-	B/mahwJPkIOGTLThSks0Cv7GF3nMMo6zlRDfPMzlIeFRp9S3LTTVWZufQrV0ZuSjvXLVk22NZBLiK
-	yUFAn+/tHSSCR2K7Qwjn6LLS07jB3IqxBZT+nL1igRkeT+1J9R9vZmtSKE6ONG5T/SUrA+Iy9o6GO
-	5YMPBYf8w1IaGxuiT/Nu5jdGrHh0xkEPD6ST9rtP5aNBQ4Dz6xwFiqbxswfmDbLD7C/DiRRdR6cpi
-	qSo3ZOzQ==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:56426 helo=server.roeck-us.net)
-	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.100.1)
-	(envelope-from <linux@roeck-us.net>)
-	id 1xU5MU-00000003LGz-3x54;
-	Thu, 19 Nov 2026 22:21:51 +0530
-Date: Thu, 19 Nov 2026 08:51:49 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: a0282524688@gmail.com
-Cc: lee@kernel.org, Ming Yu <tmyu0@nuvoton.com>,
-	Linus Walleij <linusw@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Marc Kleine-Budde <mkl@pengutronix.de>,
-	Vincent Mailhol <mailhol@kernel.org>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
-	linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org,
-	linux-can@vger.kernel.org, linux-rtc@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, mfd@lists.linux.dev
-Subject: Re: [PATCH v10 06/13] mfd: nct6694: Move module type macros to
- shared header
-Message-ID: <670e71a1-6f47-4d27-ae6d-10c24c66e34c@roeck-us.net>
-References: <20261118081625.2399247-1-a0282524688@gmail.com>
- <20261118081625.2399247-7-a0282524688@gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=F8804Fsh
+Received: by mail-dy2-f8.google.com with SMTP id 5a478bee46e88-3831d564bcfso270976eec.1
+        for <linux-rtc@vger.kernel.org>; Fri, 20 Nov 2026 03:35:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1795174547; x=1795779347; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=HvhrYvkQJ5ZpS127ix42A5EcPEqRi5eUCbysMzVh1pA=;
+        b=F8804FshacBXUMg/wH4Wtr/0VP2vIO3Dm4XpXThTdTquux0tCMMcJdodOwqqYYLeut
+         S+MXrTtXtCRvItpFAva9SlwOYDjY74QZ8AhJIv/9LZEOPqXRSvxNprxxPo4cnQdxxwuS
+         ytmVyXPxChg1iabq3Iwd1F1vHJvuNgfYp473HvgpMKlzbvZDVuRqZaSP+n1r/kAHUh63
+         3f7E4sH6Cyfh4VDqd7+k9spmogKiOLKHTrcZ5jxA8lGylgvNNr9zRYFOQ0o1ejpA361z
+         d2wACCl1tPsoQ9IBb+DX23jOmvaIQShaxhykkpCutMA3INrku01gF2BLqjrdXH0wNZ+1
+         NdGg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795174547; x=1795779347;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=HvhrYvkQJ5ZpS127ix42A5EcPEqRi5eUCbysMzVh1pA=;
+        b=zhs5Yq+ND8GWnFfNf5mB6nnospbShAqYAwaL9KQ7QxC0+6yXHDWW6mmTcIhzPf1o9G
+         zP5HSPf7ESIp2OYFLbsvg6Ji4cz5KQQPZ1v1qoZD256KVWedpUUMpy41z7npzs5nGuKd
+         HJb8urxf+6EgDWQbqqVO911qWoQu11+5TNK9tx9LPiyNty2tv3yUlrO6r9pMmwFrXXAd
+         yS1HR80tiTwLgw/E4E4L9jvlApwdV82byDjYifrF5B4x5YeMlpvSw/2FbVx7UmovUZBs
+         i+JiDh55wKSCrqNkYC1X5X0G14iicM+uhe7m+e/u9rYij3HSfdze0MqSL7ugPI/nZx5F
+         jEYA==
+X-Gm-Message-State: APuU4Z/bSeJpi9IIh8nF4maKMV2dGSrjuofCon2CpFGfZz1ZgEY8+bIb
+	Q3rRN/GSOI4W4+rEZGds8atZe5v4nV3muSsv2wSRE4dhHLyGSDI+m2c8
+X-Gm-Gg: AYBFou1YVVvKvgPYWf1z1AZj+sHzHzh7G+SeyxkMPUCKgJPEOuva1C0LnOIMRvF9PuZ
+	93KzIuSbtng50m/tjY/PVB2wRyyHpdaD+oCQ+W8PJ7LZUlQbQcVXPd0cF2VbNCXCNXipWNCz7Vc
+	L9pxgqZuvDM1ogfbbYA8hw8q0yIqoeB8T/l0JoNAYHDIzboRGP6Wq7oqhqVNRfssFu+XDNLnM61
+	0VRqczRImIeNtMpyq3BqyVdmOSKOEOjgjimWx/hpfrLURYVIkQKLWgqYT8/pHXxGH6sjUsofjT2
+	s+Pjkw9XXOdoMlzP1FjtvScXFGpmGrVmL/SxUBWwrvuFUNVxaB5h+GYhqyi5PjOLzgDX/iUZl1T
+	FhHtvjx7a9VddK8t9YhrJV3KHrTcyeUacL4Ga6S5VLaMSgH0jK5FUGk7gbvgkmkYfQZvl2rB8ub
+	OHVVwEnL3imuMItm03WiTc7RMG9OuA/qvd4c/ZDVS9gZWOjtnJviBSjauaIKKfrlA/WPKl3Anlr
+	1XV6s7ZF8WqtyXaA05qVXs776wNGJYI5tphyoGp9tFVTwvALVunKQR0wStUiQsCIr66PEs+yLj7
+	qHuObgTEZh6MnvArtcUP4xtXHtqRDII+8rU=
+X-Received: by 2002:a05:701a:cc88:10b0:151:6e80:ba7e with SMTP id a92af1059eb24-1b5567dcec1mr2519969c88.4.1795174547112;
+        Fri, 20 Nov 2026 03:35:47 -0800 (PST)
+Received: from pjhArchLinux ([199.102.217.182])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b55682d301sm6274610c88.10.2026.11.20.03.35.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 20 Nov 2026 03:35:46 -0800 (PST)
+From: pjh456 <pengjunhao409@gmail.com>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>
+Cc: linux-rtc@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v4] dt-bindings: rtc: haoyu,hym8563: document vdd-supply
+Date: Fri, 20 Nov 2026 19:35:01 +0800
+Message-ID: <20261120113502.563894-1-pengjunhao409@gmail.com>
+X-Mailer: git-send-email 2.56.1
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -94,77 +96,63 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261118081625.2399247-7-a0282524688@gmail.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - roeck-us.net
-X-BWhitelist: no
-X-Source-IP: 108.223.40.66
-X-Source-L: No
-X-Exim-ID: 1xU5MU-00000003LGz-3x54
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:56426
-X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 8
-X-Org: HG=direseller_whb_net_legacy;ORG=directi;
-X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
-X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfAiRLcEO2g+u5iHSKIz30IK993jdvI8fX8gurpX6P6qX9TwxKUzwK7pouayB+liMDGQGzka6hUWxxv60w73E/OL2qf87SZSxAaLLS6mmZP+6fS7aE8Ps
- MSZF8czxmO8xvvedWjisXXdzsR0MaPxJw8/+ydlPBz4hV4watV03Gonh4pwawKGIfgFSAyIUaPGj8uj1GzV6T8f29+gzQM59GhMEmeeMsV0Ab4VC4Ma0NvUH
+Content-Transfer-Encoding: 8bit
 
-On Wed, Nov 18, 2026 at 04:16:17PM +0800, a0282524688@gmail.com wrote:
-> From: Ming Yu <a0282524688@gmail.com>
-> 
-> Each sub-device driver defines the module type used by its own
-> commands. The upcoming HIF transport also needs to recognise
-> NCT6694_RPT_MOD, as report accesses are served from a separate
-> register space rather than through the command mailbox.
-> 
-> Move all module types into the shared header so that the transports
-> and the sub-device drivers use a single set of definitions.
-> 
-> No functional change.
-> 
-> Reviewed-by: Andi Shyti <andi.shyti@kernel.org>
-> Signed-off-by: Ming Yu <a0282524688@gmail.com>
-> ---
-> Changes in v10:
-> - None.
-> 
-> Changes in v9:
-> - Added Andi's Reviewed-by.
-> 
-> Changes in v8:
-> - Reworded the commit message to explain why the transport needs the
->   module types.
-> 
-> Changes in v7:
-> - None.
-> 
-> Changes in v6:
-> - None.
-> 
-> Changes in v5:
-> - Split from the monolithic v4 patch to follow the single logical change
->   principle.
-> 
->  drivers/gpio/gpio-nct6694.c         |  7 -------
->  drivers/hwmon/nct6694-hwmon.c       | 21 ---------------------
->  drivers/i2c/busses/i2c-nct6694.c    |  7 -------
->  drivers/net/can/usb/nct6694_canfd.c |  6 ------
->  drivers/rtc/rtc-nct6694.c           |  7 -------
->  drivers/watchdog/nct6694_wdt.c      |  7 -------
->  include/linux/mfd/nct6694.h         |  9 +++++++++
->  7 files changed, 9 insertions(+), 55 deletions(-)
+The HYM8563 is supplied through its VDD pin.  Add an optional
+vdd-supply property so a board can describe the regulator connected
+to it.
 
-For hwmon and watchdog:
+The property is optional because some boards connect VDD to an
+always-on rail.  Describing the supply also lets fw_devlink order the
+RTC probe after its regulator.
 
-Acked-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: pjh456 <pengjunhao409@gmail.com>
+---
+v4: rewrite the commit message, move the AI disclosure below --- and
+    drop the version links.  No code changes.
+v3: use the generic "vdd-supply: true" form and show the supply in the
+    example; reword the rationale around the hardware instead of the
+    fw_devlink ordering; replace the non-standard "Assisted-by:"
+    trailers with a disclosure paragraph in the commit message.
+v2: rename vcc-supply to vdd-supply, matching the datasheet pin name.
 
-Guenter
+The patch was tested on the Purple Pi OH: cold boot, same kernel Image,
+only the DTB changed.  With vdd-supply, 3/3 boots registered hym8563
+as rtc0 at ~0.6 s.  Without it, 2/2 boots failed with -110 at ~1.37 s
+because the RTC probed before the i2c3 pull-up rail (vccio_acodec)
+reached 3.3 V at ~1.60 s.
+
+AI assistance: I used the HYM8563 datasheet and the board schematic as
+inputs, and drafted this change with help from Qwen3.8 Flash Next and
+DeepSeek V4.1 Flash through the OpenCode coding agent; Gemini 4
+Hydrogen was used to cross-check the schematic in Google AI Studio.
+I reviewed the result, ran dt_binding_check, and tested it on the board.
+
+ Documentation/devicetree/bindings/rtc/haoyu,hym8563.yaml | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/rtc/haoyu,hym8563.yaml b/Documentation/devicetree/bindings/rtc/haoyu,hym8563.yaml
+index 0b9f39ef0edc..ce9712e2c406 100644
+--- a/Documentation/devicetree/bindings/rtc/haoyu,hym8563.yaml
++++ b/Documentation/devicetree/bindings/rtc/haoyu,hym8563.yaml
+@@ -29,6 +29,8 @@ properties:
+   wakeup-source:
+     description: Enables wake up of host system on alarm.
+ 
++  vdd-supply: true
++
+ allOf:
+   - $ref: rtc.yaml
+ 
+@@ -52,5 +54,6 @@ examples:
+             reg = <0x51>;
+             interrupts = <13 IRQ_TYPE_EDGE_FALLING>;
+             #clock-cells = <0>;
++            vdd-supply = <&rtc_vdd>;
+         };
+     };
+
+base-commit: 7e1392a42ea288d70a266f6553fe06f57f8647ea
+-- 
+2.56.1
+
