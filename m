@@ -1,69 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.246.84.56
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795264601;
-	b=k1p206+0dVaB7lfRNj/iM0/Aa8oNDSyesJJ0ztmqc6xhpybp70sL4iDsH5mB0HkRv2uA
-	 EJG0gxqG0s2Do2fX0iXmTCNA9kNZFd6clJXY49Uj5MyV0Qv0jsU2XtanKZEB1T5mXfHn5
-	 tVOPR0TeILcK1kxHsQBh7bjCp6h2qAXW1UEoXD5KFTWQ5Q448XtoAS3SaCDhwClizyx5Y
-	 7dcvTs48AnncyHpp/YaO+1rl50ya9YPM0z+Ho85wWeMLkpWBORrQ/p+ZX1r3uK2V26rLi
-	 iiOszt3TYaioWinIB/oWfSVOX8liwzGEWQzO21XQmUI89bhafJXJ1LPx2EH2wiFdgsw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795264601;
-	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:Date:From:To:
-	 Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:X-Last-TLS-Session-Version;
-	bh=rcuwWYuIShywrwdReRTzxtDAqrJLFL0BZUk9awwAu6M=;
-	b=Fj+RpTZy7DgbXFxkRwAfgbUZwY/MPLcnxsn3ciHY0SBppJFuF2QiFjYvl610v/NRaQ0r
-	 o9cdWDjjXtHEjmtq/u/2epKnYQLn2ecSuHn9xSAR1Zp0fttIG3rm0xjwR6p1ZFG+PXOIu
-	 07MDBoO7qoxMCvhxn0H1dAUPStUZAQSPi3dsv2rcMwt+bPNeBY+RiYjPlNf8Jz5CxX7+l
-	 /oymPTblC8mvv2PHQqYVz9zhGISXYJqyFU0o7nyf3sBVp7Oip+rC3QfvLwgbfNK/FaDpk
-	 BMuiwAvtXY6feU+3+N+w6ZOfenFTcqpOrkrPic9DNqkW1peNs3aS5I4mX5xX6WVD26w==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=bootlin.com;
-	spf=pass smtp.mailfrom=bootlin.com;
-	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=unpTNbXC;
-	arc=none smtp.remote-ip=185.246.84.56
-Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.225.137
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1795276847;
+	b=uoBjLhM2/StxK+SWHwFpxy0JzZPNnrnvVkPcdJInEjXf81+RNv13Oqs9OqIhXa5L1HVG
+	 BJGeKzRbQ1SsUbX429AgkN5U+ybWuWn3UJ4+twW0Ao/TGMQWMS3k4WW5mLYoRlPGU+uZC
+	 MaPwu7ugy3xeDm/SDwmY5aXafvYUrk7W9fxy+FXknE3kGU0Svcr40pwnkCnV1kmKUhwG8
+	 vZIsdWj1+JwQUmqhkzdVfjRIjJWBr1VVgyR9WuZoixWjempdDIDuyFmpcV1xiSGCCyrJ1
+	 qny4O0e+yoEkoS5yYYtqbasx3cJmM0tSJD2jvcEj1nfE4YTyxixlIm06MAvfOKHqmUg==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795276847;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=4fSu9U47p/e+2YdK5hJJ3quZ1Xsv57d7Choty8guQdk=;
+	b=Z3DlQ6vofEmrsoORNkvdbrIGpdFrlMYPsksS+LGee3T9neDs04CpaFzfUotiHka/45np
+	 aueiT7vZZE70qQsCsyDyQlon1PnOAeucfIfL/DBaKSHzlo6H7DDVLwiXBpxrXu88aGGZI
+	 y15Uk7AL9jDYhSfVJRkY/PHjw92p8kmZ/XUEyvZrT6J5+dugeZuoxgKP5wZn2e6NdUfRV
+	 mntqVY3P4HP8EvOTcikNLp0bf9VpI8kKtmqjNxkya/kSR/YVtZIWxuIuyNKuiS3ci+JgO
+	 DRVFhC1s/iCjGq9RpGYNxW4DuxE2yNm2Ptq2A/mupvcszugGnLTvlpkke/tfCGMSl5g==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=l8RYOq5y;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.225.137
+Received: from mail-wm2-f9.google.com (mail-wm2-f9.google.com [74.125.225.137])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4470F606A32A
-	for <linux-rtc@vger.kernel.org>; Sat, 21 Nov 2026 12:36:39 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4470F606A32A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0AF84606A32C
+	for <linux-rtc@vger.kernel.org>; Sat, 21 Nov 2026 16:00:46 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0AF84606A32C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=unpTNbXC
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-02.galae.net (Postfix) with ESMTPS id 75AF31A176B;
-	Sat, 21 Nov 2026 12:36:37 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 33867603CF;
-	Sat, 21 Nov 2026 12:36:37 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 423FA11BC05AB;
-	Sat, 21 Nov 2026 13:36:33 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1795264596; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 in-reply-to:references; bh=rcuwWYuIShywrwdReRTzxtDAqrJLFL0BZUk9awwAu6M=;
-	b=unpTNbXCOfhekgHiuaF3vBNRjU4KLHjsAo3Osz74DwgWnxjU+ceGqGpMw7nddWL5m9b+Vb
-	PgCyvrgoZcFCLjafG0+7lRnYQejB9GFOSeHNNp/v/VjQAN/JaaT3jtSIBqWuoKEp9OGNff
-	Npa3FUcJLZjhETqcOgTLRqXRbsnQQn3krTC+ROEBrl2DLGhtQ+3/RFlx3Mnm4EFw4nCduB
-	XEe2QO91oemSn/hokoAMdN0iTjdIDQlgGf3Ui+fTNOT+yZaWhpZqMuOlxc081fad/wQF09
-	tbZg2DR0F/rh57B8Uzp9QMwjdtvCj40Tcp1Cw9BpCpOFmu7FIQ5idfWtDXAD9A==
-Date: Sat, 21 Nov 2026 13:36:32 +0100
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Hugo Villeneuve <hugo@hugovil.com>
-Cc: Stefan Kerkmann <s.kerkmann@pengutronix.de>, linux-rtc@vger.kernel.org,
-	linux-kernel@vger.kernel.org, bruno.thomsen@gmail.com,
-	giampiero@sferalabs.cc, p.rosenberger@kunbus.com,
-	antonio@amsobr.com, Hugo Villeneuve <hvilleneuve@dimonoff.com>
-Subject: Re: [PATCH 3/4] rtc: add battery low voltage detection feature
-Message-ID: <20261121123632576d91fd@mail.local>
-References: <20260311200237.3531981-1-hugo@hugovil.com>
- <20260311200237.3531981-4-hugo@hugovil.com>
- <eeff2fb8-889a-4884-81d8-e4cda7ac5e9e@pengutronix.de>
- <2026112013404685aba5df@mail.local>
- <202611201612495c31b58f@mail.local>
- <20261120184027.650463c9b2a1ee1d5528ef36@hugovil.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=l8RYOq5y
+Received: by mail-wm2-f9.google.com with SMTP id 5b1f17b1804b1-4bb5b21feccso3363295e9.1
+        for <linux-rtc@vger.kernel.org>; Sat, 21 Nov 2026 08:00:46 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1795276845; cv=none;
+        d=google.com; s=arc-20260327;
+        b=R4vU5DUMR571FhD84AdgdTQU2Tp7c8k8E6VP6iYKvqnL7J+CAt7fwCfJ89j6L/tw0U
+         NYXxpVzMJfaPhcsn6kiIQecd237EiYGtXweVZAXi4Pz+LWOpi8W7CFtYF6ASPmTzTsfW
+         wUSxmi2zPggaEvO863R9nsXOlEpNMpPX7ZT2ozLj5TQU+IKkv+Y59wKXhaLeJgE/k+yW
+         5g6+s1Blj84UVlBMLrDKFbZmXtUk6kjfpKdXqpA1E/yz7JfyLhL+bltb2/AYDobJTCcB
+         9W/MpCOyyLzJtTDZi0mdyKKTh95I6C+1pbNXO23eH94isVf9r2PmdYYBD4IFgpOl554c
+         LhuA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=4fSu9U47p/e+2YdK5hJJ3quZ1Xsv57d7Choty8guQdk=;
+        fh=FqrZcv0fNHFL5sfcAR7YLIKcWyRpUN47KDg63jAoepw=;
+        b=Zgo/eun2wlP4lAO2W5Wbs2sBAYDrNq2SLaRKM0OklTlUfo3DlXUFa4nplHPQfioHzu
+         k5K4UpQ3M8929ug0kXJlpyH1F5mpw/+FMvsB8IEeCMhZhJVjzxyAsiudOYUsdTL62ofH
+         PBpSOaoEXiis807hOoLqrjItzGe0PZJ7A6m5BHzQ0ZoP0ISQf7bzU3M/43Qu9XlyAttL
+         yaocv4sGBPhUZ5WbNtgsMoYg6HOH10573WG5QvZHJZE9ZQ/aBfO77sOceeI80GuQErU2
+         VTzxK/9KRz8NQguwCUp2Pz+QzsrXKMGxSV7VZ2RfobVIYZz9emP1fA6YQQZHpx/zKTAa
+         4xYg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1795276845; x=1795881645; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=4fSu9U47p/e+2YdK5hJJ3quZ1Xsv57d7Choty8guQdk=;
+        b=l8RYOq5yDyEYK/MIXVNNjSUfs9vqWkogk5qKhPS0/P7YLUv4aqXicalkO1Ltp80HbY
+         PA1aVq8P5qjPP8gXYxlHj1cSF2bm0z9+DtRBYHr/w60ZlMOwipdE9wzaViUv+1LzOmuI
+         EkgqoFhIFI6jyK1Teq92E7hdDtZQTqNU+RmSfg7eurh9OuqJtauCX9mDjw4wj5rLpK71
+         lCNOEc7ikt2YRg0b2StnpScyuDHO770HtAF1cKTpsd+fyYrHteXRMGW/kNyYfCHnBO3a
+         rFgsumi5CsHOI2B8p4Q2iV8bxJbedukHAxZEqxB5eZ3FpXdR1XJF9aBimI6SGTuZDdjH
+         mQnA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795276845; x=1795881645;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=4fSu9U47p/e+2YdK5hJJ3quZ1Xsv57d7Choty8guQdk=;
+        b=ev5AVijN1Ulweii1qxiTQnDLhhc7MiTlr0K+vB51EhoFRp0ffa9NRjbBAS4SBNu/MZ
+         Iyx/jtG2YppXCpB3Q314slDadHHKjpYG9HGMlNRLY0mgcgawLmVPh8ZMd6kRroFlngKJ
+         FfrS8tGviE4dX35V+LGZ8hLneZ00L9ZxfIKM/rozqyrTtg49mXkI+i3O8qLDHA0ZICvL
+         7UjeuuA06iS63LV+5M6J5iiP4OkWHUB810AHpV4lw+OPhk2kmjwO3r5RVMtVVwkG86tu
+         oa8AgjWGyQwKOnxC/qFgNLl6knGTJcQSXtV5nboSNKWyZscss786blL1qBTOmY2RBUHP
+         68fA==
+X-Forwarded-Encrypted: i=1; AL+hErHApC/C84RiDlPOoaayZkpGUMHDPceckjva24OIwIz6F+dZjVScsXNiL/ETP2+3UbyhFmuLU/1z8BI=@vger.kernel.org
+X-Gm-Message-State: APuU4Z+t3w4qum1hx4n7Xs1c+N7jpQObQ1SfQKwegvJkjgvO+uKREJFh
+	E7PbGthhwqPNqeemK0Y5LqyBRjIWPqSyc4pUJg80p40Xg2FOQc86rm9LDHB+8pcZkeY4eime4sv
+	r3+Vd9VVy5SxFNzRvSP+qjIjIL4QY4wM=
+X-Gm-Gg: AZFdTZeq/vmUkz5WY7W54LlRQY1gQvQUQedNCryr/Yq+CFG8UmMrXM0dnvQyEJgHp/s
+	P6+I52BeLIoQTi2ZmIQDPWinsqT5ZOosLOhduWPAnDi/CRr1V0/79dT5BREr58/8+kKr2/+zcsu
+	KfS07703n/4ZTy++4VadcKjJgOkqw6w5bIYhWVhx4PPdCRnD2lPHOizAZhXFKSi2T2FMRwaL4Aq
+	4zeGkHDGbZW4iukrGcUtWRkuoGWdhcX++BOTdybcibwTRNkAsGcWYchYNooAskI58W9nJ+e3oTO
+	+rca2AkiO9KYL+qfJV8Sbbm6bQfvdQgCUcZeJPamFsvWa5C6ovj9YSKHH7l7PTQSr3DzhjwI8S/
+	jTHITqWZjCZZOA8viZJizRCmUr5+O3aOcOvhu3LCY
+X-Received: by 2002:a05:600c:6749:b0:4a2:d99:3171 with SMTP id
+ 5b1f17b1804b1-4bb8881b52dmr142558085e9.23.1795276845054; Sat, 21 Nov 2026
+ 08:00:45 -0800 (PST)
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -73,61 +104,53 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261120184027.650463c9b2a1ee1d5528ef36@hugovil.com>
-X-Last-TLS-Session-Version: TLSv1.3
+References: <20261120113502.563894-1-pengjunhao409@gmail.com> <20261121-attentive-grateful-caracal-5cefec@quoll>
+In-Reply-To: <20261121-attentive-grateful-caracal-5cefec@quoll>
+From: Peng Junhao <pengjunhao409@gmail.com>
+Date: Sun, 22 Nov 2026 00:00:33 +0800
+X-Gm-Features: Aa3M54pABFUzysTekZwMqshg2JytOmcciN5qZObXnYwCHqmzQjQy3yuFMj9xOF0
+Message-ID: <CALbS5L2j4pY4H5H-_2kT0yTDu-XaaMdJihs0uZepNutWL4M0Qg@mail.gmail.com>
+Subject: Re: [PATCH v4] dt-bindings: rtc: haoyu,hym8563: document vdd-supply
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, linux-rtc@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 20/11/2026 18:40:27-0500, Hugo Villeneuve wrote:
-> Hi Alexandre,
-> 
-> On Fri, 20 Nov 2026 17:12:49 +0100
-> Alexandre Belloni <alexandre.belloni@bootlin.com> wrote:
-> 
-> > On 20/11/2026 14:40:50+0100, Alexandre Belloni wrote:
-> > > Hello,
-> > > 
-> > > On 06/08/2026 14:55:00+0200, Stefan Kerkmann wrote:
-> > > > 
-> > > > 
-> > > > On 3/11/26 21:02, Hugo Villeneuve wrote:
-> > > > > From: Hugo Villeneuve <hvilleneuve@dimonoff.com>
-> > > > > 
-> > > > > Some RTCs have a battery low voltage detection function. Add new feature
-> > > > > so that it can be enabled, disabled or queried at runtime.
-> > > > > 
-> > > > > Signed-off-by: Hugo Villeneuve <hvilleneuve@dimonoff.com>
-> > > > > ---
-> > > > >   include/uapi/linux/rtc.h | 7 ++++++-
-> > > > >   1 file changed, 6 insertions(+), 1 deletion(-)
-> > > > > 
-> > > > > diff --git a/include/uapi/linux/rtc.h b/include/uapi/linux/rtc.h
-> > > > > index 97aca4503a6a3..596eec119bb3a 100644
-> > > > > --- a/include/uapi/linux/rtc.h
-> > > > > +++ b/include/uapi/linux/rtc.h
-> > > > > @@ -134,18 +134,23 @@ struct rtc_param {
-> > > > >   #define RTC_FEATURE_CORRECTION		5
-> > > > >   #define RTC_FEATURE_BACKUP_SWITCH_MODE	6
-> > > > >   #define RTC_FEATURE_ALARM_WAKEUP_ONLY	7
-> > > > > -#define RTC_FEATURE_CNT			8
-> > > > > +#define RTC_FEATURE_BATTERY_LOW_DETECT	8
-> > > > > +#define RTC_FEATURE_CNT			9
-> > > 
-> > > This is adding a new ABI and it took me a while to find enough time to
-> > > review the datasheet for the RTCs  we support and others. What we need
-> > > instead of a boolean is a voltage threshold. So maybe this should be
-> > > better named something like RTC_FEATURE_BATTERY_LOW_THRES_MV
-> 
-> I am not sure to understand that proposal, because with the
-> pcf2127/31, you can enable the low battery detection function, but you
-> cannot select the threshold voltage...
+On Sat, Nov 21, 2026 at 7:23=E2=80=AFPM Krzysztof Kozlowski <krzk@kernel.or=
+g> wrote:
+> What did the LLM tool ask you to do in regards of the commit msg?
+>
+> What did I ask you to read - which document? What is there about DCO?
+>
+> So at this point you are about to be treated as a bot.
+>
+> Best regards,
+> Krzysztof
+>
 
-This is exactly my point, there are RTCs where you can select the
-threshold voltage so we have to design for them. We can have 0mv mean
-disabled because we are never going to have a 0 or negative threshold.
+I'm very sorry for the noise. To answer your questions directly:
 
+1. The LLM tool told me it cannot sign the DCO and that I must write
+the commit message and sign it myself. I did not do that for v4; the
+message was still based on the LLM draft and I just changed a few words.
 
--- 
-Alexandre Belloni, co-owner and COO, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2. I have read Documentation/process/submitting-patches.rst as you
+instructed. I understand that Signed-off-by certifies that I have the
+right to submit the patch and take full legal responsibility. I
+misunderstood "known identity" and signed with my GitHub handle "pjh456"
+multiple times.
+
+3. I am definitely a human. I didn't mean to ignore your requests; I was
+slow to understand them, and I am sorry for the initial rapid patches.
+
+I will rewrite the commit message myself, using the hardware rationale and
+the A/B test results. I will use my real name in both From and Signed-off-b=
+y.
+The AI disclosure will remain strictly below the --- line as you asked.
+
+Sorry for wasting your time.
+
+Best regards,
+Peng Junhao
