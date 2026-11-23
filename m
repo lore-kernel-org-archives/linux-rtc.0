@@ -1,57 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795421547;
-	b=2r7V2oS1usWM9N1028EoZAzda6KvrASXxKVA4Pgdnce9g2aHAw3gG+HXcYovyw5gozE+
-	 MsCEC2XqXV+tfvTzXE8rLFRY+KAz7KRIpeyAP5y1OUoTvmDtXdyuEpwazXOXhH5V/QcwW
-	 YrwXHqrk+OpMZ/YMOLr3rIOQ/e0L7DMOTUTUaGrs78aKGKRa+OGb1ceFYOBrvV9zTx4Se
-	 8FZV1b5NDxrCBXWcjwTss44zIs86z4u6nv0K6HJU6TxUAhXwCyoPC3TvlO/nwW2+Lpiq9
-	 jBSB8WHpvuo6cWhdaa8Q3LFso6sTXl58FJtbA3RwhiGESYsbWf/AD3uTmKW03Ni/WmA==
+	t=1795421553;
+	b=VbdSZWzbG/i61GamkrV0IKO7+/0j2Ug+20FwJR5a9QscQefgaPoFcoht4/XwJwZ52oYR
+	 TobcS3iAU4FtP6DEbuu4sBnM+tYsSTd+0ADTJHZjWlrYX+ce++I1UAp6l4ZaKP+nx62fP
+	 shcvyy6NqWK8CucPkDJe4Y0zqUcoBnImU76Tn0RtIb25U9ZCGTiweUGK3Pjfr96Pk9MBM
+	 7Ww7bCB0+d5JCaQ4WJg2FgrncP6e5j9zethATlXYUIdYWuks/my6q9oIg8ydp4/vRRFo0
+	 jvJN5Ygv+wm101aNH5xNYLq+RuD9GezczMFwjeBf9bM9a6Dp9wCq/i293y9jsRFefCQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795421547;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795421553;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=d9SQKySSV7Hs2cWeW/wcDJDgYmGqSnItY5sbikCT0cY=;
-	b=M1iO3WF7yvrYUamjZV9xjFlHruBptxgK6iCXRyUy8NXIuY8ryVG3wY825m7ssMJ5zQwL
-	 Vkpn9iUPpYHko+sUaQPHPlPO/pD1i+K5l6hy5ihqnSdk4A8ShAqV6jAa4Qf5EHX20FJUg
-	 qf0fo2m/rCJqGKXU7mB7emjbkiH7Qau1deHaASi2Sgc7XLH0D1mnZMXDVJ9QdtMKbG7bL
-	 rcJ3JkA70wTM+8EwrSCXumFf2zcFLuu44CRITiI+dKSQEbQWuD0GDgC2Syx2AuMzX9E5K
-	 1VkFaOm7J33ZuXkT42NaNDGrih3RisWxX3Yega0CjsgRteFnRnIcLHBiZgtjb1TNAnA==
+	bh=DPKB008C8kOO7bmPJGW6c9xZipDkgxdDnf5Pxd0Opu8=;
+	b=cp1Z7qSN8cVnZPtTE0hIJxp7RjjCukjZtg+KtWVdpQu4ZWXyi88jDkdyLdw0bCuXn9CX
+	 ALSY77iHsIjQeyXUCWGp/gQW9LRGEoQAB6NOG4HZffFpAnVfGEBgWR5NmOjn14mai7UUh
+	 bblI+SyCONDoroVULY2jZ0TSCiszUB/6oDvNryhzrLnaujFxSdXsE7i6ccjqfzEya43yN
+	 MMeooo2XNKB3HV6MdW6cdmFNe60RwjM/FNWbDrN2lp2/MKZsRHjrZNmmbatpvheIV+afh
+	 zhO7S6J1oc7UAejfJ0eqafWAb2Agm+Wb6s+spRbpwKyWJpoMMVVsJvqU8vTIHF3Gv5w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mUVGv2WB;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Bt+s7g++;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 612E5606A31A
-	for <linux-rtc@vger.kernel.org>; Mon, 23 Nov 2026 08:12:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72501606A321
+	for <linux-rtc@vger.kernel.org>; Mon, 23 Nov 2026 08:12:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mUVGv2WB
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F200D1F000CA;
-	Mon, 23 Nov 2026 08:12:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Bt+s7g++
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5CD41F000E1;
+	Mon, 23 Nov 2026 08:12:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795421547;
-	bh=d9SQKySSV7Hs2cWeW/wcDJDgYmGqSnItY5sbikCT0cY=;
+	s=k20260515; t=1795421552;
+	bh=DPKB008C8kOO7bmPJGW6c9xZipDkgxdDnf5Pxd0Opu8=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=mUVGv2WBB08IlcViyTfUAsTygNAxW+IHt7UPoYHtt45vAalCyURJpT8lJDCObH+Rc
-	 j/WMdYF5x1Dpks/6qPcNNJXZfjCkYxi+BpNzvMChdwlKifo1ckpnwjIeJPwKp0DdtC
-	 vK7xOZNX16MIKtZ9YvzZqEEDo2YXFVL/JNi1jaMOMyJlU0VKKsNpAddKE5DOA/kz9z
-	 s/pHIpBmobfKk1uU7+VyOqV8RqrzLwCB0b2yavP+NEOUN3Tzy1b/1uIKHTFnRuvmwX
-	 4rxQ2/OnhwYuePN61jwln/0J2SCzBwnTGg+uDZZJ6oo6v+/l93W9BbVIXY4wUcttVY
-	 1k3H8DfNhHB7A==
-Message-ID: <sashiko-outbox-228888@kernel.org>
+	b=Bt+s7g++sTFfm1fjUMNL6knY83Nffsv0yqJaQzKiF5LjwLdAGWFhZ92GZx2rmBwL6
+	 zTjNK35KOiwENHfS5S4h7TjmzGyHcrVANlSGr84MGX6HZIuJGB4gGJC5bUEKzD/xv6
+	 z1/f5t3emByL+0VsG14zcC9FbRLft88fz4aj0MPMCFTfpX8SBlnBT6Wrk+Jf4ZTz0A
+	 q6fmhtah0+3hh5Uqmgsu419nnv/rjnkjIZQM3KGR+b9QyVOjTEN46VrQnzSNY94mE+
+	 hMY7vfSh8g7QJ7bUkFGmKBsnlD+EieDTsgQh8Ow4IIkTvTMCsgJdLt7sKlAKHBXJoN
+	 14QHQH2FK8LSA==
+Message-ID: <sashiko-outbox-228889@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 3/4] rtc: lib: Implement time64_to_tm() in terms of
- time64_to_tm()
+Subject: Re: [PATCH v2 0/4] time: time64_to_tm() cleanups
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?VGhvbWFzIFdlacOfc2NodWggKFNjaG5laWRlciBFbGVjdHJpYyk=?= <thomas.weissschuh@linutronix.de>
 Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20261123-time-time64-to-tm-v2-3-117cf8afebce@linutronix.de>
+In-Reply-To: <20261123-time-time64-to-tm-v2-0-117cf8afebce@linutronix.de>
 References: <20261123-time-time64-to-tm-v2-0-117cf8afebce@linutronix.de>
- <20261123-time-time64-to-tm-v2-3-117cf8afebce@linutronix.de>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 23 Nov 2026 08:12:26 +0000
+Date: Mon, 23 Nov 2026 08:12:32 +0000
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -61,45 +59,14 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [Low] rtc: lib: unexplained noinline on rtc_time64_to_tm() and title
-  typo
---
+Sashiko has finished reviewing this 4-patch series:
 
-commit d52e75a7c141cd0560b1032f0c0041c5111a73da
-Author: Thomas Wei=C3=9Fschuh (Schneider Electric) <thomas.weissschuh@linut=
-ronix.de>
+- Patches 1, 2, and 4: no issues found.
+- Patch 3 ("rtc: lib: Implement time64_to_tm() in terms of time6..."): 1
+  potential issue (1 Low)
 
-rtc: lib: Implement time64_to_tm() in terms of time64_to_tm()
-
-This commit replaces the calendar calculation in rtc_time64_to_tm() with a
-call to time64_to_tm().
-
-> diff --git a/drivers/rtc/lib.c b/drivers/rtc/lib.c
-> index f7051592a6e38..48a26b579b4c7 100644
-> --- a/drivers/rtc/lib.c
-> +++ b/drivers/rtc/lib.c
-> @@ -46,110 +46,23 @@ EXPORT_SYMBOL(rtc_year_days);
->   * rtc_time64_to_tm - converts time64_t to rtc_time.
->   *
->   * @time:	The number of seconds since 01-01-1970 00:00:00.
-> - *		Works for values since at least 1900
-> - * @tm:		Pointer to the struct rtc_time.
-> + * @rtc_tm:	Pointer to the struct rtc_time.
->   */
-> -void rtc_time64_to_tm(time64_t time, struct rtc_time *tm)
-> +noinline void rtc_time64_to_tm(time64_t time, struct rtc_time *rtc_tm)
-
-[Severity: Low]
-Why is rtc_time64_to_tm() marked noinline here?  Neither a comment nor the
-commit message explains why inlining into callers in drivers/rtc/lib.c
-(such as rtc_ktime_to_tm()) should be prevented.
-
-Also, the commit subject says "Implement time64_to_tm() in terms of
-time64_to_tm()" instead of "Implement rtc_time64_to_tm() in terms of
-time64_to_tm()".
+A detailed review has been sent as a separate reply to patch 3.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261123-time-time6=
-4-to-tm-v2-0-117cf8afebce@linutronix.de?part=3D3
+4-to-tm-v2-0-117cf8afebce@linutronix.de
