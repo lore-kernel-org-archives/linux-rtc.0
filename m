@@ -1,107 +1,61 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795464024;
-	b=bCo4GX/EiApxNBkL+om+Iuc2DIYlyILPXbTePnNbPD5Ra31orMH27aZVwcLfQS3lqOeE
-	 cu6C0mGUes4otSJwQQmuWONeYjjhi5lUiMUXbRjJHYlo/OefOV2Xkbn5L7h9RQ5zrMTQJ
-	 /5DBrKV45xsRZk8ooDHhsVJAUi9ImxvDm7wIkwhctgD1Ksni02ziOpobJ36p1EaqI3+Ka
-	 HxfDs9gvJu6YfKfwVaeW8qmh4p32OrmbK9Lb+jJS8tEnIaWIR3+vj+KWKyDSGbDfx1+2D
-	 i5D8HnikHkGRMaB294iaDSDZXIHvERVMdaGJadkle6RWPT2Bd1Bs+DDP6JPiQpoeWgA==
+	t=1795464032;
+	b=CDZ01aXGQHegEMwG1edwi9lkoEdE66Mv9irIkIBIuBarFh5ZeEdCww79HhJhzyckUJVb
+	 P2QnjLnz/C6LOLYMne7S4CC4ukpE5tremyrJ+861LTXsX5XsfkWqi29DbS3QwpqXq0psD
+	 G4J16dnrLcCLTq6xWOg3F/1N8r7oTKV0jgrZdCttebqvFZtu22GsEE7fv1erheOhqwKAI
+	 x/ldC3QuSGRbcu+xO9Nn6wpuJMBl8sJLZDqwc6H0NtgyihgOHbYj62in5UkcGGp8A/xKW
+	 WUVXX/j39XMQ6ExOVhpR7OkXyRbOnhd3U/9ZQOm9ryH78c3JtttHqH2YEJemGejV0sQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795464024;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795464032;
 	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding;
-	bh=lafBaGzib/nfUJhb2MTI1mfxlmB6w3uNCmPXLXoCcU8=;
-	b=AI/NtVxYaiSOD9Sxu2HaFGWZ1JgAeyCO2VVicyPspq9eIdP9BQqQBSy+iUw7CwcxpXw8
-	 gz4Au8HuqPTqxXXG813JorVbz0zGEhZkZalwyXtSaaQj7eevAbayuxCs3/5vmNPtRroKp
-	 Tk0ub8xMG+FhR7wG8rGYm0gpVx0BGv+mlOVIX9RuBYK8TE7T41IbS8JuReAZGZ1F4Z+Vl
-	 z4HmELz2vNGi5CKwuhWStFehSsppxOdQ1qPHmEr1/Y7WWh+N0dNtR1LgChGl0baUIjK6Q
-	 GhCXSquDWDbk5OGf5BtuWShENLGFIkobeG70ToQInnjz/wI+AIjTBOS7GnpD/DiVkAA==
+	 In-Reply-To:References:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=wJmHuysGlrzUFkpREAfhZMaFYaFsHG8yDDRDlHUspmA=;
+	b=afXf8Ca2dxWU+jpoMUQPevMUoPAK58x8QeHYsMWupX1U/hHcT100852/tuSXwKkGLuhR
+	 bEdXhF0BeX3zhDdNqPB5rSJm0QaFi5dMsqd4QDoEC5gU1kv4K4yEwL6amjFFoXv+xwYgz
+	 OBWftL/V0vaNvmbJd1W1HH93GeVFtE5mhhopuf3eGiWjSADIGwdwa7Xi6EdjqlAOpM7hn
+	 pphOO+vq4KxGBuwNultcCywOJjddPXz1EQSERZa6V7kPTRBMhinhDqAZxRMcmtjXLVti4
+	 J73Lx0kznc8xlhyX/3URgJifUDrL/GggiXXlk3KfxwxU1vqTbn+8tdYDOc1igvvNI+g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RtM3QgtK;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BKkr1tiw;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEE61606A31F;
-	Mon, 23 Nov 2026 20:00:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24A07606A332;
+	Mon, 23 Nov 2026 20:00:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RtM3QgtK
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22B9E1F000C0;
-	Mon, 23 Nov 2026 20:00:14 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BKkr1tiw
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 932811F000C4;
+	Mon, 23 Nov 2026 20:00:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795464023;
-	bh=lafBaGzib/nfUJhb2MTI1mfxlmB6w3uNCmPXLXoCcU8=;
-	h=From:To:Cc:Subject:Date;
-	b=RtM3QgtKHi93BUZ9vS0uZST9CtS2F3EgWc+cpbG02hKYxlSmf81K1oUwIWTCilMvt
-	 SWmSvcETrz7V+fQF8vKyXJTjQT5oFLpIKj3rG2OVttqDuG7V6mp4cCR6uru2EuGptP
-	 Ng9J+xAzf0121RYp4FzJdVZOZgFdWLs9JLfz4To7zR0Tc900Se6TREYY5AJ1zkGwmx
-	 UxQzK06YqT5o4JPp3gC5VVUqHD/lwtYyZBgSjqrHgl1An8bOnncTGFPKGiQWQMQTNK
-	 Nd2K3CpIbiCMgc6CcKGnRaEomijNHI0TS9Oy1ujN51pHFTW3Bv35KMSnK9JLTAkjXx
-	 gOiJ0UPm6RSOw==
+	s=k20260515; t=1795464031;
+	bh=wJmHuysGlrzUFkpREAfhZMaFYaFsHG8yDDRDlHUspmA=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=BKkr1tiw2ceUf6Ky8hMnKRSKYuCRupbDO2zhLMCHl9MvroL5Xs1SLGYpYVIL5O5LX
+	 V+ZWMXfhXfvzI03cPCilmR+zweACy3zNnHkQKwoJgY20p+FtSQntCemRTHVfeHzsmi
+	 Gy939rqUaTKMDnhmxzq8t17cvFYfV6PhVxjfdRyQbA/qQ1kninTGSH/MAEfn0jJChO
+	 WQ5m0/2//02Zy2L9Awgc+8/Vuf5cinNe5AVxMeOT1xYBcnYNXInNgX1TeDlmLI7Xgt
+	 oL7cG1okt01VXYqHQ+w8rUa0Exe1yaDMxtbx6VSFoOWo+GizVGvPfAUoepwQqekkdf
+	 NK0159O9bw15w==
 From: Lee Jones <lee@kernel.org>
 To: lee@kernel.org,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Jacky Huang <ychuang3@nuvoton.com>,
-	Shan-Chun Hung <schung@nuvoton.com>,
-	linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mediatek@lists.infradead.org
-Cc: "George G. Davis" <gdavis@mvista.com>,
-	"Mark A. Greer" <mgreer@mvista.com>,
-	"Tianping.Fang" <tianping.fang@mediatek.com>,
-	Adriana Stancu <adriana@arista.com>,
-	Alexander Bigga <ab@mycable.de>,
 	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Alexandre Torgue <alexandre.torgue@foss.st.com>,
-	Andrew Jeffery <andrew@codeconstruct.com.au>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Avi Fishman <avifishman70@gmail.com>,
-	Benjamin Fair <benjaminfair@google.com>,
-	dmitry pervushin <dpervushin@embeddedalley.com>,
-	Dmitry Rakhchev <rda@emcraft.com>,
-	Domen Puncer <domen.puncer@telargo.com>,
-	Eddie Huang <eddie.huang@mediatek.com>,
-	Enric Balletbo i Serra <eballetbo@kernel.org>,
-	Eric Liu <liuer@nvidia.com>,
-	Gary Bisson <gary.bisson@boundarydevices.com>,
-	Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>,
-	Imre Kaloz <kaloz@kernel.org>,
-	Johan Hovold <johan@kernel.org>,
-	John Rigby <jcrigby@gmail.com>,
-	Joshua Kinard <linux@kumba.dev>,
-	linux-rtc@vger.kernel.org,
-	linux-stm32@st-md-mailman.stormreply.com,
-	lm-sensors@lm-sensors.org,
-	Matthias Fuchs <matthias.fuchs@esd-electronics.com>,
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Medad CChien <ctcchien@nuvoton.com>,
-	Mia Lin <mimi05633@gmail.com>,
-	Ming-Jen Chen <mjchen@nuvoton.com>,
-	Nancy Yuen <yuenn@google.com>,
-	Nicolas Boichat <drinkcat@chromium.org>,
-	Nishanth Menon <nm@ti.com>,
-	openbmc@lists.ozlabs.org,
-	Patrick Venture <venture@google.com>,
-	Pavel Machek <pavel@denx.de>,
-	Peter Hartley <peter.hartley@sigmatel.com>,
-	Piotr Ziecik <kosmo@semihalf.com>,
-	Ran Bi <ran.bi@mediatek.com>,
-	Ryan Brue <ryanbrue.dev@gmail.com>,
-	Sean Wang <sean.wang@mediatek.com>,
-	Sergei Poselenov <sposelenov@emcraft.com>,
-	source@mvista.com,
-	Tali Perry <tali.perry1@gmail.com>,
-	Tomer Maimon <tmaimon77@gmail.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
 	Wolfgang Grandegger <wg@grandegger.com>,
-	Wolfram Sang <kernel@pengutronix.de>,
-	Yingjoe Chen <yingjoe.chen@mediatek.com>
-Subject: [PATCH 00/10] rtc: assorted bug fixes across RTC drivers
-Date: Mon, 23 Nov 2026 19:59:11 +0000
-Message-ID: <20261123200012.502284-1-lee@kernel.org>
+	lm-sensors@lm-sensors.org,
+	Sergei Poselenov <sposelenov@emcraft.com>,
+	Dmitry Rakhchev <rda@emcraft.com>,
+	linux-rtc@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org
+Subject: [PATCH 01/10] rtc: rx8025: pass parent I2C device in clock_adjust_ppb sysfs callbacks
+Date: Mon, 23 Nov 2026 19:59:12 +0000
+Message-ID: <20261123200012.502284-2-lee@kernel.org>
 X-Mailer: git-send-email 2.56.1.831.g720f3f5937-goog
+In-Reply-To: <20261123200012.502284-1-lee@kernel.org>
+References: <20261123200012.502284-1-lee@kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -114,93 +68,47 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-These issues were reported by Sashiko.
+Since rx8025_attr_group was converted to rtc_add_group(), the device
+pointer passed to rx8025_sysfs_show_clock_adjust() and
+rx8025_sysfs_store_clock_adjust() is the RTC class device (&rtc->dev)
+rather than the parent I2C client device.  Passing dev directly to
+rx8025_read_offset() and rx8025_set_offset() invokes to_i2c_client() on
+the RTC class device, causing type confusion and an invalid pointer
+dereference during SMBus register access.
 
-None of these changes have been tested on physical hardware.
+Pass dev->parent to rx8025_read_offset() and rx8025_set_offset() so
+they operate on the underlying I2C client device.
 
-Cc: "George G. Davis" <gdavis@mvista.com>
-Cc: "Mark A. Greer" <mgreer@mvista.com>
-Cc: "Tianping.Fang" <tianping.fang@mediatek.com>
-Cc: Adriana Stancu <adriana@arista.com>
-Cc: Alexander Bigga <ab@mycable.de>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
-Cc: Andrew Jeffery <andrew@codeconstruct.com.au>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Cc: Avi Fishman <avifishman70@gmail.com>
-Cc: Benjamin Fair <benjaminfair@google.com>
-Cc: dmitry pervushin <dpervushin@embeddedalley.com>
-Cc: Dmitry Rakhchev <rda@emcraft.com>
-Cc: Domen Puncer <domen.puncer@telargo.com>
-Cc: Eddie Huang <eddie.huang@mediatek.com>
-Cc: Enric Balletbo i Serra <eballetbo@kernel.org>
-Cc: Eric Liu <liuer@nvidia.com>
-Cc: Gary Bisson <gary.bisson@boundarydevices.com>
-Cc: Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
-Cc: Imre Kaloz <kaloz@kernel.org>
-Cc: Jacky Huang <ychuang3@nuvoton.com>
-Cc: Johan Hovold <johan@kernel.org>
-Cc: John Rigby <jcrigby@gmail.com>
-Cc: Joshua Kinard <linux@kumba.dev>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-mediatek@lists.infradead.org
-Cc: linux-rtc@vger.kernel.org
-Cc: linux-stm32@st-md-mailman.stormreply.com
-Cc: lm-sensors@lm-sensors.org
-Cc: Matthias Brugger <matthias.bgg@gmail.com>
-Cc: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
-Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
-Cc: Medad CChien <ctcchien@nuvoton.com>
-Cc: Mia Lin <mimi05633@gmail.com>
-Cc: Ming-Jen Chen <mjchen@nuvoton.com>
-Cc: Nancy Yuen <yuenn@google.com>
-Cc: Nicolas Boichat <drinkcat@chromium.org>
-Cc: Nishanth Menon <nm@ti.com>
-Cc: openbmc@lists.ozlabs.org
-Cc: Patrick Venture <venture@google.com>
-Cc: Pavel Machek <pavel@denx.de>
-Cc: Peter Hartley <peter.hartley@sigmatel.com>
-Cc: Piotr Ziecik <kosmo@semihalf.com>
-Cc: Ran Bi <ran.bi@mediatek.com>
-Cc: Ryan Brue <ryanbrue.dev@gmail.com>
-Cc: Sean Wang <sean.wang@mediatek.com>
-Cc: Sergei Poselenov <sposelenov@emcraft.com>
-Cc: Shan-Chun Hung <schung@nuvoton.com>
-Cc: source@mvista.com
-Cc: Tali Perry <tali.perry1@gmail.com>
-Cc: Tomer Maimon <tmaimon77@gmail.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>
-Cc: Wolfgang Grandegger <wg@grandegger.com>
-Cc: Wolfram Sang <kernel@pengutronix.de>
-Cc: Yingjoe Chen <yingjoe.chen@mediatek.com>
+Fixes: 3d35840dfb75 ("rtc: rx8025: use rtc_add_group")
+Closes: https://sashiko.dev/#/bug/linux-39839b9a-7a00-4bdc-8d5a-b28de75dda80
+Cc: stable@vger.kernel.org
+Signed-off-by: Lee Jones <lee@kernel.org>
+---
+ drivers/rtc/rtc-rx8025.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Lee Jones (10):
-  rtc: rx8025: pass parent I2C device in clock_adjust_ppb sysfs
-    callbacks
-  rtc: mt6397: handle non-DT platform device matching in probe
-  rtc: ma35d1: allocate RTC device before requesting interrupt
-  rtc: mpc5121: get interrupts via platform_get_irq()
-  rtc: m41t80: use devm helpers for square-wave clock registration
-  rtc: nct3018y: fix clock provider use-after-free and leak on unbind
-  rtc: stmp3xxx: unregister child watchdog platform device on unbind
-  rtc: ds1685: check driver data for NULL in ds1685_rtc_poweroff()
-  rtc: omap: prevent NULL and dangling pointer dereferences in power-off
-    path
-  rtc: bq32k: use u8 register buffer in trickle_charge_bypass sysfs
-
- drivers/rtc/rtc-bq32k.c    |  6 ++++--
- drivers/rtc/rtc-ds1685.c   |  6 ++----
- drivers/rtc/rtc-m41t80.c   |  5 +++--
- drivers/rtc/rtc-ma35d1.c   | 14 ++++++-------
- drivers/rtc/rtc-mpc5121.c  | 41 ++++++++++++++------------------------
- drivers/rtc/rtc-mt6397.c   | 19 ++++++++++++++++++
- drivers/rtc/rtc-nct3018y.c |  3 ++-
- drivers/rtc/rtc-omap.c     | 21 +++++++++++--------
- drivers/rtc/rtc-rx8025.c   |  4 ++--
- drivers/rtc/rtc-stmp3xxx.c | 29 ++++++++++++++++-----------
- 10 files changed, 84 insertions(+), 64 deletions(-)
-
+diff --git a/drivers/rtc/rtc-rx8025.c b/drivers/rtc/rtc-rx8025.c
+index 1ccec7b5ae42..ab3a30982863 100644
+--- a/drivers/rtc/rtc-rx8025.c
++++ b/drivers/rtc/rtc-rx8025.c
+@@ -482,7 +482,7 @@ static ssize_t rx8025_sysfs_show_clock_adjust(struct device *dev,
+ 	int err;
+ 
+ 	dev_warn_once(dev, "clock_adjust_ppb is deprecated, use offset\n");
+-	err = rx8025_read_offset(dev, &adj);
++	err = rx8025_read_offset(dev->parent, &adj);
+ 	if (err)
+ 		return err;
+ 
+@@ -500,7 +500,7 @@ static ssize_t rx8025_sysfs_store_clock_adjust(struct device *dev,
+ 	if (kstrtol(buf, 10, &adj) != 0)
+ 		return -EINVAL;
+ 
+-	err = rx8025_set_offset(dev, -adj);
++	err = rx8025_set_offset(dev->parent, -adj);
+ 
+ 	return err ? err : count;
+ }
 -- 
 2.56.1.750.gf70dc682cf-goog
 
