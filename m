@@ -1,69 +1,67 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=82.195.75.108
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=162.243.120.170
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795439543;
-	b=ApTARoiq/Iu8Lu8dvcMKzls2jyQ0MaFdxLkFxb4trex4Zbc8njhZYlCp80RMXt7OIFfj
-	 iQfuGK5/9gEAQ9W/GqbvmqD92aQGo+/5D+uTQJbd0kfA7/KmwEtDoGSW3MIwqAZ4yoB/I
-	 75sWwqY+z/hEre+Xz6yzHzC7Mf+b8WZehF2QpSn5aiwXmwSy1dpJMRbIupVyrJz3l0FQq
-	 aOY7DLIn1t6wtB8FJ+sbDG8v0ucqxDtwDDmS9s8DffnS2eVAUvHH8rErAGdX2da+R+8aH
-	 HAV/d5IVFp3gyfZ3bn59pZc9BOJUT2eENlzeiJQTWfOqlaVOXIqWLjik3lUmHlaxLGw==
+	t=1795447661;
+	b=l8FhFvbGH5uZqdaw3nHT3yEhod1QGp/DMLwxAqM3/uiQ4VRcgLtE4UAegERTbg/FWYDH
+	 L7+aCs+ZznZZVz4Nvf/CgLsDDTGB1onBn9fQfmPxbaq2Kgh3///+5j23hKL9Y6Pa/uaSc
+	 ZoChpM1Cx52DC+zIFk6u9KPVG3ARvTMut5Vc+eLtNdvfboopeuokJIWXJV2sPytnV4GMr
+	 xcyyv4JhBnDJit7ByrkA+vu0O1NVz4dTv83lX+dnU3OKANZSC1rOIFVg8kHGvct6vcxb7
+	 wVDnF4PcAJothP+Etyu38GHIcfWqWMaIq3ax4KoiUIjzdG9DPZAt0Ai0QhzChrx3URQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795439543;
-	h=DMARC-Filter:DKIM-Signature:Received:From:To:Subject:In-Reply-To:
-	 References:Cc:Date:Message-ID:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding:X-Debian-User;
-	bh=TmaObXNTB9Nm1xeyOiO53F3dRQ8voxhovl1BhKueyTA=;
-	b=OtN8I6arrWFxJoOcgYDYE5nfHi2nAXgX9aznOUo0TPDO6MLMzVY20aNG9BGpLwdVdgPn
-	 tzE9od5Lst2mlrn+S1vJ1h/HYKPgkBzZDD/wKQ8Z8boKnDzmsqxYTw7GJXruGtW3a08Da
-	 lWMQIu1Ba4PFgTRWcm9w2wyDpQ2jvo+PTe5G9ha10bcjNhA7v5IksRYGxrR5499C9yV6p
-	 gHeCCte5YjP/dV6sV33MAirihNDnrBaV4eg57A7SPFO2PqbRAjuVjidYVyUGtRXKqmMgv
-	 GFzjP6abs69aVznoShduu4zaMMVrUyEA2XR4NveYtxXPpGM9Vs0FCGY2nPVyBzM7uDg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795447661;
+	h=DMARC-Filter:DKIM-Signature:Received:Date:From:To:Cc:Subject:
+	 Message-Id:In-Reply-To:References:X-Mailer:Mime-Version:Content-Type:
+	 Content-Transfer-Encoding:X-Spam_score:X-Spam_bar;
+	bh=wxsDx62TnzRXUdbgzy7FdIxDq2O5Hyr3+67xg1qIVVQ=;
+	b=uO50IHVKNWc1Q1ppO8oSdsxUJ77W5mQqh2IMVf2kskzPbeQuXjpnqya8d/4jv5DKvUoj
+	 F/eQ8gCEiG3n6Mxmdj+adYM7n9fiB7nxXvO7LCS9GOE4zHixvnYuIdV32GNA9mvwd5q2x
+	 jxJ4uo0qYF7VuM15HrGxSNRk2Sv3M6q22T0pHNLIs+4MocqbIuSl2GILZEj0U2U5DTMSw
+	 vPQtatLt+pORR+dgaHc6sYm0h4p6g9oW6kHGN4heDLPHEGJYlG5JNwEUT/iX/S4Ksibli
+	 NaO1Bt4m/1yjZGDRZofG0jiQ59CrsvSM4BVB4ELUrxadSw+oGyXfZdg+8MA6SESpFQg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=debian.org;
-	spf=pass smtp.mailfrom=debian.org;
-	dkim=pass header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=evwWV+kr;
-	arc=none smtp.remote-ip=82.195.75.108
-Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
+	dmarc=pass header.from=hugovil.com;
+	spf=pass smtp.mailfrom=hugovil.com;
+	dkim=pass header.d=hugovil.com header.i=@hugovil.com header.a=rsa-sha256 header.s=default header.b=IdDYRSdd;
+	arc=none smtp.remote-ip=162.243.120.170
+Received: from mail.hugovil.com (mail.hugovil.com [162.243.120.170])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5B46606A31E;
-	Mon, 23 Nov 2026 13:12:22 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D5B46606A31E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28F02606A327;
+	Mon, 23 Nov 2026 15:27:40 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 28F02606A327
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hugovil.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hugovil.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=debian.org header.i=@debian.org header.a=rsa-sha256 header.s=smtpauto.stravinsky header.b=evwWV+kr
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
-	s=smtpauto.stravinsky; h=X-Debian-User:Content-Transfer-Encoding:Content-Type
-	:MIME-Version:Message-ID:Date:Cc:References:In-Reply-To:Subject:To:From:
-	Reply-To:Content-ID:Content-Description;
-	bh=TmaObXNTB9Nm1xeyOiO53F3dRQ8voxhovl1BhKueyTA=; b=evwWV+krLearu1MVioYkduo2aF
-	l8K5X0zoRQqAYgW4a87na+kAGNDVMqKZXT6o3Hi00+9afcCRHUfnJ0jwk5cBkH0Hn88xPDVzy0xHF
-	Ju23NnObI/w5UHNp8BmM722XmC04l69uBKbEam7w/TR1QtqfpK2SvkIUpnYdlstzdZmmAMdiFFZYa
-	/1WdLSO2nhMe+Ubn5NnL5F+3arZxR0dZ65QEzXg0Lcy7opVZwR0VPwFRa+vvOlDsS5jpho//QTs6D
-	RiBMXKzB0jvKfR067sT6XcL22dFUm+X/1OHwadr3Rv4KK7KanEV/8hSbWP4tlmpgU+Jml0GdlcJXo
-	Ghu1+BFw==;
-Received: from authenticated-user
-	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.96)
-	(envelope-from <emfox@debian.org>)
-	id 1xVTpv-005EKr-05;
-	Mon, 23 Nov 2026 13:11:59 +0000
-From: Emfox Zhou <emfox@debian.org>
-To: Val Packett <val@packett.cool>,
- Maximilian Luz <luzmaximilian@gmail.com>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: Re: [PATCH 4/5] rtc: Add basic support for RTC via Surface System Aggregator Module
-In-Reply-To: <20261104070441.74127-5-val@packett.cool>
-References: <20261104070441.74127-1-val@packett.cool> <20261104070441.74127-5-val@packett.cool>
-Cc: Bjorn Andersson <andersson@kernel.org>,
- Konrad Dybcio <konradybcio@kernel.org>,
- Hans de Goede <hansg@kernel.org>,
- =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
- linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-rtc@vger.kernel.org
-Date: Mon, 23 Nov 2026 21:11:41 +0800
-Message-ID: <1795439501.1366.emfox@debian.org>
+	dkim=pass (1024-bit key, unprotected) header.d=hugovil.com header.i=@hugovil.com header.a=rsa-sha256 header.s=default header.b=IdDYRSdd
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hugovil.com
+	; s=default; h=Content-Transfer-Encoding:Mime-Version:Message-Id:Subject:Cc:
+	To:From:Date:subject:date:message-id:reply-to;
+	bh=wxsDx62TnzRXUdbgzy7FdIxDq2O5Hyr3+67xg1qIVVQ=; b=IdDYRSdd65PYiv0GUNkY9gRA+h
+	m1AsFJm6s86j5ULuiMaDUlbRAmMmeIbtLv6Qm/2Szhl4dyKYmLttUkpMChoIjKb5mRp557A90IdID
+	umG9EorYiSWjSpsO8k9RO5RDslON5sWPGfeHdu51AwWDjUYeJhlO3sDP7LA0o0q5QC6M=;
+Received: from modemcable168.174-80-70.mc.videotron.ca ([70.80.174.168] helo=pettiford.lan)
+	by mail.hugovil.com with esmtpa (Exim 4.98.2)
+	(envelope-from <hugo@hugovil.com>)
+	id 1xVVx6-000000000h9-1xbV;
+	Mon, 23 Nov 2026 10:27:32 -0500
+Date: Mon, 23 Nov 2026 10:27:32 -0500
+From: Hugo Villeneuve <hugo@hugovil.com>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Stefan Kerkmann <s.kerkmann@pengutronix.de>, linux-rtc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, bruno.thomsen@gmail.com,
+ giampiero@sferalabs.cc, p.rosenberger@kunbus.com, antonio@amsobr.com, Hugo
+ Villeneuve <hvilleneuve@dimonoff.com>
+Subject: Re: [PATCH 3/4] rtc: add battery low voltage detection feature
+Message-Id: <20261123102732.6ca739becd4992892b2d1e23@hugovil.com>
+In-Reply-To: <20261121123632576d91fd@mail.local>
+References: <20260311200237.3531981-1-hugo@hugovil.com>
+	<20260311200237.3531981-4-hugo@hugovil.com>
+	<eeff2fb8-889a-4884-81d8-e4cda7ac5e9e@pengutronix.de>
+	<2026112013404685aba5df@mail.local>
+	<202611201612495c31b58f@mail.local>
+	<20261120184027.650463c9b2a1ee1d5528ef36@hugovil.com>
+	<20261121123632576d91fd@mail.local>
+X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -72,64 +70,79 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Debian-User: emfox
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam_score: -2.0
+X-Spam_bar: --
 
-Hi Val,
+Hi Alexandre,
 
-Tested on a Surface Pro 8 (x86, Tiger Lake): this is not SPX/ARM-only, the
-same SAM RTC sits behind the aggregator there. Two things came out of it.
+On Sat, 21 Nov 2026 13:36:32 +0100
+Alexandre Belloni <alexandre.belloni@bootlin.com> wrote:
 
-First, as posted the driver cannot bind on the x86 machines: 5/5 adds
-ssam_node_rtc only to ssam_node_group_spx[], while the x86 devices come
-from the ACPI-matched groups. With one line in ssam_node_group_sp8[],
+> On 20/11/2026 18:40:27-0500, Hugo Villeneuve wrote:
+> > Hi Alexandre,
+> > 
+> > On Fri, 20 Nov 2026 17:12:49 +0100
+> > Alexandre Belloni <alexandre.belloni@bootlin.com> wrote:
+> > 
+> > > On 20/11/2026 14:40:50+0100, Alexandre Belloni wrote:
+> > > > Hello,
+> > > > 
+> > > > On 06/08/2026 14:55:00+0200, Stefan Kerkmann wrote:
+> > > > > 
+> > > > > 
+> > > > > On 3/11/26 21:02, Hugo Villeneuve wrote:
+> > > > > > From: Hugo Villeneuve <hvilleneuve@dimonoff.com>
+> > > > > > 
+> > > > > > Some RTCs have a battery low voltage detection function. Add new feature
+> > > > > > so that it can be enabled, disabled or queried at runtime.
+> > > > > > 
+> > > > > > Signed-off-by: Hugo Villeneuve <hvilleneuve@dimonoff.com>
+> > > > > > ---
+> > > > > >   include/uapi/linux/rtc.h | 7 ++++++-
+> > > > > >   1 file changed, 6 insertions(+), 1 deletion(-)
+> > > > > > 
+> > > > > > diff --git a/include/uapi/linux/rtc.h b/include/uapi/linux/rtc.h
+> > > > > > index 97aca4503a6a3..596eec119bb3a 100644
+> > > > > > --- a/include/uapi/linux/rtc.h
+> > > > > > +++ b/include/uapi/linux/rtc.h
+> > > > > > @@ -134,18 +134,23 @@ struct rtc_param {
+> > > > > >   #define RTC_FEATURE_CORRECTION		5
+> > > > > >   #define RTC_FEATURE_BACKUP_SWITCH_MODE	6
+> > > > > >   #define RTC_FEATURE_ALARM_WAKEUP_ONLY	7
+> > > > > > -#define RTC_FEATURE_CNT			8
+> > > > > > +#define RTC_FEATURE_BATTERY_LOW_DETECT	8
+> > > > > > +#define RTC_FEATURE_CNT			9
+> > > > 
+> > > > This is adding a new ABI and it took me a while to find enough time to
+> > > > review the datasheet for the RTCs  we support and others. What we need
+> > > > instead of a boolean is a voltage threshold. So maybe this should be
+> > > > better named something like RTC_FEATURE_BATTERY_LOW_THRES_MV
+> > 
+> > I am not sure to understand that proposal, because with the
+> > pcf2127/31, you can enable the low battery detection function, but you
+> > cannot select the threshold voltage...
+> 
+> This is exactly my point, there are RTCs where you can select the
+> threshold voltage so we have to design for them. We can have 0mv mean
+> disabled because we are never going to have a 0 or negative threshold.
 
-	&ssam_node_rtc,
+For me, it is confusing and weird to have a threshold voltage
+parameter that you can set on ICs that a have a fixed threshold voltage.
 
-"ssam:01:01:01:00:00" appears and the driver registers rtc2:
+Also, once you set a threshold voltage for an IC that have that
+capability, setting it to 0 to disable it seems more complicated than
+simply setting the parameter to enable or disable. This also means that
+if some application/service at startup were to set a threshold voltage,
+then disabling it later by setting it to 0mv would lose the threshold
+voltage previously set.
 
-	surface_rtc 01:01:01:00:00: registered as rtc2
+So, why not simply add a new parameter like you suggested to set the
+threshold voltage on ICs that support it,
+RTC_FEATURE_BATTERY_LOW_THRES_MV? Then you can reuse the enable/disable
+boolean to enable/disable the function and keep the threshold voltage
+unaffected/unmodified.
 
-It would be good to have the node in the other x86 groups as well. Note
-that the node name will collide with the SPX one, so whichever lands
-first keeps it.
-
-Second, set_time() needs a timezone compensation. The EC keeps UTC in the
-SAM timestamp (CID 0x10), but also exposes _GRT (CID 0x1f), the same clock
-plus the zone stored in the EC, and the firmware copies _GRT into rtc_cmos
-at POST. Right after a cold boot here:
-
-	rtc0 read at boot	 1795199717
-	true UTC at boot	 1795170940
-	EC _GRT at boot		 1795199714	(zone +28800)
-
-so CMOS came from _GRT, 8 h ahead of UTC. The write side shows the same:
-after "hwclock -w -f /dev/rtc2" the SAM timestamp equals system UTC and
-_GRT is then UTC + zone, so the next cold boot is off by the zone again.
-Either write (UTC - zone), taking the zone from _GRT minus the timestamp,
-or state that this RTC is local time and leave the conversion to user
-space.
-
-Tested-by: Emfox Zhou <emfox@debian.org> # Surface Pro 8 (x86), with ssam_node_rtc added
-
-Since the same RTC is on the x86 machines, the descriptions are no longer
-accurate either: the commit message, the Kconfig help and the MAINTAINERS
-entry all name the Pro X:
-
-> +	  Say yes here if you want to support the RTC functionality of the
-> +	  Surface Aggregator Module (embedded controller) found in the
-> +	  Microsoft Surface Pro X tablet.
-
-> +MICROSOFT SURFACE PRO X RTC DRIVER
-
-Something like "found in Microsoft Surface devices with the Surface
-Aggregator Module" for the Kconfig text, and "MICROSOFT SURFACE
-AGGREGATOR RTC DRIVER" for the MAINTAINERS entry, would cover the ARM64
-Pro X and the x86 machines both. The file header already says
-"7th-generation Microsoft Surface devices", so this would make the three
-consistent.
-
-Thanks,
-Emfox
+Hugo.
