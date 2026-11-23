@@ -1,64 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795421163;
-	b=0Cw7TNih2yRRYRPyGvhimToJ9PQq/DPbjU2R/+EbeTVJUMZHW4rChVW2fswuP8YaxGlf
-	 LsQz4hueXmhL08pIdAj0xOHyqVnFFPn8TKFm+hNieFrcxbtsVYaJTUiWh8pUxsT2rz3/n
-	 fLBM5urHCOpHQUE6y/A+RTbjQwVabfF+rIJ4MKrzsHQuGUtp3pEdx9Y2540SANK7UN5Y5
-	 5hDLKMt1Yo8i/nZUrZ7vDkApPQZgs8BvxoJ3yZSkUua4Y1NYKewfKe6MUji22cGh1KR21
-	 hyUpOzj/EEYFeqW1Q+MfRQvBDlatNl2IqBpVhrzr8NJJOXqDH+XRq2cOMk2gBKNUUBw==
+	t=1795421547;
+	b=2r7V2oS1usWM9N1028EoZAzda6KvrASXxKVA4Pgdnce9g2aHAw3gG+HXcYovyw5gozE+
+	 MsCEC2XqXV+tfvTzXE8rLFRY+KAz7KRIpeyAP5y1OUoTvmDtXdyuEpwazXOXhH5V/QcwW
+	 YrwXHqrk+OpMZ/YMOLr3rIOQ/e0L7DMOTUTUaGrs78aKGKRa+OGb1ceFYOBrvV9zTx4Se
+	 8FZV1b5NDxrCBXWcjwTss44zIs86z4u6nv0K6HJU6TxUAhXwCyoPC3TvlO/nwW2+Lpiq9
+	 jBSB8WHpvuo6cWhdaa8Q3LFso6sTXl58FJtbA3RwhiGESYsbWf/AD3uTmKW03Ni/WmA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795421163;
-	h=DMARC-Filter:From:DKIM-Signature:DKIM-Signature:Date:Subject:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id:
-	 References:In-Reply-To:To:Cc:X-Developer-Signature:X-Developer-Key;
-	bh=saRGmW0YdaPOf9B38hsjs9ddd9rhpPBqExqDY8kvRlk=;
-	b=tqxVf8ZKI45taJwZzVQuXY4/lYGcPkMt4Bo1AtRS/i0Bxlyk8ruRkzn4wrZ+CbShR306
-	 SRARgadMrWZd49vafIueeQJ+osgZE/Yw3FrVwXX8rWqBcueedRNvHFSKmP8O+hJOjUfyr
-	 +NXVYyJ+yl1xUn4UKfmqKjRPkBPLtYgmf7pGG9GaRcw48c2qHqqrxNemgeiCbjRKC89PH
-	 lqooLur+0XIrk8ddOtnjvFN6UeP9IDiMC19RE+swoXtTxms9SGNtF+MaOJf0Zh+iZjwQ0
-	 29tRNvsonM+p42oqpBw1eFANwoaQkbYaGYCCNqIFTC6lSlvtl5vcepMfQnMPm6lnZ/g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795421547;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=d9SQKySSV7Hs2cWeW/wcDJDgYmGqSnItY5sbikCT0cY=;
+	b=M1iO3WF7yvrYUamjZV9xjFlHruBptxgK6iCXRyUy8NXIuY8ryVG3wY825m7ssMJ5zQwL
+	 Vkpn9iUPpYHko+sUaQPHPlPO/pD1i+K5l6hy5ihqnSdk4A8ShAqV6jAa4Qf5EHX20FJUg
+	 qf0fo2m/rCJqGKXU7mB7emjbkiH7Qau1deHaASi2Sgc7XLH0D1mnZMXDVJ9QdtMKbG7bL
+	 rcJ3JkA70wTM+8EwrSCXumFf2zcFLuu44CRITiI+dKSQEbQWuD0GDgC2Syx2AuMzX9E5K
+	 1VkFaOm7J33ZuXkT42NaNDGrih3RisWxX3Yega0CjsgRteFnRnIcLHBiZgtjb1TNAnA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linutronix.de;
-	spf=pass smtp.mailfrom=linutronix.de;
-	dkim=pass header.d=linutronix.de header.i=@linutronix.de header.a=rsa-sha256 header.s=2020 header.b=pL0IIQpG;
-	dkim=pass header.d=linutronix.de header.i=@linutronix.de header.a=ed25519-sha256 header.s=2020e header.b="MX0MH/kJ";
-	arc=none smtp.remote-ip=193.142.43.55
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mUVGv2WB;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EC1F6070A0C;
-	Mon, 23 Nov 2026 08:06:02 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7EC1F6070A0C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 612E5606A31A
+	for <linux-rtc@vger.kernel.org>; Mon, 23 Nov 2026 08:12:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.a=rsa-sha256 header.s=2020 header.b=pL0IIQpG;
-	dkim=pass header.d=linutronix.de header.i=@linutronix.de header.a=ed25519-sha256 header.s=2020e header.b=MX0MH/kJ
-From: =?utf-8?q?Thomas_Wei=C3=9Fschuh_=28Schneider_Electric=29?= <thomas.weissschuh@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1795421160;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=saRGmW0YdaPOf9B38hsjs9ddd9rhpPBqExqDY8kvRlk=;
-	b=pL0IIQpGW6RGKxvEjbj559GaC+94KefHpITKEKpOSHIHOmeAmIRwlGm4u1MtF3YLgP+PFv
-	f0f54JhTrjLep4dK2ozpgi4TW2UtoNqM8LFM9miMPFbuuf0knH8NyRv/2Nf6mxAymfLICY
-	WryEk4NMYLD5TSMgLsELmALOuTsSlWKxuJCsLjIWIYrTl7jXq/W6vlvJIxxtjh8TeycE1h
-	79MoQqMkCwnrtc3bo/QnKXJwmhYP+afhRXFBR/6hK200NAXBKpbGwjWvyrMqCR0MApPY6s
-	fNSSOyBMtsIK2+azCZcErzk7HGXVUcDHXJeY8DaXuC1qunnfV351FL3RJEsjjg==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1795421160;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=saRGmW0YdaPOf9B38hsjs9ddd9rhpPBqExqDY8kvRlk=;
-	b=MX0MH/kJWzPwwpekIHeTeOTlfSas/vdKILMvnnId8WsY7f6kuMiNyTHSHPFRL+Sx7DY/pL
-	ETKkQ/nmWppDmpBg==
-Date: Mon, 23 Nov 2026 09:05:12 +0100
-Subject: [PATCH v2 4/4] rtc: test: Remove test_rtc_lib.c
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mUVGv2WB
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F200D1F000CA;
+	Mon, 23 Nov 2026 08:12:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795421547;
+	bh=d9SQKySSV7Hs2cWeW/wcDJDgYmGqSnItY5sbikCT0cY=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=mUVGv2WBB08IlcViyTfUAsTygNAxW+IHt7UPoYHtt45vAalCyURJpT8lJDCObH+Rc
+	 j/WMdYF5x1Dpks/6qPcNNJXZfjCkYxi+BpNzvMChdwlKifo1ckpnwjIeJPwKp0DdtC
+	 vK7xOZNX16MIKtZ9YvzZqEEDo2YXFVL/JNi1jaMOMyJlU0VKKsNpAddKE5DOA/kz9z
+	 s/pHIpBmobfKk1uU7+VyOqV8RqrzLwCB0b2yavP+NEOUN3Tzy1b/1uIKHTFnRuvmwX
+	 4rxQ2/OnhwYuePN61jwln/0J2SCzBwnTGg+uDZZJ6oo6v+/l93W9BbVIXY4wUcttVY
+	 1k3H8DfNhHB7A==
+Message-ID: <sashiko-outbox-228888@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 3/4] rtc: lib: Implement time64_to_tm() in terms of
+ time64_to_tm()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: =?utf-8?b?VGhvbWFzIFdlacOfc2NodWggKFNjaG5laWRlciBFbGVjdHJpYyk=?= <thomas.weissschuh@linutronix.de>
+Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
+In-Reply-To: <20261123-time-time64-to-tm-v2-3-117cf8afebce@linutronix.de>
+References: <20261123-time-time64-to-tm-v2-0-117cf8afebce@linutronix.de>
+ <20261123-time-time64-to-tm-v2-3-117cf8afebce@linutronix.de>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 23 Nov 2026 08:12:26 +0000
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -67,185 +60,46 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20261123-time-time64-to-tm-v2-4-117cf8afebce@linutronix.de>
-References: <20261123-time-time64-to-tm-v2-0-117cf8afebce@linutronix.de>
-In-Reply-To: <20261123-time-time64-to-tm-v2-0-117cf8afebce@linutronix.de>
-To: John Stultz <jstultz@google.com>, Thomas Gleixner <tglx@kernel.org>, 
- Stephen Boyd <sboyd@kernel.org>, Miroslav Lichvar <mlichvar@redhat.com>, 
- Alexandre Belloni <alexandre.belloni@bootlin.com>, 
- Cassio Neri <cassio.neri@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org, 
- =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1795421157; l=4664;
- i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
- bh=lpLdoqurV8Q9KUZahlozvSDnmTawZdmVljIkY0BOJYU=;
- b=1wACDgoJITvKsWM2M4Ud8BBPebJ/N9M++3W6fCKobHLXpa6s1FSoQDYIll81cvWbSBGKFzoT8
- 9X3UC9hDGmvDojh08WaEnJlhFkRMDHHDTk355+96ddBrJY8Gi9XKQkp
-X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
- pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
 
-Now that rtc_time64_to_tm() is only a thin wrapper around time64_to_tm()
-the dedicated test is not necessary anymore. time64_to_tm() is already
-tested with a similar test in kernel/time/time_test.c
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [Low] rtc: lib: unexplained noinline on rtc_time64_to_tm() and title
+  typo
+--
 
-Remove it.
+commit d52e75a7c141cd0560b1032f0c0041c5111a73da
+Author: Thomas Wei=C3=9Fschuh (Schneider Electric) <thomas.weissschuh@linut=
+ronix.de>
 
-Signed-off-by: Thomas Weißschuh (Schneider Electric) <thomas.weissschuh@linutronix.de>
----
- drivers/rtc/Kconfig        |   9 ----
- drivers/rtc/Makefile       |   2 -
- drivers/rtc/test_rtc_lib.c | 106 ---------------------------------------------
- 3 files changed, 117 deletions(-)
+rtc: lib: Implement time64_to_tm() in terms of time64_to_tm()
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 73ec9230edfd..3fd586aef1ec 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -96,15 +96,6 @@ config RTC_DEBUG
- 	  Say yes here to enable debugging support in the RTC framework
- 	  and individual RTC drivers.
- 
--config RTC_LIB_KUNIT_TEST
--	tristate "KUnit test for RTC lib functions" if !KUNIT_ALL_TESTS
--	depends on KUNIT
--	default KUNIT_ALL_TESTS
--	help
--	  Enable this option to test RTC library functions.
--
--	  If unsure, say N.
--
- config RTC_NVMEM
- 	bool "RTC non volatile storage support"
- 	select NVMEM
-diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-index 46f1a0fc2416..51e2ca2d2a57 100644
---- a/drivers/rtc/Makefile
-+++ b/drivers/rtc/Makefile
-@@ -15,8 +15,6 @@ rtc-core-$(CONFIG_RTC_INTF_DEV)		+= dev.o
- rtc-core-$(CONFIG_RTC_INTF_PROC)	+= proc.o
- rtc-core-$(CONFIG_RTC_INTF_SYSFS)	+= sysfs.o
- 
--obj-$(CONFIG_RTC_LIB_KUNIT_TEST)	+= test_rtc_lib.o
--
- # Keep the list ordered.
- 
- obj-$(CONFIG_RTC_DRV_88PM80X)	+= rtc-88pm80x.o
-diff --git a/drivers/rtc/test_rtc_lib.c b/drivers/rtc/test_rtc_lib.c
-deleted file mode 100644
-index 0eebad1fe2a0..000000000000
---- a/drivers/rtc/test_rtc_lib.c
-+++ /dev/null
-@@ -1,106 +0,0 @@
--// SPDX-License-Identifier: LGPL-2.1+
--
--#include <kunit/test.h>
--#include <linux/rtc.h>
--
--/*
-- * Advance a date by one day.
-- */
--static void advance_date(int *year, int *month, int *mday, int *yday, int *wday)
--{
--	*wday = (*wday + 1) % 7;
--
--	if (*mday != rtc_month_days(*month - 1, *year)) {
--		++*mday;
--		++*yday;
--		return;
--	}
--
--	*mday = 1;
--	if (*month != 12) {
--		++*month;
--		++*yday;
--		return;
--	}
--
--	*month = 1;
--	*yday  = 1;
--	++*year;
--}
--
--/*
-- * Check every day in specified number of years interval starting on 1970-01-01
-- * against the expected result.
-- */
--static void rtc_time64_to_tm_test_date_range(struct kunit *test, int years)
--{
--	/*
--	 * years	= (years / 400) * 400 years
--	 *		= (years / 400) * 146097 days
--	 *		= (years / 400) * 146097 * 86400 seconds
--	 */
--	time64_t total_secs = ((time64_t)years) / 400 * 146097 * 86400;
--
--	int year	= 1900;
--	int month	= 1;
--	int mday	= 1;
--	int yday	= 1;
--	int wday	= 1; /* Jan 1st 1900 was a Monday */
--
--	struct rtc_time result;
--	time64_t secs;
--	const time64_t sec_offset = RTC_TIMESTAMP_BEGIN_1900 + ((1 * 60) + 2) * 60 + 3;
--
--	for (secs = 0; secs <= total_secs; secs += 86400) {
--
--		rtc_time64_to_tm(secs + sec_offset, &result);
--
--		#define FAIL_MSG "%d/%02d/%02d (%2d, %d) : %lld", \
--			year, month, mday, yday, wday, secs + sec_offset
--
--		KUNIT_ASSERT_EQ_MSG(test, year - 1900, result.tm_year, FAIL_MSG);
--		KUNIT_ASSERT_EQ_MSG(test, month - 1, result.tm_mon, FAIL_MSG);
--		KUNIT_ASSERT_EQ_MSG(test, mday, result.tm_mday, FAIL_MSG);
--		KUNIT_ASSERT_EQ_MSG(test, yday, result.tm_yday, FAIL_MSG);
--		KUNIT_ASSERT_EQ_MSG(test, 1, result.tm_hour, FAIL_MSG);
--		KUNIT_ASSERT_EQ_MSG(test, 2, result.tm_min, FAIL_MSG);
--		KUNIT_ASSERT_EQ_MSG(test, 3, result.tm_sec, FAIL_MSG);
--		KUNIT_ASSERT_EQ_MSG(test, wday, result.tm_wday, FAIL_MSG);
--
--		advance_date(&year, &month, &mday, &yday, &wday);
--	}
--}
--
--/*
-- * Checks every day in a 160000 years interval starting on 1900-01-01
-- * against the expected result.
-- */
--static void rtc_time64_to_tm_test_date_range_160000(struct kunit *test)
--{
--	rtc_time64_to_tm_test_date_range(test, 160000);
--}
--
--/*
-- * Checks every day in a 1000 years interval starting on 1900-01-01
-- * against the expected result.
-- */
--static void rtc_time64_to_tm_test_date_range_1000(struct kunit *test)
--{
--	rtc_time64_to_tm_test_date_range(test, 1000);
--}
--
--static struct kunit_case rtc_lib_test_cases[] = {
--	KUNIT_CASE(rtc_time64_to_tm_test_date_range_1000),
--	KUNIT_CASE_SLOW(rtc_time64_to_tm_test_date_range_160000),
--	{}
--};
--
--static struct kunit_suite rtc_lib_test_suite = {
--	.name = "rtc_lib_test_cases",
--	.test_cases = rtc_lib_test_cases,
--};
--
--kunit_test_suite(rtc_lib_test_suite);
--
--MODULE_DESCRIPTION("KUnit test for RTC lib functions");
--MODULE_LICENSE("GPL");
+This commit replaces the calendar calculation in rtc_time64_to_tm() with a
+call to time64_to_tm().
 
--- 
-2.56.1
+> diff --git a/drivers/rtc/lib.c b/drivers/rtc/lib.c
+> index f7051592a6e38..48a26b579b4c7 100644
+> --- a/drivers/rtc/lib.c
+> +++ b/drivers/rtc/lib.c
+> @@ -46,110 +46,23 @@ EXPORT_SYMBOL(rtc_year_days);
+>   * rtc_time64_to_tm - converts time64_t to rtc_time.
+>   *
+>   * @time:	The number of seconds since 01-01-1970 00:00:00.
+> - *		Works for values since at least 1900
+> - * @tm:		Pointer to the struct rtc_time.
+> + * @rtc_tm:	Pointer to the struct rtc_time.
+>   */
+> -void rtc_time64_to_tm(time64_t time, struct rtc_time *tm)
+> +noinline void rtc_time64_to_tm(time64_t time, struct rtc_time *rtc_tm)
 
+[Severity: Low]
+Why is rtc_time64_to_tm() marked noinline here?  Neither a comment nor the
+commit message explains why inlining into callers in drivers/rtc/lib.c
+(such as rtc_ktime_to_tm()) should be prevented.
+
+Also, the commit subject says "Implement time64_to_tm() in terms of
+time64_to_tm()" instead of "Implement rtc_time64_to_tm() in terms of
+time64_to_tm()".
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261123-time-time6=
+4-to-tm-v2-0-117cf8afebce@linutronix.de?part=3D3
