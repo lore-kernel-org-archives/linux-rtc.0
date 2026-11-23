@@ -1,78 +1,101 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795474215;
-	b=fKrt896nLuS67kEKhPiEB3Mdh81vwGR+bAkpi8lY/+CIq71dgzYv9zIq2BlpGivPVJb7
-	 mWSNnq1VhHZqthFeaRdIqxnL15SbL+CJjVfsPtlKcGALlzGaRGm3/Twr2EXwcrmP7h9EL
-	 NHaiRt1eOP48Cx573gVxdXVQZBc0lOJG7fyL4Z80dZ3xs5o8tpjhHxq3dczUlchxJr9XZ
-	 qEdOJuzVT2k/8iWaeC6+hnJ0FL0kK6E4IdrpoVQtVgo7EExrg1AYNAlFHTFTcf7N35bBr
-	 htgTJdXSSrYAC5iokhCViPq3o3g2rbjvtYvO0/hf14pps6VVY3WgpdLfj77W1/Iy5fw==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795474215;
-	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
-	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=YstasX83SpUpR7sJnrgBdW2Exikec0Kt7UwYg9xB36Y=;
-	b=YX56XEjmf9DNsEbfPDcNwAlHwbm1Dnvg1TAPBhtveFn7/mgfWfzgK0t7Pl4lWs9Hab0U
-	 EBxWG+Os0waJ48N1FNTmc4oK+NSpa+bHZ8nEWxfoR2igPL2Nb2Oxt2o8iF4MGxMod/4v7
-	 PxkIfx0UfHxtNqpdGoMyggJ+Qrqgx2P35oK+A1BigZDZLEAoWQMiL6M0/KFA503KU5frC
-	 X1WxEpxrGeyDAD5EyZzgiJCjp7d8vJSUrU5WrHxQz8qhEzv++kp+tQUEn/qLZawWFmo5e
-	 GTfWjkA2SApUEbDqOI6SwBasvk7JQFV6+SAtsxCS/QIUMCQKB2kglD7/6IZmtERN9tw==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Y7HrBquY;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0862D606A33D;
-	Mon, 23 Nov 2026 22:50:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Y7HrBquY
-Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
-ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1795474214;
-	b=0mbmyuHE/Fxk3q5deDQiKQyxBissX8h1CaEms4kDTM26U+VpZHPnJUcKWXlT7qNE2Vm0
-	 fdDARcctsQhM9ks63HZ2Ca0ltfU1fMJ5Cf8Z2QolDJHHBTYOvUl243Jy2kAPzZ8r2+O/M
-	 ZroXNaYpmotqFXnAw8FTVUZQ5cxA1him+1X8sGOtXovoKtXhJ7A131u1tivb9bl+tfOQ5
-	 DGkgJRxTD25k4y2Q7W0TcyXIa9uiTcsNOMdfCIdFFenPRbQYPO67PcKsxg8fFqXpPoNRL
-	 alHeCmc9cIHGq9s3vWWOeKu81r/AQH4j2NBEa5wliEG1Ea37PS8Psagiw/6jpX6L2hw==
-ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1795474214;
-	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
-	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=YstasX83SpUpR7sJnrgBdW2Exikec0Kt7UwYg9xB36Y=;
-	b=FWyulz7g+2mh+bS+4cqQ19odDWn1BKIxrOXWjrc5WVAvQ3Q6Diezk5AwHi3TOp0I2RI+
-	 2DBlLOJFC3bWTko+5apjbYPXSIr3pGLd3uvP8gZvMJX9sw5RZQmpJ3I2WxSOnjRBOmIDE
-	 mjBarvbjEGkzk5+Xip968fh9LOIKaAl9fVXzpAlnwLv50ML2bG7wch/ycIKYs9Z4PnjVi
-	 AI4w8+v8wd0BGVYBiDd28BeJmb1nFuCJmY4OOQq9ksXZujZfRBhkxyJ/2az7NHyKMak0X
-	 ZLLo1rWbjmXfvEy5XJcFaUbOki66Q3YvhvsUmkzyNEoet78yYuakaMHzxITvgPjqwzg==
-ARC-Authentication-Results: i=1; smtp.kernel.org; 
-	arc=none smtp.remote-ip=100.80.115.77
-Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.208.175
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1795474301;
+	b=qep1TGq/yrkr/7Ql1BxIF/nyUmAUXCjX/qEniJMhSElsf2dIRGEt1TYf6UB+Uw7VdWTF
+	 hX7XrK5X5vvuBm+lDkdx3AvMoWGiV8WBOoqXt6I+HyBu8lEk//WnEHZahLVJ5FcG1DWgV
+	 MteF7iqtu+WUGjTm8kLaIPYFO0XcZ12JRIJuMuryiBXvOd5XXznOfVjAdbL6gltCxOmhT
+	 uaXR3xE6K4HCJ5OKD39rWHiN7xP5rLZsbHlVxju87hTzK+gZJQRTjJ5isf0/I3OCFyVLk
+	 zvSuwZXYWwQJVPp09ebjLRHkKQpK1e1hIJvsi9e2czVaOvsYchMdzXa5HlUbtPfawig==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795474301;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 Content-Type:Content-Transfer-Encoding:MIME-Version;
+	bh=ahaMej8DG5x+niwqDwGDjqEkplFHIH2ZYDylFYU9oY0=;
+	b=REp3fcgaOvBTEJaaQMPvhzKjhqugwiqvFkcluqEriAzpFvi53kl/4/aiD0qy1XZLRKk/
+	 bD0b7skUPcjR3knQo5HYsdFCD44+eDjYUUGXE0yl8nLocMQjNthbfuf/ja4OdneANxRql
+	 4F31aw1hSlwdqW5eb7IKpQxzNZ3XHO93Bs222OP/hx85Nwv3aVbz+kaLIUri3WMLbF4AZ
+	 fqV/tpWqQYHD8dDVM03/3pu2z6ETaTuzk3eUtHhG54/gygy5FH3/qLeztwL/I+hIQg7wm
+	 DUmZfeyRbcFgvjECi5T88ptdFnatH0TnxRLaoPLeTfWjRYom4Y8Mt/+IHbBuDK2OJlw==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=YRbfmsEb;
+	arc=none smtp.remote-ip=209.85.208.175
+Received: from mail-lj1-f175.google.com (mail-lj1-f175.google.com [209.85.208.175])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id 33D0F1F000C0;
-	Mon, 23 Nov 2026 22:50:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795474214;
-	bh=YstasX83SpUpR7sJnrgBdW2Exikec0Kt7UwYg9xB36Y=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
-	b=Y7HrBquYjf1U/NKd0G56zDe4NMV6NIDq2xLx+griq+OBoLoobRyytxw/ABScnqu9L
-	 9Xox7xg6Qdhi3kk1PrTlzbPcWDXM+O5u9N6H7G5W4QLYrrz8PecRNxxxPQl9Q88wyH
-	 hYYU+X+W1RTk8tgRkLgvpmv6NhuXYCgcAOkrr53w1HuHZk/Mm8ifo0zfdHGsx6Ixl5
-	 RhxeEWixL+CkeMfqlg6HQtY4Xk4UQWBqquffuDsdwozcRMZKuna5SUUzRtoTncZo6J
-	 iRky2g8YTMubuSbtQmUwePskwljWyMcnYVsk6qEQOuruywfSRGkaOVfIIXi6knFOLd
-	 sDW1ks3UXZd3A==
-Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id A243E4C7B9;
-	Mon, 23 Nov 2026 22:50:01 +0000 (UTC)
-From: Fil Dunsky via B4 Relay <devnull+filipp.dunsky.gmail.com@kernel.org>
-Date: Tue, 24 Nov 2026 01:50:03 +0300
-Subject: [PATCH v4 3/3] MAINTAINERS: Add Cortina Systems CS7542 RTC support
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA942606A321
+	for <linux-rtc@vger.kernel.org>; Mon, 23 Nov 2026 22:51:40 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DA942606A321
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=YRbfmsEb
+Received: by mail-lj1-f175.google.com with SMTP id 38308e7fff4ca-3ae25d9e2fdso39569211fa.0
+        for <linux-rtc@vger.kernel.org>; Mon, 23 Nov 2026 14:51:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1795474299; x=1796079099; darn=vger.kernel.org;
+        h=mime-version:content-transfer-encoding:content-type:references
+         :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=ahaMej8DG5x+niwqDwGDjqEkplFHIH2ZYDylFYU9oY0=;
+        b=YRbfmsEb/hQOGAmXBF7R643OZKuSR1qRrsgm7LHHfGRqxf8k8EwaQUaNDaegKDxgeM
+         ZV4ML0hnBAjir8ppobqGrNENghuxdG8FjKejkD1JluhPwmDT7R3RXaKFkCA0e8UTYWTI
+         3WVz8N7nUWxpT2By0hCJRR1sqLwKyVwcVWIgkPPZQOlsxP3/jjJYyzwJkdqlSUdxntAN
+         92TJEQcfjbpud8ss9bN7pb9K6Ht01WVHRuu+++I8niqFgIqrma2h+vwPQyjBe+gpsBcO
+         S4UolxbVHleBsrryCLTiSxVwBcDYdUtVAG6WotTc0lvQUVnfQ9NSB2NmOoM5Qf/eM2Cu
+         GJ/Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795474299; x=1796079099;
+        h=mime-version:content-transfer-encoding:content-type:references
+         :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=ahaMej8DG5x+niwqDwGDjqEkplFHIH2ZYDylFYU9oY0=;
+        b=w6Gfg5WWmGvsiaZ+ntI9bNbxqWGT07B9GTHRvA5R/iYZNJ7G/i1ZK7eM4p1Gk7F2gO
+         /BixsTWnnm3vN0t6yspHKMaSDIyFgr+QQoh4sVPqRM7FGahsVuLlv7mOXhjsxnsd9EnG
+         wCyuc/XhPpfeHuqVrcfDmfrWeE/V2HHHjG07LD5XHPHV2ow/nSPei2adjD6T80fMfaiN
+         8OzMLPaau2V9cNVTv06n5IvH3LBevfQW6t8OafxigbGaYI2Qp/wq4WHiwqVkQGEqku0k
+         8ZafX9aOZwzDTBem0kwtP74YBh9aVrtziIIrAmbEwyvXgbtNhHSzd0iFvLprc4/pLJqE
+         FM3A==
+X-Forwarded-Encrypted: i=1; AL+hErGPb6a37rvNaXPizA+nMNmAPs3A78HrVLU8um9/jLL0bOcxBjYMbiaa9hrYT4MBKTOoPCYQVYC+XJ8=@vger.kernel.org
+X-Gm-Message-State: APuU4Z+RCrjrKEitOX48YYCvD0WS4dl0NtUxlXuqJxSXsGIFaYDv2CpZ
+	waLv/FZ3p5uSm9KWa2y3rI8b9AKWqGJYOnRB9QxMsE8iC0GCKdpg9whG
+X-Gm-Gg: AZFdTZcnSQxPZkYmrGcQsAXu7/jX5R6PO/RbHNFQ+Y7CqyjCxmTXyXVsj6rmAk9ml98
+	N4l1PnrEfFn/hpqBkgjO2Jm6M9yMUSHkv5Bkqz0sSQAtGeoxbKxWQGVafmSqRNwLWUBi1ZCiPgH
+	XbvXWCotvp6v1fO+CVHWEW+2qrn4NNckSVYdlNJpWrNr9i3mD52kxT16F8IAPRVRSRG2jPECk5S
+	3Eoifzm4dOTT41Mqbw+75/sRDHeuDM/Aqyte5EqzJV8D9PUg0VIpf53geD8JLfoldKRpBQXp8h3
+	H+LvoRJr+COOhdkVDeQJqZrKEwKevMgEQqvCQe4LTmo2aJTbpDbtNsUq0iFeMc7XmPbbO8ssuMG
+	rsmIH29rnFrq/odWHJ9azC0G9D9Qr3DlY3s39ZS6g00E20WX45qX8IW3SMtCcV3LSuTjp60JZYf
+	3Uchy2yiNn9r2HMBm2n7+BtiKLphS8Zgsc+KqmQCkfdl1XAny+wTdPE42iK+eNvi3iCl+Q1URVG
+	KY0LK2cBS4NCyqubscudhQsYXXxUcWJ9U60hKw8zb3Ys9xlVE2Aecw7mpWQ5ooXnnppqApM7Cbi
+	bz0A9/0KwznX9KI+gE84OwlHDyh+T97dtlhFCg+GjYy9u5nHAuqF36c=
+X-Received: by 2002:a05:651c:a149:b0:3ac:e4fe:49c with SMTP id 38308e7fff4ca-3ae7fa65ademr37338301fa.21.1795474298759;
+        Mon, 23 Nov 2026 14:51:38 -0800 (PST)
+Received: from [127.0.1.1] (ip-024-180.users.dtel.ru. [91.210.24.180])
+        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-3ae8051bfbfsm36143811fa.20.2026.11.23.14.51.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 23 Nov 2026 14:51:38 -0800 (PST)
+From: Fil Dunsky <filipp.dunsky@gmail.com>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, linux-rtc@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 2/3] rtc: Add Cortina Systems CS7542 RTC driver
+Date: Tue, 24 Nov 2026 01:51:35 +0300
+Message-ID: <179547429575.493865.18130205107556064582@gmail.com>
+In-Reply-To: <20261123220804bcab0f99@mail.local>
+References: <20261123-b4-cs7542-rtc-v2-0-31ab43f2cc8e@gmail.com>
+ <20261123-b4-cs7542-rtc-v2-2-31ab43f2cc8e@gmail.com>
+ <202611232056209fabb078@mail.local>
+ <179547125963.75567.6386430167092445665@gmail.com>
+ <20261123220804bcab0f99@mail.local>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -82,59 +105,40 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261124-b4-cs7542-rtc-v4-3-bceefd844074@gmail.com>
-References: <20261124-b4-cs7542-rtc-v4-0-bceefd844074@gmail.com>
-In-Reply-To: <20261124-b4-cs7542-rtc-v4-0-bceefd844074@gmail.com>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>
-Cc: linux-rtc@vger.kernel.org, devicetree@vger.kernel.org, 
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1795474200; l=864;
- i=filipp.dunsky@gmail.com; s=20260930; h=from:subject:message-id;
- bh=V966SZMepm42nKofeQHA+zZwJm4nGNGjIsMkGKj6kQA=;
- b=jH3/7RTRZDgM5Ow9roOFp0SEyHkgaHTQMntUDX80gCRj08InlZ1mIsiYYxCWn1XrTRG59qjYJ
- 5NmtiAT7b/EAje5tvsQrfUvse46I5lMNt6fRXBtX4yD3Y7utJK9dj6L
-X-Developer-Key: i=filipp.dunsky@gmail.com; a=ed25519;
- pk=JAYP8e2rJ54DHOmhNtXud8rl1igAaAXoOHxtJmVXI1g=
-X-Endpoint-Received: by B4 Relay for filipp.dunsky@gmail.com/20260930 with
- auth_id=1085
-X-Original-From: Fil Dunsky <filipp.dunsky@gmail.com>
-Reply-To: filipp.dunsky@gmail.com
-Content-Transfer-Encoding: 7bit
 
-From: Fil Dunsky <filipp.dunsky@gmail.com>
+You are right: I used the core's calendar-validation boundary for the
+minimum, but range_min should describe the physical hardware calendar
+and its offset handling.
 
-Route changes to the CS7542 calendar clock driver and binding
-to their subsystem mailing list and the platform maintainer.
+I checked the lower range on Almond+ with a separate Linux 7.4-rc4 RAM
+fixture calling the driver's set_time/read_time callbacks under ops_lock.
+The normal RTC core rejects pre-1970 dates, so the bypass was confined to
+that test module. These six cases passed:
 
-Signed-off-by: Fil Dunsky <filipp.dunsky@gmail.com>
----
- MAINTAINERS | 7 +++++++
- 1 file changed, 7 insertions(+)
+- 0000-01-01, 00:00:00 to 00:00:01, with raw BCDYEAR=3D0
+- 0000-02-28 to February 29
+- 0099-12-31 to 0100-01-01
+- 0100-02-28 to March 1
+- 0400-02-28 to February 29
+- 1969-12-31 to 1970-01-01
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 44540a1eb..e7f97fb96 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -2949,6 +2949,13 @@ F:	tools/perf/tests/shell/coresight/*
- F:	tools/perf/util/cs-etm-decoder/*
- F:	tools/perf/util/cs-etm.*
- 
-+ARM/CORTINA SYSTEMS CS7542 RTC
-+M:	Fil Dunsky <filipp.dunsky@gmail.com>
-+L:	linux-rtc@vger.kernel.org
-+S:	Maintained
-+F:	Documentation/devicetree/bindings/rtc/cortina,cs7542-rtc.yaml
-+F:	drivers/rtc/rtc-cs75xx.c
-+
- ARM/CORTINA SYSTEMS GEMINI ARM ARCHITECTURE
- M:	Hans Ulli Kroll <ulli.kroll@googlemail.com>
- M:	Linus Walleij <linusw@kernel.org>
+The direct callbacks succeeded for the low years while the unchanged
+core validator returned EINVAL; the 1970 transition became core-valid.
+The module recorded 219 checks with no failures and restored current UTC.
+The RAM supervisor independently restored UTC before watchdog return,
+and fresh host UTC was verified again in installed OpenWrt. No firmware
+was flashed.
 
--- 
-2.53.0
+V4 uses RTC_TIMESTAMP_BEGIN_0000 through RTC_TIMESTAMP_END_9999. Its
+Kconfig help explicitly describes the hardware's four-digit calendar;
+ordinary core calendar validation is unchanged. The source tests cover
+all 10000 BCD-year round trips, and the ARM built-in/module builds passed.
+The hardware evidence consists of the boundary cases above plus the
+previous upper-century/9999 tests, not a hardware sweep of every year.
 
+V4 is posted here:
+https://lore.kernel.org/all/20261124-b4-cs7542-rtc-v4-0-bceefd844074@gmail.co=
+m/
 
+Thanks,
+Fil
