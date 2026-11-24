@@ -1,61 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795507161;
-	b=Fkvo4kWL9moC1VjKyv9XvCzassKMJlEdBmMhRm94LvZHZx1ZYJhBcBuGjJbtpljv4s1e
-	 IXkJQVuhjev9vFgGKs1pxO3pC4lcffntjCcGoToViySjXB77B/Q//uHhVp1WDRVfwEN+C
-	 GqzFsIFWWtxI+FnEYTyDpwGrPTAfUR43zim20Oav+MVgNNNSFR0dwk0Tut7bKxP1TzSuZ
-	 YaVFxkKK/G7/Wf5buao4SA9qSTj9WyXAevuQD0yLIfMbkdgk8CrOffC0UbMoRF4uQgOfQ
-	 QsbWwyMIHh2BZVZJ9x8cPdoXHEzKliQAht4fkBUVFAxv1KHCey2ZlYYFPPxNoPjOjcg==
+	t=1795527720;
+	b=HsIUeEa+bqWOcAqy6WCsJgicZZB/aiOcD8PHx3dl7+kkwwajO+bGNu4Sgm7Ctee9Rrnq
+	 pfqvLyqpzElicraQjaGEOHl5RyvsmKzg3XhdXFvAOYh/MsorvSC+qXKTSlvAsk7PGje0M
+	 9VC6ySUCxXZiQd/kziAD1p4n7UzOsRB3huuE5W120VNd3PH2mOKPSMhrjJpZ2kHH7kNEI
+	 0SeIhqsiL7QywsVotLE+EVaYSddMf6ZNh3/H1ZUqa4WCvY9oPRCxA52ls8TvCntGLtZbW
+	 DOjS+Kj6zL3D1YBXy8C3INP97npv3ehJMlPaz+67gHzkr3R1mtVd2HYGNa6OzY2c8QA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795507161;
-	h=Received:DKIM-Signature:Received:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=puTQ6q6aVXUBDkeL+o3EOPQPEL5ILRceyCXV4OQTW+A=;
-	b=Wl8Fw2UoeBB2MO546hQHehhLUvcPvM6JyNTw9Ib3kgVkMpxfQ+D5KAhuKJlG5ft6Q0Nq
-	 XA1q8XgKFPFprL/lAO6J5p7ACae9JIHNOc/YpewVuTci7RgFmR8W+KblNBeL4FRe/Den1
-	 9N82clLAAqbAaveKqKC9E/6Y9Rzn/4gMUxN+4MpJmnKlhb1IazQgzL4oR5z3M2XKbAIm5
-	 THUlJJ9iMH74onoT+30LZnSXnt6H9BEhosjT6bLCXNQSlLHABbxRese/5KAA8FmXMMtNH
-	 w5Pp/2Uh3lArRu4O0NV1mauLQtTVxXLuuMkpE8FA2gQPfic+u7Qcw1kL4yMrSnLnZ/Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795527720;
+	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
+	 MIME-Version:X-Developer-Signature:X-Developer-Key:
+	 Content-Transfer-Encoding;
+	bh=P9l0BuMqwnltE+aYWTNXRfGtQwMjaLgJX4iwc9Of5kw=;
+	b=Fp+v/12otOS5ScNCq+E51sCrEY/1bCBnmCy7T54r1Ss0F9dznkUMU9I/RVUkGBb/lGUz
+	 XfTtn4AdVSvSJy9ShooZW+cU1oWzYWty65GIqQMtiDWOiWBDrC9Px481JXFWj01Y/y38V
+	 w1ssC+SDkDIlCC8ZkxNV+gcCVY6rfnaOmjlHuCcErbsVifT8xq1ZgjKQ4E4f4Vo+KcS19
+	 5gtA0XRS1Aq66hyPGWPLC4wVsz4sw4/+4FnV2z9n1W4otDsZLzRtJFecmx9s4M8Xz8RBO
+	 dce6vKAYxVZC+DGb6nHIbmavSqTHd3E9cRjBCJqfH+r7WOuQC6E5i9NcdDok8BdK7cQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ToykQe9j;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JCNXDzFw;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1503606A31E;
-	Tue, 24 Nov 2026 07:59:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73943606A331
+	for <linux-rtc@vger.kernel.org>; Tue, 24 Nov 2026 13:42:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ToykQe9j
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15FF61F000C0;
-	Tue, 24 Nov 2026 07:59:20 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JCNXDzFw
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FBB91F000C0;
+	Tue, 24 Nov 2026 13:41:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795507160;
-	bh=puTQ6q6aVXUBDkeL+o3EOPQPEL5ILRceyCXV4OQTW+A=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=ToykQe9jdoRfKV/NY/xbUphVJDhJ+OVd4BKbcgZ6lPatcWpUff3ztZun+IFOa9Vw9
-	 5inQA09ivc2VZnv1Y8eWHXlFfWt9Uuuxmruq9tW6tADiwLUFFQxTVmSM6j1Xk6SoKf
-	 5Mjd4gOxQ+V687vBcKchddpMbTLfkg0QPw5WsJ/EVG5Il1QGYNVgaXUU0sCWhnjWMe
-	 uuOkKcmkmoI4SaLkQZe1QgwOH9F2W6zYak0k/xnpMK7hQ+JjR+BZsRggNI9s/lQb0U
-	 YGTgX+gEj4/bQvYGwhsYqySvvYDPnDMzPuV4QAXtwvmMUVMEHIooygGn2t5Lihhf6v
-	 W4gifJpdRGoqA==
-Received: from johan by xi.lan with local (Exim 4.100.1)
-	(envelope-from <johan@kernel.org>)
-	id 1xVlQr-00000007ypS-2fVg;
-	Tue, 24 Nov 2026 08:59:17 +0100
-Date: Tue, 24 Nov 2026 08:59:17 +0100
-From: Johan Hovold <johan@kernel.org>
-To: Lee Jones <lee@kernel.org>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Nishanth Menon <nm@ti.com>, "George G. Davis" <gdavis@mvista.com>,
-	or <source@mvista.com>, Andrew Morton <akpm@linux-foundation.org>,
-	linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: Re: [PATCH 09/10] rtc: omap: prevent NULL and dangling pointer
- dereferences in power-off path
-Message-ID: <awVD1YwurAJDjien@hovoldconsulting.com>
-References: <20261123200012.502284-1-lee@kernel.org>
- <20261123200012.502284-10-lee@kernel.org>
+	s=k20260515; t=1795527720;
+	bh=P9l0BuMqwnltE+aYWTNXRfGtQwMjaLgJX4iwc9Of5kw=;
+	h=From:To:Cc:Subject:Date;
+	b=JCNXDzFwsbCDZbQnumlDQYY5z4s5/GfnCsgWfsukb3VUaYzZ10eHandv7BFUS+kCi
+	 BgwfX4dIqM3pyDqKcNGvrieIanDnVUymoQnBk02qfPj2B8a2hMHecbjGl3VNxm9Wn2
+	 /G1eIo6ovOri2NAkFbXi/LDGatJkMuAmuphfYBNgCEEfGVLIyHmE5RUUQWbqSFK7q6
+	 HMu+lpXOMjvrTyUnB7LCVWUy737yZTCijMg/1u/3XDySu1H57wArLTz5OHiQ6WjJkJ
+	 pqOBCROsSbZe1BcrAZfwnAlY3xYazBu8gHVWfTG5nhvlKNppkpw4PTKFaSljK9ijd1
+	 kcjiYEw9ibrxg==
+From: Thorsten Blum <blum@kernel.org>
+To: =?UTF-8?q?T=C3=B3th=20J=C3=A1nos?= <gomba007@gmail.com>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	=?UTF-8?q?Bence=20Cs=C3=B3k=C3=A1s?= <bence98@sch.bme.hu>
+Cc: Thorsten Blum <blum@kernel.org>,
+	linux-rtc@vger.kernel.org
+Subject: [PATCH] rtc: sd2405al: Fix BCD encoding of the month
+Date: Tue, 24 Nov 2026 14:41:11 +0100
+Message-ID: <20261124134110.237481-2-blum@kernel.org>
+X-Mailer: git-send-email 2.56.1
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -65,98 +59,32 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261123200012.502284-10-lee@kernel.org>
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1101; i=blum@kernel.org; h=from:subject; bh=2TDB59fBRHzYnYAnitdqlzxCHjD9itsv0tlqb8BCxOo=; b=owGbwMvMwCUWt7pQ4caZUj3G02pJDNmsk795PZjObCr8oFzR4tgiWb3F0VOy2QL0ZvM8Ydnl2 fn7x5VPHaUsDGJcDLJiiiwPZv2Y4VtaU7nJJGInzBxWJpAhDFycAjARFW2GP5wXeqVbuU4+zd9u 377PX9TOtVoq+lxGxqEw0Vdy/yx6LzD8T3L7/3ld1WL7eZd6z3leNlxq9rQhfh7vO6bM6Uc8Y++ c4wIA
+X-Developer-Key: i=blum@kernel.org; a=openpgp; fpr=1D60735E8AEF3BE473B69D84733678FD8DFEEAD4
+Content-Transfer-Encoding: 8bit
 
-On Mon, Nov 23, 2026 at 07:59:20PM +0000, Lee Jones wrote:
-> omap_rtc_remove() only clears the global omap_rtc_power_off_rtc pointer
-> if pm_power_off still equals omap_rtc_power_off.  If another driver
-> overwrote pm_power_off after probe, unbinding the RTC leaves
-> omap_rtc_power_off_rtc pointing to freed memory.  Furthermore,
-> omap_rtc_power_off_program() is exported and called directly from
-> am33xx_rtc_only_idle() during suspend without checking whether
-> omap_rtc_power_off_rtc is NULL, causing a NULL pointer dereference if
-> omap_rtc_power_off_rtc was never assigned or was cleared on unbind.
+The SD2405AL expects a one-based month encoded as BCD, while tm_mon is
+zero-based. Adding 1 after converting tm_mon to BCD incorrectly encodes
+October as 0x0a instead of 0x10.
 
-This sounds like two separate issues and the am33xx_rtc_only_idle call()
-was added later by commit 5a99ae0092fe ("soc: ti: pm33xx: AM437X: Add
-rtc_only with ddr in self-refresh support").
+Add 1 to tm_mon before converting it to BCD.
 
-> Always clear omap_rtc_power_off_rtc when removing the matching RTC
-> instance, and return -ENODEV from omap_rtc_power_off_program() when
-> omap_rtc_power_off_rtc is NULL.
-> 
-> Fixes: 222a12fca604 ("rtc: omap: add support for pmic_power_en")
+Fixes: 5af858acea22 ("rtc: Add driver for SD2405AL")
+Signed-off-by: Thorsten Blum <blum@kernel.org>
+---
+ drivers/rtc/rtc-sd2405al.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-So this isn't the right fixes tag for that.
-
-> Closes: https://sashiko.dev/#/bug/linux-97b795c5-f68f-4228-948f-547a106c6775
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Lee Jones <lee@kernel.org>
-> ---
->  drivers/rtc/rtc-omap.c | 21 +++++++++++++--------
->  1 file changed, 13 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-> index 3c978edd6c2c..156444fab916 100644
-> --- a/drivers/rtc/rtc-omap.c
-> +++ b/drivers/rtc/rtc-omap.c
-> @@ -416,6 +416,9 @@ int omap_rtc_power_off_program(void)
->  	int seconds;
->  	u32 val;
->  
-> +	if (!rtc)
-> +		return -ENODEV;
-> +
->  	rtc->type->unlock(rtc);
->  	/* enable pmic_power_en control */
->  	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
-> @@ -481,17 +484,19 @@ EXPORT_SYMBOL(omap_rtc_power_off_program);
->   */
->  static void omap_rtc_power_off(void)
->  {
-> +	struct omap_rtc *rtc = omap_rtc_power_off_rtc;
->  	u32 val;
->  
-> -	omap_rtc_power_off_program();
-> +	if (omap_rtc_power_off_program())
-> +		return;
-  
->  	/* Set PMIC power enable and EXT_WAKEUP in case PB power on is used */
-> -	omap_rtc_power_off_rtc->type->unlock(omap_rtc_power_off_rtc);
-> -	val = rtc_readl(omap_rtc_power_off_rtc, OMAP_RTC_PMIC_REG);
-> +	rtc->type->unlock(rtc);
-> +	val = rtc_readl(rtc, OMAP_RTC_PMIC_REG);
->  	val |= OMAP_RTC_PMIC_POWER_EN_EN | OMAP_RTC_PMIC_EXT_WKUP_POL(0) |
->  			OMAP_RTC_PMIC_EXT_WKUP_EN(0);
-> -	rtc_writel(omap_rtc_power_off_rtc, OMAP_RTC_PMIC_REG, val);
-> -	omap_rtc_power_off_rtc->type->lock(omap_rtc_power_off_rtc);
-> +	rtc_writel(rtc, OMAP_RTC_PMIC_REG, val);
-> +	rtc->type->lock(rtc);
-
-This is an unrelated change.
-
->  	/*
->  	 * Wait for alarm to trigger (within one second) and external PMIC to
-> @@ -913,9 +918,9 @@ static void omap_rtc_remove(struct platform_device *pdev)
->  	struct omap_rtc *rtc = platform_get_drvdata(pdev);
->  	u8 reg;
->  
-> -	if (pm_power_off == omap_rtc_power_off &&
-> -			omap_rtc_power_off_rtc == rtc) {
-> -		pm_power_off = NULL;
-> +	if (omap_rtc_power_off_rtc == rtc) {
-> +		if (pm_power_off == omap_rtc_power_off)
-> +			pm_power_off = NULL;
->  		omap_rtc_power_off_rtc = NULL;
->  	}
-
-You can only have one legacy power off handler, but leaving the
-omap_rtc_power_off_rtc pointer set after unbind wasn't an issue before
-the later added am33xx_rtc_only_idle() call.
-
-So with the Fixes tag fixed and the unrelated changes in
-omap_rtc_power_off() dropped I guess this can all go in one patch.
-
-Johan
+diff --git a/drivers/rtc/rtc-sd2405al.c b/drivers/rtc/rtc-sd2405al.c
+index 990080f09457..5f023e3abac8 100644
+--- a/drivers/rtc/rtc-sd2405al.c
++++ b/drivers/rtc/rtc-sd2405al.c
+@@ -129,7 +129,7 @@ static int sd2405al_set_time(struct device *dev, struct rtc_time *time)
+ 	data[SD2405AL_REG_T_HOUR] = bin2bcd(time->tm_hour) | SD2405AL_BIT_24H;
+ 	data[SD2405AL_REG_T_DAY] = bin2bcd(time->tm_mday);
+ 	data[SD2405AL_REG_T_WEEK] = bin2bcd(time->tm_wday);
+-	data[SD2405AL_REG_T_MON] = bin2bcd(time->tm_mon) + 1;
++	data[SD2405AL_REG_T_MON] = bin2bcd(time->tm_mon + 1);
+ 	data[SD2405AL_REG_T_YEAR] = bin2bcd(time->tm_year - 100);
+ 
+ 	ret = sd2405al_enable_reg_write(sd2405al);
