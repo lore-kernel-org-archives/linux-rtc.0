@@ -1,54 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795527893;
-	b=Z9+fOrJbAaHTPW+Br4h3P0JZ1ofSS/UwS/TJvPaZrUVnfr7gHbbsldKvdfAioOF9wd/H
-	 1QLziwQJAYpWBVFL6qNsyoescWxFz1r+CVKrukbXELFDPiAT71Tetl4lJlzEsDwur33fG
-	 QplIALiBSIre8WqARYRwiOQg9clN1jGyQBYvPzQFxJEOUswM92X8VzTIoJQ4G23blO9zS
-	 oPiVyvrSDGxu95YdN+wILjOL/XcSZh0evz2nvOmHQ7fLMEuBlHtFX+RLYaQofPtwOdx0l
-	 9+tCD5QE3s5UE4uojmVhjenlMpmVy/vfDdf2iQPBOOG1dpg6lYWDanyiK1ldADNEQtQ==
+	t=1795528031;
+	b=i4n/i6xbvXz9eOJDpXjGxzqNTSWmh7OXVUtxjyDLx1MO4QBtxoUHnAkA8OEark2GYJbT
+	 FX8JkLZmwjIcdaH1+rzKE7BncTjUveVSmFrMl4irV59ZYR6ZGvCtHQhVtSxDO44Xbsdp9
+	 kC+a/RgQhFoIAPcNoBtSfpM8XiRK28P/w4RaXByuvOpSPayfBEx9P3zz4EbgRXnJb7rrM
+	 aby6Fio64WJpA43Dyh86sjXbnJVCcIc206BYCal7bR9ngrktKya9kDlDUrhW8A0La6UCT
+	 cJ+/gmHvilT7aYsKa2JvAO4LPDEbSXvHrn4Zrv25C6l6LWq7srrf2XiOcbhJRQmKJ1Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795527893;
-	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
-	 MIME-Version:X-Developer-Signature:X-Developer-Key:
-	 Content-Transfer-Encoding;
-	bh=aickpwpH6ChZuYUr8UlvUDuJVFqN05Kq+gqd0nx1itY=;
-	b=sOFEQnpqzqQRsuENG8+3vt+Kld9CUU9LgPDGE5AnLfXE89CjSuVadTnaUn/cY3zAeV6v
-	 KUnOO/jv+dFgwmdxx8GYzRW+aNVYtZ4oxUDkYaaLOYU+PBCthCpL4ZkxQN+oFyYpP5k0a
-	 W48BneK2Nei5BInTwRTJiNiawvnG7Wi5ruZV1kfYswA4ASaHA2baeQAWcDUxRbeCwPKFc
-	 c1tbM0U6IzeT/RJ8mhTzHCTaekyFzAgmL/ARKDqcB01y7IHDgvhBQvpTp+ocwtq9Qrxjy
-	 jXvzA/Euh0tL4K7L/XPCUdoRIEOZvprQfSDAoSbrypLhZdEhiczOFgckGtup0mMzOQw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795528031;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=UfGYSinG+gdaWBF8N5o718wNXROm7MPNi8myAJloip8=;
+	b=HDusvWrkGOizYoILRxEYi5n70Al1XsAnHBjAvXEWvgNqoUV9nOahCv0OSo95Lcp02BF2
+	 gQFtrPUzPEF+hi2ALs0JBc+QSmI0BZKVbkXfYMqtE4wROazi4MGL7Wm9U9Jhjwi+Wrgoh
+	 B9662VDiRvBOV3aDDFe657eQ9U+sV2W2Q/h3yW7NY77i1luMx1LmChBiPGoU3NNewx3C9
+	 UYp6uFWFk2kWuU2XK48GU+UqAQeA1JHsM+ljrrxoxGvAe1FjO4xsF674uUa+zgKd3qPAI
+	 TTQWsDbYA6RDf+g1Z+ZLY3+J/rYll2eee2cJDrqGXECac7vHXBPppgioLFOF5ui7W+A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HrUK2mow;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fUNBZo6w;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F6ED606A31E
-	for <linux-rtc@vger.kernel.org>; Tue, 24 Nov 2026 13:44:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF29D606A326
+	for <linux-rtc@vger.kernel.org>; Tue, 24 Nov 2026 13:47:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HrUK2mow
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 821321F000D2;
-	Tue, 24 Nov 2026 13:44:51 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fUNBZo6w
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 529441F000C6;
+	Tue, 24 Nov 2026 13:47:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795527892;
-	bh=aickpwpH6ChZuYUr8UlvUDuJVFqN05Kq+gqd0nx1itY=;
-	h=From:To:Cc:Subject:Date;
-	b=HrUK2mowX2/TOdDfVbP9XiyJAymgkCBWckcy8kxQgJT4X2qXzcN9pjsAmZKNFDsn5
-	 4x5MRVDsWaxjUaCIAPf+7eMFRt/RH0Qk0/ZO9Rq8H29tUOSKrcMmBkeXadh4zLdI4u
-	 z6UpmAcyo4Sns1pijt5nZ0VTrip57gdjMmieOayRJaq9eWYNyqr3O808S8yxf2cHgH
-	 bEi+0eODIHB+j0RBJlQJ9uP9V+p/RRRfN+TR8zJLvWFl3jEE5ZlquRF1CU9xbx3vml
-	 51zU0t0Rygdl7HtaCio3CtCv+5lzEXGZCyA0Ub7b3QggRd9nonlvCEcTQ+/aU+sZdj
-	 Jw4xIAYqx4m+g==
-From: Thorsten Blum <blum@kernel.org>
-To: Dianlong Li <long17.cool@163.com>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Thorsten Blum <blum@kernel.org>,
-	linux-rtc@vger.kernel.org
-Subject: [PATCH] rtc: sd3078: Fix BCD encoding of the month
-Date: Tue, 24 Nov 2026 14:43:09 +0100
-Message-ID: <20261124134309.237707-2-blum@kernel.org>
-X-Mailer: git-send-email 2.56.1
+	s=k20260515; t=1795528031;
+	bh=UfGYSinG+gdaWBF8N5o718wNXROm7MPNi8myAJloip8=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=fUNBZo6wuvvLTtfl6/GM91+OsKDgeozagp1zmCtMLbJ6tdAzmoUetcETHSK3Hn+na
+	 sL9ipUqolUPfRm5xk7a0PZgoihLNruDR9ZJDpzm6ByTh257463zo1LluwdmzvKwron
+	 U4qdecPsmKSjPlNTsAqYR8hVqKhiEBMYp1qkPVtTrIwU4OOXQZo2Y9epBJoBWn5WAO
+	 byXnt1E9KDlUoIwPxTjJhjSod00oX78Ae9P1Jgkt8W5Ph5jhDHOpQ2ZsEduvGaJucD
+	 9vok12v+n9ba4FjwdCzxBYu2Cjr7YKRhxqX92+2qnqDSR1sJu2pbIvOTcMhe+dUtTy
+	 QwJHyvenlxngA==
+Message-ID: <sashiko-outbox-231249@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] rtc: sd3078: Fix BCD encoding of the month
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Thorsten Blum" <blum@kernel.org>
+Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
+In-Reply-To: <20261124134309.237707-2-blum@kernel.org>
+References: <20261124134309.237707-2-blum@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 24 Nov 2026 13:47:10 +0000
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -57,33 +58,18 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1027; i=blum@kernel.org; h=from:subject; bh=uapli0g+wcqzA+IgQlatH8AKIcHIP8T1AQNhkp1wOzI=; b=owGbwMvMwCUWt7pQ4caZUj3G02pJDNmsU3LbDJeYhYs77EqT4HRV73yxkvWFQcn7J+53TeZaq P6UnLa3o5SFQYyLQVZMkeXBrB8zfEtrKjeZROyEmcPKBDKEgYtTACbCFMfI8ONYlfHFan/Hbb5s aeGFd9ebGa3YI6vD8ZiBTez4nmtq2owMW/mefGQ+U9DJtHHd5iNPZaq3ufZdbOI6XBe8Zn9ZhoA hAwA=
-X-Developer-Key: i=blum@kernel.org; a=openpgp; fpr=1D60735E8AEF3BE473B69D84733678FD8DFEEAD4
-Content-Transfer-Encoding: 8bit
 
-The SD3078 expects a one-based month encoded as BCD, while tm_mon is
-zero-based. Adding 1 after converting tm_mon to BCD incorrectly encodes
-October as 0x0a instead of 0x10.
+> The SD3078 expects a one-based month encoded as BCD, while tm_mon is
+> zero-based. Adding 1 after converting tm_mon to BCD incorrectly encodes
+> October as 0x0a instead of 0x10.
+>=20
+> Add 1 to tm_mon before converting it to BCD.
+>=20
+> Fixes: 1d67a232105b ("rtc: sd3078: new driver.")
+> Signed-off-by: Thorsten Blum <blum@kernel.org>
 
-Add 1 to tm_mon before converting it to BCD.
+Sashiko has reviewed this patch and found no issues.
 
-Fixes: 1d67a232105b ("rtc: sd3078: new driver.")
-Signed-off-by: Thorsten Blum <blum@kernel.org>
----
- drivers/rtc/rtc-sd3078.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/rtc/rtc-sd3078.c b/drivers/rtc/rtc-sd3078.c
-index 2c61f0e204a4..7ceb6f866492 100644
---- a/drivers/rtc/rtc-sd3078.c
-+++ b/drivers/rtc/rtc-sd3078.c
-@@ -119,7 +119,7 @@ static int sd3078_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	rtc_data[SD3078_REG_HR] = bin2bcd(tm->tm_hour) | 0x80;
- 	rtc_data[SD3078_REG_DM] = bin2bcd(tm->tm_mday);
- 	rtc_data[SD3078_REG_DW] = tm->tm_wday & 0x07;
--	rtc_data[SD3078_REG_MO] = bin2bcd(tm->tm_mon) + 1;
-+	rtc_data[SD3078_REG_MO] = bin2bcd(tm->tm_mon + 1);
- 	rtc_data[SD3078_REG_YR] = bin2bcd(tm->tm_year - 100);
- 
- #if WRITE_PROTECT_EN
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261124134309.2377=
+07-2-blum@kernel.org?part=3D1
