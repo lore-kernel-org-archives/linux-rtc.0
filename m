@@ -1,98 +1,92 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.82.178
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795593571;
-	b=bJtvmKT0gdy4iKrkLGjSg3gh7vcFLJxw+QGWEMDAXP7CnypUtNGEdHsFLfBspjEdv10r
-	 MkupZXKcj7WuKNI9YOKcNwRNeBpB4EWtKXQ8H4jleY0HCI4LBMSKWux3CfT1/yVAS+L/j
-	 zlGcEJGsm/8Tn4AnvX31TNiUgGTObwGoLFSqD+yaZrdxA5sEDroKxxgNVoftzAdgsnORA
-	 j+o9gEzs2KUtmZrv5NlSj9hQ9DyIG76bef0W4Y/g4KtSgH50vdvltIFOLh7VEsXXcXJzb
-	 t4+5a0tD9Z7c/2ytby4E0d32c0OWpsoP5mPognb7UQ32XWhOuPmvdW0ns+8+rlq/1Cg==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795593571;
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.210.172
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1795597820;
+	b=RfNDxfmDJ/MVgHfP5xT0rwcyx+XvMu4AhwBn/kldxDnh5QMEmTG/+6DDCtJfKd8tB9yA
+	 N/qfbrAK72tq1TlHtzyiJ2vTYEWgDc3DaSDh25eGdSuPdEen7jN0yz/PNR4Q78aZy+2zu
+	 L2O4RkeIzLyO0rg11+RzLphfpQVCjoRSNWFCHNAuaS6p23Cu5PZZ1Q8NaodmvaaVBZ5iR
+	 nH063W7VwueRWa/o+PPDHpE0fLuMjJgTDQ3oPfo01KPff0DG8NBVbWez30d5FN5xvtRTx
+	 XWI+wtjBlMnilX4rOjug3uW3NpWcBJqqbGhUR5siuehJONvWWEwrzq+3DkhJJDNa3sQ==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795597820;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:References:
-	 In-Reply-To:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
-	 Content-Type;
-	bh=Dzx8SjVAV6xQtssa++DVGlU6KxNu8vkqzBWqQg9Q6ZM=;
-	b=hCW11JLO3To78nCnJTrnbrWZnwaCz08/hV82YJj7buqqkW7aN0XYKfRvDBqNcJB3rjcS
-	 5Q97B2rK+woTRAOHUqskPmilwqhnntzXoctDMNkJ3AjhrgHKu45CPTS/SzTxMSBBWONbg
-	 8s94UAp/DfOcWdNwLLvmrr3nLx4GMEG97ASY29DS+u2mCDVgWzj3ZTCuLyO0RcUVj+DgR
-	 hrxaoqtlIm6B8V8ptdh0C2pD60dEyfnqJtrraor6pOwpSuBmXLcF78q6qODdHk+do/mVk
-	 vCKi0TNO2bllUZ+9SF0thl/ci5aM+7SzMX4sXHw9la2Ee4/fiPsX0A3JZje6GPWSLKw==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=q7Jp81/YwhVY4mwNzcGG+yudpq87Dczt69r71yvv/Ao=;
+	b=xWYhZKcV3VhZmLrMtafIJrL60qO4rDItSRTLIFJCbBD/sH5OghsRQ4xszFAAhFzOK8Cb
+	 /khnrldUfZvIlvx0geb7fR/sS2i2PGL6lkfyQPtFLdU/y9nraEegWmpyBiUelfHdzaRmU
+	 xk8mAPZLH0M6DhjGERqLaQOnwl+Dqf/hJyUMaMUHzPAVJu5GzXttIbqFor6PTg7U6aMqg
+	 IwGceBrui/N4vEic02iUeatsmnp2rKgngt7lB2b+uMUp9mdLrDtOR87pOGBapLKP90fDR
+	 Yk/EuVtBXm201ZLdTXBJibCj8/sgRKlBfoniQYnpxpFHBJleWO7XAzfWPDhNQSzwYJw==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=qqOw5hxV;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.82.178
-Received: from mail-dy1-f178.google.com (mail-dy1-f178.google.com [74.125.82.178])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=u9mhLm99;
+	arc=none smtp.remote-ip=209.85.210.172
+Received: from mail-pf1-f172.google.com (mail-pf1-f172.google.com [209.85.210.172])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21FDE606A31E
-	for <linux-rtc@vger.kernel.org>; Wed, 25 Nov 2026 07:59:31 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 21FDE606A31E
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0F90606A323
+	for <linux-rtc@vger.kernel.org>; Wed, 25 Nov 2026 09:10:19 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C0F90606A323
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=qqOw5hxV
-Received: by mail-dy1-f178.google.com with SMTP id 5a478bee46e88-386b8f2f671so2576769eec.1
-        for <linux-rtc@vger.kernel.org>; Tue, 24 Nov 2026 23:59:31 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1795593570; cv=none;
-        d=google.com; s=arc-20260327;
-        b=WIeBnxuCRpnhzadFJnwURI9u9sJRdI/5k+gvRI3HAUITXuXgTdMSVKGYMD6y1zd8Ik
-         UO8+adPTRfSbEUWOxDkRwE9g7+FXSRAZo4MJ4B9M9t8Fkhyc9qjM9tFueKqJsiPYv5Ar
-         UII7axuAX5eDE5frJe0+xiJc6t27+eOBVb8MSvL6x9i8Gdm4AsrxSme9M3Z+zXP6jvCT
-         sh7W+HkxHxiFyJy3hzGoqMOPYnHEaCrp/CHVvt+emyKAabWWkzX3lrWnykEF4TB7wZ5s
-         P8m13wCCpJFtq0s7iyLHNdnDGlZnZ0c2dyVck/CZWRQLn5tWHaLOwt3eET1kY1lvKp0B
-         meew==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=Dzx8SjVAV6xQtssa++DVGlU6KxNu8vkqzBWqQg9Q6ZM=;
-        fh=nYyuNW3kpVohc13kT0n0+GqTVBJFGb739VtfliG7Grg=;
-        b=VL5v74TUttaxnXHBchmBU/ZD2g7BaUeGJB6MrxJJSe5m4xaSMdWKizE1KqNfroMZNq
-         78TwVASTw9wx2ufwD++dBnPrQ9RHaCV4SofohkGiCTNEyXbMzam9hF4meHo6/xGUnrh+
-         /5QfyCWzyOHJM1tPjiBMdc/SVi6Z80TKrGPah+7F4wqoOp8O8Fn+e+KKbt911a2B7g/p
-         bOhP0fH7YLipVswjhu4P+sawGnk9wfNU3kzD7Hk0C9ku3cRVZyTQAI4o0fmpr1cjOmpV
-         njanhlCfUpaffgck21EgSjw0jxpppteoc5xHMIrB7Y+ffoLH0GzAlZWiTnwCMLCQOmN7
-         8QGg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=u9mhLm99
+Received: by mail-pf1-f172.google.com with SMTP id d2e1a72fcca58-8b29b83fdf1so2887784b3a.2
+        for <linux-rtc@vger.kernel.org>; Wed, 25 Nov 2026 01:10:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795593570; x=1796198370; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=Dzx8SjVAV6xQtssa++DVGlU6KxNu8vkqzBWqQg9Q6ZM=;
-        b=qqOw5hxVHbdW9wUIHTrZrzl8zsjoVR+ZdH+aQcGrwLf3e2q8Hb3tz/nWQ+vhjz/zuV
-         S4mMF62NU7UHlyU90Txn/UpcNAgma7GvWdXgICgzeS2B2GfsjXuYw9DGRZvQo8Rre9yv
-         MNUJ8mzNtI1oC2lS59TKdOL+Ja+bfwpn7uNurH2DqDE/DNL2QWNmiurdIBUg4CVEhEAD
-         XCiL3VN8LTEm3kj7ewo9y9JA3W3vms+Zgf6RU76VFe52I6gH2yVNzauFz0dgZpxzwr+p
-         op0mJe4H/pumM9lNykBOL4A/hVXLsNbFdjEO0hI1ECDB6mY8cYQojxA4U7oCoc8hBM+5
-         bL3Q==
+        d=gmail.com; s=20260707; t=1795597819; x=1796202619; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=q7Jp81/YwhVY4mwNzcGG+yudpq87Dczt69r71yvv/Ao=;
+        b=u9mhLm99dVc1rA1P6PDjbILqTqzAD7xN4ouRsDyOT03MrVA/AeyoA6KunG2NYM0gDT
+         ll8knTQjsI9aOc9VlsZnhh3cg9lHkXvChnNxrnyRK5zI1DDuH7JBv8QYUzo4/8k2QVNv
+         eDqld6wz9XfyWcZHCFnn0s5yGRd2VLRXCumHRaz9TjUsQfEdTjYbp490bjRRfQjHZOdZ
+         faM7S+oTWv8CCOXtvHVVBNWtaqth/JQq22kFIRNWVIt4IVCrmtjY59/60tLaHWnJ7D0f
+         9gY51/ZgwFKDIKBZrjZ8N45haYmPiV5yivy381EDWPlQ4g7F4X3yS0o+b0Ld7W6ESz1W
+         6UVg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795593570; x=1796198370;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=Dzx8SjVAV6xQtssa++DVGlU6KxNu8vkqzBWqQg9Q6ZM=;
-        b=oWFRRuuloDVKMi33+DKx8IpfY2zbRUujuRBed2IZO2Am3XRmncJP31m4/pxX8qUZUb
-         ltNQO1xJLCLWjCdl3EbPc5O46PtkZF4P2h3UDqauCUhkQ/XQtCli+dDdNKaaJwBD55ot
-         3nJG/SaETLq8RFHLFUFmmybSXF16PiGC58btSCKbGh+coeQiq2g09vOT11B7ailPcxqB
-         MzDMAccvkoEBCPCe4QotcqhORr5ZgjppdT3XP/kyGLxYPzgTWebbCt0ot+FkRajSV3p9
-         1QMezf3w2JAYJrvMic9GVvx8oGoPW2FuGXAddX2LcwgNW7isvDZSl3K+0dE+Faf2L9X5
-         NphQ==
-X-Gm-Message-State: APuU4Z+O+DDHc3nn9j8fyyE3f6X3KAcn2MsUnUhd9xN/zXut6SG7kkEL
-	XtqfYMQ+a5JUqjbtCsUW/fy/4bJuUYVkd6sue2AyexqJmbegk4El5YSweRzvzmxv8zLRjwQFCPI
-	HXxUbKLIhsO0UuPA7ff7VlqpjIMFjfMU=
-X-Gm-Gg: AZFdTZdG5X1RvqevVwfyEQ4mYHmGNHVZ5abW2tEpaOZkt0E/WMBionoG0WHmxerm6Sp
-	pFFyCwdVvN1QVudAmYkQSdhDLSU+Uf0ndA9X9cy676aGpPhfKdbZJl2qx+DTIP9n/j+VxPPaOh5
-	rwjCzlUFq4pRO9WNMMhg0gKiE3oUxSg3YDaCWN/M2cOv6bA+6kGzqFReP5pNRR7+4pMmh1YsiIO
-	jCa1mt70M4TM6z5xzodudCS30N4mdZL2Q9uu36n14Szjejp7J3qH/k0VN2oMfm/OmZ/fjebB+yN
-	E7zAgqTHClXN1NWBEaqDT0kB+IX2hxIrVMXj5TlNJwEuqGJ1JHtEX0E9GUbHqAauj2ZRpu+Ozsk
-	z9ls8F1flvvtUPF7F6+k3y/brJ+pRR9VyzGgtUUk=
-X-Received: by 2002:a05:7301:da86:b0:386:d481:8160 with SMTP id
- 5a478bee46e88-386d48183aemr292617eec.37.1795593570201; Tue, 24 Nov 2026
- 23:59:30 -0800 (PST)
+        d=1e100.net; s=20260707; t=1795597819; x=1796202619;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=q7Jp81/YwhVY4mwNzcGG+yudpq87Dczt69r71yvv/Ao=;
+        b=w7yQ3lMTwn/s7WLdp/iK1S5+itaLFJqGc0ifkCgMnJDLwR1nwIa0U78du5dXExt05i
+         jAo3YFKuRpfFAJ0KZhKGDVBwW6pP95iVgpkju6pAIrgHYQOw1nwEEZW/fnn5HZb7P16d
+         FQlDSLIdaxmF5mI4gBg//HOxQT3OUZxTLruGqwiAWxUUnBrbJZpEPhITrHjAdTbkUz7s
+         M1KyTjMIgBzWXDnq64VoKv4LqNs5iB9NTJ4Y4R8Z2mgISysr3wYDmrDzw9f2GN3NWyuQ
+         nAY2Ji5PWR6A1usrxWb0oNSlNZCxtPes1r15cIo7J56e3BLK4Yoiz+Ita/th8iWCem1T
+         6WuQ==
+X-Forwarded-Encrypted: i=1; AL+hErHbHDyVB3Zm5N+xoeEBE1Z6+Kh9arGfKl9kHI2Vtm07HAAG9uQzpQJLyjo6patE34x/e2VDLx3EpBo=@vger.kernel.org
+X-Gm-Message-State: APuU4Z/mj/wjzQeDYePuGPruzl5/AfST+5tRlX6irfyk73Yols7oJNyk
+	I6jiwWLJ/x2bLHIYCmo2SREam+02g9DrI4YfIrTCHZMdFRn0s6QiODE=
+X-Gm-Gg: AZFdTZd7ad1sL7fgvBkxcbFabCu9RX7LEpbMaaqwc1Un5Zb3rrknFDBcJBOgWwEymWj
+	VyRU6D9T/QiA7ACB4u81zHmzTG2dQzCQYyo6ssVC9AR97pjNoPbs6qso214zxf78QPUD4mZ+Hil
+	jA5yXAQABDnfh6lK2AbeHP/1NHYCmEqdF6WS3cJRXVj9Nakj1tDgCIK2To4sngR/QQrv0KX/yZE
+	yJ8pqPAjf1KihzYltvmkAhXLVnkxp3DCoHdQZ4lOe9funwzU2ZmIBdHfb7p0RrRURvpmc7BKuhS
+	m7ZajoM6iCIkkokmfMlADhTLWqg4YUSVLlzF3dhEZMQMHXC2o8wCNZHRnrBdWuavWdc+eizJq8z
+	h0pUzJxfaExXFkTkjzYr7l3hQUa0+Hgk03JGh9ULfDWRFKTHRZxpjivHhQHdMO/SAa/SimrBRpd
+	ZvR04+YxGtYDcfGQbu3iADXC9M1pRRzYtsNMj6yyITCQ6B5gEotCwnnnT1K7C0JENvSF/bT8xlh
+	Ull8ZEOpRu63/nHz3+f4MQu2ik911c2HeCE1KdBe975/XTGKgknlRCj4JpcC/+Y3t5x9+m7xdsp
+	LpJIzcV2tCf7PTVHVe3SeZp2v0NTjc/lP3m3dtHFVpUX65yayn7lpWRZT6Hk6qjQN+ul
+X-Received: by 2002:a05:6a21:4d8e:b0:3fa:10b3:c8f1 with SMTP id adf61e73a8af0-4014d25ddfbmr15219804637.41.1795597818828;
+        Wed, 25 Nov 2026 01:10:18 -0800 (PST)
+Received: from localhost.localdomain ([2406:3003:2002:639c:44a2:4377:d176:9ad1])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cde6cfc613csm8456765a12.5.2026.11.25.01.10.17
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Wed, 25 Nov 2026 01:10:18 -0800 (PST)
+From: Yige Jiang <yigejiang86@gmail.com>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Yige Jiang <yigejiang86@gmail.com>,
+	linux-rtc@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH] rtc: isl12026: Fix EEPROM dummy client leak on probe failure
+Date: Wed, 25 Nov 2026 17:10:00 +0800
+Message-ID: <rc-b1-20261110-vc-22-300211a8c5a0@gmail.com>
+X-Mailer: git-send-email 2.50.1
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -102,27 +96,68 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261125072026.2997493-1-prasanth.r@lineo.co.jp> <sashiko-outbox-232811@kernel.org>
-In-Reply-To: <sashiko-outbox-232811@kernel.org>
-From: Prasanth Ramesh <ragaprasanth@gmail.com>
-Date: Wed, 25 Nov 2026 16:58:53 +0900
-X-Gm-Features: Aa3M54qXYVyCwSQzA9Cg1aIbfxm3d6Em-tWd2Uyr-wX7BgbaSHQpmZUFH4khkzE
-Message-ID: <CAG7eodFbGRuig7rq+_VforW963vkc-0JFcNdO3s6M5ZOBV+wOQ@mail.gmail.com>
-Subject: Re: [PATCH 00/12] rtc: clear the wake IRQ on unbind
-To: sashiko-reviews@lists.linux.dev
-Cc: linux-rtc@vger.kernel.org, 
-	Alexandre Belloni <alexandre.belloni@bootlin.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-Sashiko is right about pcf8523 and rv8803: the I2C core already clears
-the wake IRQ and the wakeup source in i2c_device_remove(), so patches
-10 and 12 fix nothing. Please drop them.
+isl12026_probe() registers a dummy i2c client for the EEPROM at 0x57
+with i2c_new_dummy_device(), but only isl12026_remove() unregisters it.
+If devm_rtc_allocate_device(), devm_rtc_nvmem_register() or
+devm_rtc_register_device() fails, probe returns with the dummy client
+still registered. Every later probe attempt then fails with -EBUSY in
+i2c_new_dummy_device(), because 0x57 is still taken by the leaked
+client.
 
-For pcf85063 (11/12) only the SPI-attached RV8063 is affected, since
-spi_remove() does not clear them. I'll fix the message and the Fixes
-tag to a3c7f7e16ea8 ("rtc: pcf85063: add support for RV8063").
+Use devm_i2c_new_dummy_device() and drop isl12026_remove(). The dummy
+client is now unregistered on probe failure, and on unbind it is
+unregistered after the devm-managed RTC and nvmem devices that use it.
 
-I'll send a v2 in a few days unless there are more comments.
+Fixes: 4731a43169b7 ("rtc: isl12026: new driver.")
+Cc: stable@vger.kernel.org
+Signed-off-by: Yige Jiang <yigejiang86@gmail.com>
+---
+Based on linux-next next-20261109 (630059a5a632).
+Compile-tested: arm64, GCC 14.2.0, W=1, CONFIG_RTC_DRV_ISL12026=m, CONFIG_RTC_NVMEM=y, CONFIG_COMPILE_TEST=y (object only; no new warnings).
+Runtime-tested in QEMU (arm64 virt, KASAN) with this driver on a test I2C adapter module: with fault injection failing probe after the EEPROM client exists, the next probe fails with -EBUSY on 0x57 before the patch and binds after it; unbind/rebind and module reload are clean. No hardware test.
+AI assistance was used for analysis and patch preparation.
+Needs a probe error after the dummy client is created (allocation failure, or an nvmem or RTC registration error); no in-tree DT uses isil,isl12026.
 
-Thanks & Regards,
-Prasanth
+ drivers/rtc/rtc-isl12026.c | 11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/rtc/rtc-isl12026.c b/drivers/rtc/rtc-isl12026.c
+index 2aa3694c4de7..cb12a6366fc3 100644
+--- a/drivers/rtc/rtc-isl12026.c
++++ b/drivers/rtc/rtc-isl12026.c
+@@ -453,7 +453,8 @@ static int isl12026_probe(struct i2c_client *client)
+ 
+ 	isl12026_force_power_modes(client);
+ 
+-	priv->nvm_client = i2c_new_dummy_device(client->adapter, ISL12026_EEPROM_ADDR);
++	priv->nvm_client = devm_i2c_new_dummy_device(&client->dev, client->adapter,
++						     ISL12026_EEPROM_ADDR);
+ 	if (IS_ERR(priv->nvm_client))
+ 		return PTR_ERR(priv->nvm_client);
+ 
+@@ -471,13 +472,6 @@ static int isl12026_probe(struct i2c_client *client)
+ 	return devm_rtc_register_device(priv->rtc);
+ }
+ 
+-static void isl12026_remove(struct i2c_client *client)
+-{
+-	struct isl12026 *priv = i2c_get_clientdata(client);
+-
+-	i2c_unregister_device(priv->nvm_client);
+-}
+-
+ static const struct of_device_id isl12026_dt_match[] = {
+ 	{ .compatible = "isil,isl12026" },
+ 	{ }
+@@ -496,7 +490,6 @@ static struct i2c_driver isl12026_driver = {
+ 		.of_match_table = isl12026_dt_match,
+ 	},
+ 	.probe		= isl12026_probe,
+-	.remove		= isl12026_remove,
+ 	.id_table	= isl12026_id,
+ };
+ 
+
+base-commit: 630059a5a632377b9b7b487baccde92b7ae1dd47
