@@ -1,56 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795591921;
-	b=goqjjwOwRqaU8m6qgx1TZPjgUWv6zKTWt/AI1YkbNG0ejVLCgoYeKl1x6+1bRUKs5b/n
-	 xo1dir/5SZ5+epVmO7MZ5hL9vGVSjirMELp6+7BOB+zA2uFHOdlo5vEbbAcPXVukTs1e4
-	 VlbWzM7Hxb+Qvl3JMkqlDighV5x/9wawyci0GoP6KOFLshsAFRPmxGmpwz8ng8ui4teLV
-	 mon3udsLzTO7DTUwV0gx+K8tSen2jmbxUyVQUdCw0ih46fRqhU8o0CtiAGK4JvWrqEeI5
-	 hpY8oD71LiBadZ4pMgo/6Hua3cHPJ6b5jzrM17UDUw5IrAv4/UaqG0mKt5k6jWL1/Vw==
+	t=1795591985;
+	b=k66l9GWhnv9ZXfChkMXC7A66SUyoA1EK4F5wUUC3Q2gPb7RCDMIxv937poPmVUeCNw6Q
+	 4gLlp4i8XVbfp0eIZ93N4CWnJ4OooOrsklL/DZbH5kIfQHXHFStOqCw2MQOL0V7pJ2rao
+	 EL2PxAAVY97CQctjOxocODBr9Ucc+PiPvDV31Z1xMCfd+061zgYYjDeRaWhZBCQxmfU+L
+	 aOs6YPHap5BCt8f8rH35RvXZQXPzZDFyAH9VvLFaEPyACHIRTWZRjWdmAnn5YzPaAeO61
+	 2wfo5tWkDBecD9Vpb2Od2r9cno7U+HA4EOue3TqgcVsl1h3si+nCbZCRXzmxRUCsrMQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795591921;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795591985;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=NU/4o9q3V0aHbwo9ssrlKEkz1UQA1sOdA9uTJGuKs/k=;
-	b=zvPthfimEYHEGlewOAfAs6PyyNEgzB4qPDFo+cr1R778sonZpGd6Q/TG3nvm9/ZgDCwD
-	 Ej2EJcH/kterQcPu1n7HcKroDZjCChdBqw/A2IV0oDDy0GIjHJveEQETixz+uOdBsX5RQ
-	 o4jyCA+k+wbpj5kAR/KKTdtIjarPxPNrGTq7POFwTW/Zp06Vagtr/IFM5WaA3VvIJ4WS7
-	 N0y0T8gyNlo26oZhMV5w3PgKsH0Pn1Zvj8OYsBfN9uugvY7klWHV1k/XBivhaemRLZXTr
-	 hbLJLyvdwcpWIxTWgrNtphLCmY73MxQUiRVglaI5JuCglNOprtxF9I/h6x3FgK+kbBg==
+	bh=26MK0GGaMn5NhSQLqDIyXTkkrXtqjFVjBJeX7YJ0BPw=;
+	b=mm6ZMb5aMiMngyf6iz+W7NChrKUYEEXzt1h5dNFgRhDC40lC0JI5ks+owepVJCFuQ70D
+	 rJ9FNgX4COuE0k53D9EYyUxUluSpwg5lAxXrRdce1ikZjAJhSucOLR2lmPws9T1e08nye
+	 BqDEwau5k/9VxaV86hPZK+luxvDLWoIPZ6VHGbY+BXffpyt3Gn7so3kCfauXX7Uqh5VS7
+	 qPywvsBr2RwGQ5A7/GPXo+EiyNimFd+NvhHdByh0hQ29ncG7GW4UIQuGBtUjNbKj7BoX4
+	 QXiuINP1WdZE/d7GfsKk76g7TbfVSzEQJW7ZRvRjlF90wQ4e9X/VX4dMzmqeiKpPPtA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=gBOCreGE;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YgxOzxEQ;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6652606A321;
-	Wed, 25 Nov 2026 07:32:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACB88606A336;
+	Wed, 25 Nov 2026 07:33:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=gBOCreGE
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AECB1F000CA;
-	Wed, 25 Nov 2026 07:32:01 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YgxOzxEQ
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 939C31F000EB;
+	Wed, 25 Nov 2026 07:33:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795591921;
-	bh=NU/4o9q3V0aHbwo9ssrlKEkz1UQA1sOdA9uTJGuKs/k=;
+	s=k20260515; t=1795591984;
+	bh=26MK0GGaMn5NhSQLqDIyXTkkrXtqjFVjBJeX7YJ0BPw=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=gBOCreGEEPcKbfgjcXrSfYH/HXxGTeuVBjR2RZBBxSbdeFD2mVxRwiPIitNHo0gif
-	 hblQUmotW/3wDFS3VJxkxQUPmLD/MJCd8aD3n2Wk57Xl6D+G/TRjhsZ6J2SIwnL1Ft
-	 CDX7UkEQjTn8lnLUEMn2M77cMhPhLmMeRud5RZRxEd5lpdj5S08lPJ07h5Y6rym4qf
-	 uQkZDLMoFYnAP7Zc+g2ErAHYIr5Cz84wHXKK+zU2FAzEPJoE/jqLJRMEeL1PEoObHE
-	 hpBd5UhgRbCGNJNGVYYdatCS5Eyh+lMENHBFlnjprLv8Rz0UROJNaqvDG1uUaNgBas
-	 QOWN74W+eM1Rg==
-Message-ID: <sashiko-outbox-232807@kernel.org>
+	b=YgxOzxEQcMMEh4T4Rs3SpSQzeQy7RDS+wM4+lsnx+luAFVAtIkYXcql8ZBXijyOJl
+	 oQasXZzpszuQskhBKAwZII0Xmkesk9VigMsXDB4t72rMTcFl5HBiWDEgBkXbt7f5qE
+	 JRHjON07GQMi4Yp/8ckPjYXO4n0PXE7q/MmAaKvQmKow3AXMEZV08E8ADjuUBtp471
+	 3+/wIGjhHxYYtk+sgevHoKADQIQnTjkDPjE2kRaKn5KB2O8zbR090NBvyhUHuPbjf8
+	 io27fyn2GhQT5AG5yiH15udW7qPUrjQ01L5Km3rMoSRzg/anl7vq1AkOXAFE3JMSD/
+	 ItpeRvrE7fgBA==
+Message-ID: <sashiko-outbox-232810@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 12/12] rtc: rv8803: clear the wake IRQ on unbind
+Subject: Re: [PATCH 10/12] rtc: pcf8523: clear the wake IRQ on unbind
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Prasanth R" <ragaprasanth@gmail.com>, linux-rtc@vger.kernel.org
 Cc: imx@lists.linux.dev, Frank.Li@kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20261125072026.2997493-13-prasanth.r@lineo.co.jp>
+In-Reply-To: <20261125072026.2997493-11-prasanth.r@lineo.co.jp>
 References: <20261125072026.2997493-1-prasanth.r@lineo.co.jp>
- <20261125072026.2997493-13-prasanth.r@lineo.co.jp>
+ <20261125072026.2997493-11-prasanth.r@lineo.co.jp>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 25 Nov 2026 07:32:00 +0000
+Date: Wed, 25 Nov 2026 07:33:04 +0000
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -62,67 +62,67 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 1 potential
 issue to consider:
-- [Medium] rtc: rv8803: redundant devm wakeup cleanup in rv8803_probe()
+- [Medium] rtc: pcf8523: redundant devm wake cleanup in pcf8523_probe()
+  on i2c_bus_type
 --
 
-commit 3a55bfc9ac0b1aa7bcd9e1d8fb75ae431e24df8c
+commit 5ba5c98fa87e67c51600bf8ba44e25608c7b2cde
 Author: Prasanth R <ragaprasanth@gmail.com>
 
-rtc: rv8803: clear the wake IRQ on unbind
+rtc: pcf8523: clear the wake IRQ on unbind
 
-This commit replaces device_init_wakeup() and dev_pm_set_wake_irq() in
-rv8803_probe() with devm_device_init_wakeup() and devm_pm_set_wake_irq()
-to release the wake IRQ and wakeup source on unbind.
+This commit switches pcf8523_probe() from dev_pm_set_wake_irq() and
+device_init_wakeup() to their devm-managed variants so that the wake IRQ
+and wakeup source are cleared on driver unbind.
 
-> diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
-> index 7445c81510560..9dbbaffcd489b 100644
-> --- a/drivers/rtc/rtc-rv8803.c
-> +++ b/drivers/rtc/rtc-rv8803.c
-> @@ -700,14 +700,14 @@ static int rv8803_probe(struct i2c_client *client)
->  			dev_warn(&client->dev, "unable to request IRQ, alarms disabled\n");
->  			client->irq =3D 0;
->  		} else {
-> -			device_init_wakeup(&client->dev, true);
-> -			err =3D dev_pm_set_wake_irq(&client->dev, client->irq);
-> +			devm_device_init_wakeup(&client->dev);
-> +			err =3D devm_pm_set_wake_irq(&client->dev, client->irq);
->  			if (err)
->  				dev_err(&client->dev, "failed to set wake IRQ\n");
->  		}
->  	} else {
->  		if (device_property_read_bool(&client->dev, "wakeup-source"))
-> -			device_init_wakeup(&client->dev, true);
-> +			devm_device_init_wakeup(&client->dev);
->  		else
->  			clear_bit(RTC_FEATURE_ALARM, rv8803->rtc->features);
+> diff --git a/drivers/rtc/rtc-pcf8523.c b/drivers/rtc/rtc-pcf8523.c
+> index bbd42358a4c24..df70a374ef0ff 100644
+> --- a/drivers/rtc/rtc-pcf8523.c
+> +++ b/drivers/rtc/rtc-pcf8523.c
+> @@ -484,12 +484,12 @@ static int pcf8523_probe(struct i2c_client *client)
+>  		if (err)
+>  			return err;
+> =20
+> -		dev_pm_set_wake_irq(&client->dev, client->irq);
+> +		devm_pm_set_wake_irq(&client->dev, client->irq);
 >  	}
+> =20
+>  	wakeup_source =3D of_property_read_bool(client->dev.of_node, "wakeup-so=
+urce");
+>  	if (client->irq > 0 || wakeup_source)
+> -		device_init_wakeup(&client->dev, true);
+> +		devm_device_init_wakeup(&client->dev);
+> =20
+>  	return devm_rtc_register_device(rtc);
+>  }
 
 [Severity: Medium]
-Can unbinding rv8803 actually leave the wake IRQ or wakeup source behind?
+Can an i2c_driver without a .remove callback actually leak its wake IRQ
+or wakeup source on unbind?
 
-i2c_bus_type uses i2c_device_remove() as its bus remove callback, which
-runs unconditionally on unbind even when the i2c_driver has no .remove
-callback (and i2c_device_probe() runs the same cleanup on probe failure):
+On unbind, device_remove() invokes i2c_bus_type.remove
+(i2c_device_remove()) even when driver->remove is NULL, and
+i2c_device_remove() already clears both unconditionally:
 
 drivers/i2c/i2c-core-base.c:i2c_device_remove() {
-	...
+    ...
 	devres_release_group(&client->dev, client->devres_group_id);
 
 	dev_pm_clear_wake_irq(&client->dev);
 	device_init_wakeup(&client->dev, false);
-	...
+    ...
 }
 
-Switching to devm_device_init_wakeup() and devm_pm_set_wake_irq() only
-registers redundant devres actions on top of what the I2C core already
-tears down.
-
-Note that if "wake irq already initialized" (-EEXIST) is seen during
-probe, that happens on initial bind when I2C_CLIENT_WAKE is set (for
-example, when "wakeup-source" is specified alongside an interrupt in DT),
-because i2c_device_probe() already calls device_init_wakeup() and
-dev_pm_set_wake_irq() before invoking the driver's probe callback.
+i2c_device_probe() performs the same cleanup at err_clear_wakeup_irq when
+driver->probe() fails.  Switching to devm_pm_set_wake_irq() and
+devm_device_init_wakeup() here only adds redundant devres actions right
+before the I2C core repeats the same teardown.  Note also that when
+"wakeup-source" is set in DT (setting I2C_CLIENT_WAKE) and
+client->irq > 0, i2c_device_probe() already calls dev_pm_set_wake_irq()
+before invoking pcf8523_probe(), so the "wake irq already initialized"
+warning and -EEXIST happen during the initial probe rather than on
+rebind.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261125072026.2997=
-493-1-prasanth.r@lineo.co.jp?part=3D12
+493-1-prasanth.r@lineo.co.jp?part=3D10
