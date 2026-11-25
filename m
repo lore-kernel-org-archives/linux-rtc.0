@@ -1,56 +1,101 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=95.215.58.212
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.174
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795545017;
-	b=yDIXvPF9UjRuF52WD757cROJ6IDc0vIXjo8203nI+v/THhQyGdYCWoX9eeIez/EEorQW
-	 QX0fd2MI7ZXAYNni3+gh6p5p5vlWYslrv/gVH0Ap/Y85Wlor/f0v2LPYsKe7Cp5nG9imK
-	 LBeXzUzYxFu3zDckPLZLEB0yhuoP7Js7eWq4Vdng7FyIngufx4OAqopTuemjuEq6eMAX8
-	 Rs2fK7EvA2k9ZyIgP1q8IN9Go76fwHjRZpUKjOIwlMP169Ab185dmwrjngzEYZZdXkY3E
-	 b7d2jYIXa29y2fK6zIkDih9cXiXKfZAPipqoMlSEzV8rWitxmk7Aw2ldccaE2gdyKuA==
+	t=1795591241;
+	b=cs0DWhCoTjDXCYYwgJsQqC1NbGI5pAOKk2UWRnbcfaP/jeThvcU7Wo+htRBP/vTPnMo8
+	 l7tnbPCsBmhCf2lk/4FVaNwusexcXYpV4xebnyD7KFjWY734pJr76m83kM87h2xGO5PZk
+	 lHpL+VlcPGaTiIYHxG82izIx9vYLsUzGGmtxIVVjhda1kXQ8kiHXsT6mOitGkAnLS4Sdx
+	 eNTnmtNi5gtEKThDtIFTJ2wMzldpSZU8uijrz1+bFlSJJFahN9I8hD4fW2l9MeihbWKdS
+	 0rG8Lp9Ppn9vGtbDHV0vgpPPf0C18S5fo0vNF+/OpYtRmM9JIWnXm6si0rkxGhHB0BA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795545017;
-	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
-	 X-Mizu-Trace-ID:X-Migadu-Flow:Message-ID:Date:MIME-Version:User-Agent:
-	 Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=0K0WZc/39/LoeP518yVuoZSqLaQqIw4BwskJvntaZvY=;
-	b=ADeXVdBEy4Csste52w6FkjzfE++WfiyH74stdtqjNT3hvvOwksJDRXQeJId6xP65EGnq
-	 P+5g5Gl/K9nwMxqVU2mtdlP8ppDfTeXQo18epjdADabbRu5twxTa0WUotZBILDGTyvuYq
-	 QmavS71pLCC22NxAhquMdPfS7ryNCLvQ/7Kfl1ew91gL7Zek1lQtqghH1psPS4LMrCiUP
-	 0hRFo1P3ggIJM9MpHgzt8wc4prVlQ5DfXYGXF/RYEKHy3ONHapONviIZceD6hEbWcXJUR
-	 GAKw2HwlUPPP0hLRWqaW8QqlDsij4Iz/Z6vbmQbcOEgEqQcAEzjCk28asY/30vD/bJQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795591241;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:X-Google-Original-From:To:Cc:Subject:Date:Message-Id:X-Mailer:
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=l1SQBJPQH32GaCf6i6Hpvj4B1BS4U8Mq3RY+38E+QYU=;
+	b=NEZIXxwwaBILiNVKYTMeB8p1zDJ3lOEB5IMvkg4wNljf0ZeGZuGi1kLGLccB+VmDiV0I
+	 M4fZ9X+iopqxH22rzUgY+4WFBXWYCyL9M6K/Is5YHHc/zf6b80SZUrFYGjYqbjLfMF2/F
+	 BlnX26SZc7/0SYKR6AJlOoLuCJT2fZkpM23lq0XsaMdC818HFBC9NjAdUlJOX6qkltjD9
+	 DZzteKnMIAquLZA6GhDyrRpgEPzH1aRbzxJQkbYPv2cgCG+bSwt/awEWNM2Ld/m0fSIbe
+	 Ck/hwNZZDS6OtkYvGFHUZT1bTDAb7GU4oI3/4Xx8qlmN+Jv22Py/RPkRUBeYJ0ALqig==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=packett.cool;
-	spf=pass smtp.mailfrom=packett.cool;
-	dkim=pass header.d=packett.cool header.i=@packett.cool header.a=rsa-sha256 header.s=key1 header.b=U4V8Lmxp;
-	arc=none smtp.remote-ip=95.215.58.212
-Received: from mta1.migadu.com (out-212.mta1.migadu.com [95.215.58.212])
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=0Hj0WHV0;
+	arc=none smtp.remote-ip=74.125.82.174
+Received: from mail-dy1-f174.google.com (mail-dy1-f174.google.com [74.125.82.174])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2092C606A32A
-	for <linux-rtc@vger.kernel.org>; Tue, 24 Nov 2026 18:30:15 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2092C606A32A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=packett.cool
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=packett.cool
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE174606A33F
+	for <linux-rtc@vger.kernel.org>; Wed, 25 Nov 2026 07:20:40 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AE174606A33F
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=packett.cool header.i=@packett.cool header.a=rsa-sha256 header.s=key1 header.b=U4V8Lmxp
-X-Envelope-To: linux-rtc@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=5FzHrKNgD5lCIK6oHJu6SlDrdrGmdZHkQ/9jYR5U3ZU=;
- c=simple/simple; d=packett.cool;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1795545014; v=1; x=1796149814;
- b=U4V8LmxpaxCGNshsJQMp1cGqvNoMnmJ61t4agxFJvdLgGE89eKi6YbLla8aOfehsipx5T2n4
- HWgJRpfRw4kEL/JUvalPLYfgURfguVd29h0ePzJ+ABt6PfmU4mVx2A+tklIS53+6qnVmccIFIRH
- lJ9lYUAFK+VXQ+yp0WMIZ92HXIeR8Y6Hq8kbbS300vJs1kOadA1EumZjNH6XL+oXkQApGV+0/yD
- UhsbzpurWw/kKqi/HzhYt676/2jaGpRZAIc3VnbYxSfC0poxbBidkBNK452LjMuoVlceTOC4b69
- ag+p5cpx0e4I1v5YO6l/VHzqWhwltmPMbf4AUuuVCFnRA==
-X-Envelope-To: linux-rtc@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id cf4f11413430c8c2;
-	Tue, 24 Nov 2026 18:30:12 +0000
-X-Mizu-Trace-ID: cf4f11413430c8c2
-X-Migadu-Flow: FLOW_OUT
-Message-ID: <87735cc2-3759-4b7b-a16d-8aa4911ea7fb@packett.cool>
-Date: Tue, 24 Nov 2026 15:30:04 -0300
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=0Hj0WHV0
+Received: by mail-dy1-f174.google.com with SMTP id 5a478bee46e88-386c4d2e2ccso2471545eec.0
+        for <linux-rtc@vger.kernel.org>; Tue, 24 Nov 2026 23:20:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1795591240; x=1796196040; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=l1SQBJPQH32GaCf6i6Hpvj4B1BS4U8Mq3RY+38E+QYU=;
+        b=0Hj0WHV0sCenXk/k/xVcG+zSdCreRDnD/0hLussH4OcMEsCHKs2cJCeuaNJHXOdMEQ
+         5icV7kjOJoiRr2VoLmk90HusSg9HJw+joHGCkYzd/qs5wgplo2gNXHItwA0r82O67+82
+         Bk4viAMgNdSQw7Z7QdrhGHtxOEhU8OMjGwJGM+boj2LbVL3XwPKarLQ8R0dYZ8AyqTHi
+         v/MJ++szMSU4Nx8K8v/iPc6R5HheJrifO6Yun/y1quskPQtygqyBFeUpf4M6iTWiNKUU
+         4IICQN7VqE54J428XNHhD7vVxXuWxuWT3FLR35EgR21DSrvlNdW2sjKyUVO+S64I9C36
+         3yLg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795591240; x=1796196040;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=l1SQBJPQH32GaCf6i6Hpvj4B1BS4U8Mq3RY+38E+QYU=;
+        b=mS9pgym1JaiSh5d7+Xb1eVZteaYTxBAx32G25Xoe5MvwstOVA9x5jp16lmiDx55giM
+         uc5djfcOK6JTmHuYnWXNZLCIGo9DBjeSjIt9GyPsQG3n7ub6ZDoV3u7D+GVVXMCClDYZ
+         bs6fjjZNIh2IUFV4QPeK5vfmG7+l/a8uPZ9b4MrDwi2vRcZ+Sv4OZT7zS/nlf4hCUY2G
+         xvpydNX+zwcZZ2hFGMDqWs7k2vCJ9IEX0wz9HLWDCSTD3OyvTWWS2aU0e+13YxNRcTaD
+         PZGVmBfayi2Mx7jRTVljylj5AdhS91im42oisC/H8lpIBUQloasaMNkiJIWKldOtVG08
+         cwTA==
+X-Forwarded-Encrypted: i=1; AL+hErEC9qRxfsknZcvz0uz0yMXKCkC9iwelNkSbbcykoLmRSNUU/talHdAMRC3PokGykajAib94W+giUhw=@vger.kernel.org
+X-Gm-Message-State: APuU4Z+VpahhyvJr/ORTW5+0HIHqwNW2LAXf5nxrK/nMo3el3UV9/hLO
+	7kPmPzS+FIErVYcQXSLhsEomSbyx8MXrPF4f/eMkgda44cYGVJsVFCt0
+X-Gm-Gg: AZFdTZfWsCTWRyGxbwgpmhxnsbqbv6XeXvmlVZ3pSqpx4SXinRWq2LM9KgKcooiaKla
+	Q065U6bUAKuT6rpasNzbTmRy/fpZWn12x7seSnIV29ceBChY0Yp7cLNFBPbwwOzXHZeMSc1/Pb0
+	jou2rWOIdF5IMDzu1F4iZcKGRmExpG+FIMggdf1N3hlQf0iH5VjkYapbABX0X02Cb7qkf80CGX+
+	yKK4CVspqFHBihe0jSy+LAV4crJTTfFEnQBZib80BJgR2e344zFtUnDdfy+FMUa0GoTrmrbh0kA
+	2KhPMs3sgzNgd6Wv9Xokwta0LAjn6cDh00TFvBacdPeqiH98tkRitobyFekKqsJ+B8CtZRHuSHA
+	0XyEEHIYRyMOmqdQP9S/bdDNDblmZPmvzWXaEgowvfEypA73LBkWhtRkX50etzJYawWLFgCAubl
+	tXL9cOxlgpzPguA9v6EjhT5JnVNgmYJvXs/QPwHow/G1HNis/lflvjN2aerdsycLtZWWP7ffaA4
+	dRF1cvz66ifVAZpW+pZSqAODV5PjzYS0c2zm9XA1DeWYFl+22Ylp9H37T8tOlKWdQL6Abf2uCV0
+	ceqZketHk9nhlTMPhD4kAdy5xgcuAZV01xH7M/fAyk65gNQOAq+9EXFXyohpJkQb
+X-Received: by 2002:a05:693c:6010:b0:385:2057:eb95 with SMTP id 5a478bee46e88-3857073f2a3mr22650185eec.31.1795591239429;
+        Tue, 24 Nov 2026 23:20:39 -0800 (PST)
+Received: from prasanth.alps.lineo.co.jp (vpn1.lineo.co.jp. [203.141.200.204])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-38567abb870sm42767121eec.25.2026.11.24.23.20.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 24 Nov 2026 23:20:39 -0800 (PST)
+From: Prasanth R <ragaprasanth@gmail.com>
+X-Google-Original-From: Prasanth R <prasanth.r@lineo.co.jp>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	linux-rtc@vger.kernel.org
+Cc: Frank Li <Frank.Li@nxp.com>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>,
+	Support Opensource <support.opensource@diasemi.com>,
+	Paul Cercueil <paul@crapouillou.net>,
+	CL Wang <cl634@andestech.com>,
+	imx@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	linux-mips@vger.kernel.org,
+	Prasanth R <ragaprasanth@gmail.com>
+Subject: [PATCH 00/12] rtc: clear the wake IRQ on unbind
+Date: Wed, 25 Nov 2026 16:20:14 +0900
+Message-Id: <20261125072026.2997493-1-prasanth.r@lineo.co.jp>
+X-Mailer: git-send-email 2.34.1
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -60,74 +105,52 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 4/5] rtc: Add basic support for RTC via Surface System
- Aggregator Module
-To: Emfox Zhou <emfox@debian.org>, Maximilian Luz <luzmaximilian@gmail.com>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Bjorn Andersson <andersson@kernel.org>,
- Konrad Dybcio <konradybcio@kernel.org>, Hans de Goede <hansg@kernel.org>,
- =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
- linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-rtc@vger.kernel.org
-References: <20261104070441.74127-1-val@packett.cool>
- <20261104070441.74127-5-val@packett.cool> <1795439501.1366.emfox@debian.org>
-Content-Language: en-US
-From: Val Packett <val@packett.cool>
-In-Reply-To: <1795439501.1366.emfox@debian.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
+From: Prasanth R <ragaprasanth@gmail.com>
 
-On 11/23/26 10:11 AM, Emfox Zhou wrote:
-> Hi Val,
->
-> Tested on a Surface Pro 8 (x86, Tiger Lake): this is not SPX/ARM-only, the
-> same SAM RTC sits behind the aggregator there. Two things came out of it.
-Didn't think anyone else would be interested though :) as the SPX is the 
-only machine with *no other working RTC at all*.
-> First, as posted the driver cannot bind on the x86 machines: 5/5 adds
-> ssam_node_rtc only to ssam_node_group_spx[], while the x86 devices come
-> from the ACPI-matched groups. With one line in ssam_node_group_sp8[],
->
-> 	&ssam_node_rtc,
->
-> "ssam:01:01:01:00:00" appears and the driver registers rtc2:
->
-> 	surface_rtc 01:01:01:00:00: registered as rtc2
->
-> It would be good to have the node in the other x86 groups as well. Note
-> that the node name will collide with the SPX one, so whichever lands
-> first keeps it.
+These drivers set a wake IRQ with dev_pm_set_wake_irq() and never clear
+it. After unbind and bind, dev_pm_set_wake_irq() warns "wake irq already
+initialized" and returns -EEXIST. For jz4740 and atcrtc100 the probe
+then fails.
 
-Well, I don't have all these machines to test on, so I wasn't very 
-confident about adding it to other groups. I could do it though, sure.
+Switch them to devm_pm_set_wake_irq() and devm_device_init_wakeup(), as
+was done for rtc-pl031, rtc-stm32 and others. Patch 3 also fixes an
+unbalanced clock disable in the mxc_v2 remove path.
 
-> Second, set_time() needs a timezone compensation. The EC keeps UTC in the
-> SAM timestamp (CID 0x10), but also exposes _GRT (CID 0x1f), the same clock
-> plus the zone stored in the EC, and the firmware copies _GRT into rtc_cmos
-> at POST. Right after a cold boot here:
->
-> 	rtc0 read at boot	 1795199717
-> 	true UTC at boot	 1795170940
-> 	EC _GRT at boot		 1795199714	(zone +28800)
->
-> so CMOS came from _GRT, 8 h ahead of UTC. The write side shows the same:
-> after "hwclock -w -f /dev/rtc2" the SAM timestamp equals system UTC and
-> _GRT is then UTC + zone, so the next cold boot is off by the zone again.
-> Either write (UTC - zone), taking the zone from _GRT minus the timestamp,
-> or state that this RTC is local time and leave the conversion to user
-> space.
-Ack
-> Tested-by: Emfox Zhou <emfox@debian.org> # Surface Pro 8 (x86), with ssam_node_rtc added
->
-> Since the same RTC is on the x86 machines, the descriptions are no longer
-> accurate either: the commit message, the Kconfig help and the MAINTAINERS
-> entry all name the Pro X: [..]
+Patch 1 is tested on an i.MX6Q SABRE-SD board by unbinding and binding
+the driver through sysfs. The others are compile-tested only (ARM,
+clang, W=1).
 
-Sure, I'll change the names!
+I used an AI assistant (Claude) to find these and write the changes.
 
+Prasanth R (12):
+  rtc: snvs: clear the wake IRQ on unbind
+  rtc: mxc: clear the wake IRQ on unbind
+  rtc: mxc_v2: fix unbalanced clock disable on remove
+  rtc: mxc_v2: clear the wake IRQ on unbind
+  rtc: imxdi: clear the wake IRQ on removal
+  rtc: da9063: clear the wake IRQ on unbind
+  rtc: fsl-ftm-alarm: clear the wake IRQ on unbind
+  rtc: jz4740: clear the wake IRQ on unbind
+  rtc: atcrtc100: clear the wake IRQ on unbind
+  rtc: pcf8523: clear the wake IRQ on unbind
+  rtc: pcf85063: clear the wake IRQ on unbind
+  rtc: rv8803: clear the wake IRQ on unbind
 
-Thanks,
-~val
+ drivers/rtc/rtc-atcrtc100.c     | 8 +++-----
+ drivers/rtc/rtc-da9063.c        | 4 ++--
+ drivers/rtc/rtc-fsl-ftm-alarm.c | 4 ++--
+ drivers/rtc/rtc-imxdi.c         | 4 ++--
+ drivers/rtc/rtc-jz4740.c        | 4 ++--
+ drivers/rtc/rtc-mxc.c           | 4 ++--
+ drivers/rtc/rtc-mxc_v2.c        | 6 +++---
+ drivers/rtc/rtc-pcf85063.c      | 4 ++--
+ drivers/rtc/rtc-pcf8523.c       | 4 ++--
+ drivers/rtc/rtc-rv8803.c        | 6 +++---
+ drivers/rtc/rtc-snvs.c          | 7 +++++--
+ 11 files changed, 28 insertions(+), 27 deletions(-)
+
+-- 
+2.43.0
 
