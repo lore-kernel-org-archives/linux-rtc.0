@@ -1,56 +1,51 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.119.170.32
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795610874;
-	b=WylOvtx1nWvJiDdwrn6o3azidAJtm/jt6iZmA5ce7WI+siKh3tXhAi6+uUVPmNLbyGSu
-	 lbDSmGwdLLPfDLmrxFFB83amHcY9LbHVnEkQiUkZBZeUuGwQdAlY1HjamJl/kfRY1HkYn
-	 8j8HtnOto2kEOM8lTdi+1RQ26mIG4t/PU5vJPSJtj48Hv1d/m97cajDlNpABD+x/uBGQs
-	 /9YOHmv7ldzhnF/6y3VAakt53hqG7UMQJGYCxg9jjbcTeByBNw4fGOfuMvwC6dXeKXjar
-	 zyrDJbMEB9dr1Bb1ObKqd5jPZElBkRj876hwZhy5vEcL1PXzWe+usQNtpKJSA3eVfaA==
+	t=1795617531;
+	b=mI5r/gBkpL9mWTU/4sELAui/g+vuIM8wTaagrobAeJcOspFAJg+euYAfk4ayi0K12Icg
+	 jX56oNM0UP8nUg7GOGF3sBmjPB/2NggbnPrQNLv75sFHGIN5deAA61HWaqRubItQ9tuj0
+	 ynddlkKOwdXhAVv0iBT/kMKMt9RqNLGRXUWnPpaEAn7Ny4hF1KYt1NwbHZtcEnA061eMV
+	 xhu1vEbKYYR3lEywFT98+V35aZhGmtuEgZiXwwrTxbor1ccu2muvjd8rUZMGM1oNfHBDR
+	 QykltbmOHDIAe8DGZpN5XmOIITo6CiMwvM9bhj40U677Fg/8NSa5fEgkvynEvYhxzUA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795610874;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=ly9DFeqLRw1CAOhdHA+AtJuS5VBp/Crp1mMgruGlaI8=;
-	b=YY3u57Kte26FanmFNzH9BNwos7xRJkfPC9WB4+/nP1dHS8IkfN+E/E0FWs7Sa682Pmbd
-	 +iSflU2R6euDlj2Mg1XGdvsA/CavFMDgFmYo7QtjK7pb+OBCAavH4z3WR4egKBVbc6LSr
-	 GAJolA9W9LlrHK/Az2o0UiqEtxWtG2pPylznZSlspdYceitng+rWdmFAg4g/K8gWUJ9RM
-	 zEb+T1lPTz4/x0S509arzHuyH2sG/3qtgRNd900iWL1kjdujq8yIOqWZZVyugTnCoyYXz
-	 XGGIGgdKYSr+AzNaE91hCKs64p177WP4naO85CkqGoRdJf3O09D/PUNpq0P7lhwQKEQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795617531;
+	h=DMARC-Filter:Message-ID:Subject:From:To:Cc:Date:In-Reply-To:
+	 References:Content-Type:Content-Transfer-Encoding:MIME-Version;
+	bh=IQ9fZw32uZVF3Ywd8chKQW0lakTMcQKc2jgAvfNuIBI=;
+	b=PEAe7+qzr10IvFESnCWZlIAxLUKMEW+WNVmpxSh93qD2FJrXRUV3yEwrOVzVZpNy0xDK
+	 cSZXR4SasNxv9tMs5EHE8FX1ylmsNDnU0Laso3eLTmfGIk0viMM3brGUKRNMlPylyLf8B
+	 TWc5hJLVk93OOEDthC9O3Qk/zW6A8pRdBaqw1NPTEIvEEwZpRj1oez+ksYRT6IDPvELT6
+	 +s37Ayywm7BwN7Pvc8ooekDs9fGIgBx+O8tuRtaUtR+YZKuJLYp7qwKwujKSVKBF5eIbH
+	 nM6SW00fNmz7SUdlATheVj7XO8xWWcKar2Vi3p2VLQ47711rQwT8npHxhtsVnx3hjrw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jBtScbpT;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=crapouillou.net;
+	spf=pass smtp.mailfrom=crapouillou.net;
+	arc=none smtp.remote-ip=185.119.170.32
+Received: from aposti.net (aposti.net [185.119.170.32])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18289606A326
-	for <linux-rtc@vger.kernel.org>; Wed, 25 Nov 2026 12:47:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jBtScbpT
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B579B1F000C4;
-	Wed, 25 Nov 2026 12:47:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795610873;
-	bh=ly9DFeqLRw1CAOhdHA+AtJuS5VBp/Crp1mMgruGlaI8=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=jBtScbpTU0vdfNdmxCabPIwWIHahhXxG6HoQV03XpfQP+d9OtHq5uEqKANURdT1FW
-	 pOsdLlFSJ/LQRJpSiK5po1aRVrzumgxURxGLljwbzrZEA+Mp4LWCksEeA//MwJuDmK
-	 Et/S/acxx2GXL4/a0limybfEeasDtldXaq5HV2voqARMAB7X+gph7Uvnqb2WfoPKNS
-	 mSdnA07MmCDGwdnn0wfTnEv9he97G8+4iOFo6+1r/O0W09+r18D8iOiMaQVGEw/JCj
-	 c6cadqb3slp90WYY19LOgFk+W97EmlUWJtiX28wkk7O03kctpQbb41uG+90Fy4s4is
-	 6he5wdrL5gmCQ==
-Message-ID: <sashiko-outbox-233394@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] rtc: pcf2127: use const per-variant regmap_config
- tables
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Akshat Rawat" <akshatrawat095@gmail.com>
-Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20261125124416.468-1-akshatrawat095@gmail.com>
-References: <20261125124416.468-1-akshatrawat095@gmail.com>
-Content-Type: text/plain; charset=utf-8
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA0DE606A331;
+	Wed, 25 Nov 2026 14:38:50 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CA0DE606A331
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=crapouillou.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=crapouillou.net
+Message-ID: <84e1cc8b3977f011950e68ca69c46dff1a395175.camel@crapouillou.net>
+Subject: Re: [PATCH 08/12] rtc: jz4740: clear the wake IRQ on unbind
+From: Paul Cercueil <paul@crapouillou.net>
+To: Prasanth R <ragaprasanth@gmail.com>, Alexandre Belloni
+	 <alexandre.belloni@bootlin.com>, linux-rtc@vger.kernel.org
+Cc: Frank Li <Frank.Li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>, 
+ Pengutronix Kernel Team	 <kernel@pengutronix.de>, Fabio Estevam
+ <festevam@gmail.com>, Support Opensource	 <support.opensource@diasemi.com>,
+ CL Wang <cl634@andestech.com>, 	imx@lists.linux.dev,
+ linux-arm-kernel@lists.infradead.org, 	linux-mips@vger.kernel.org, Prasanth
+ R <prasanth.r@lineo.co.jp>
+Date: Wed, 25 Nov 2026 15:38:45 +0100
+In-Reply-To: <20261125072026.2997493-9-prasanth.r@lineo.co.jp>
+References: <20261125072026.2997493-1-prasanth.r@lineo.co.jp>
+	 <20261125072026.2997493-9-prasanth.r@lineo.co.jp>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 25 Nov 2026 12:47:53 +0000
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -59,29 +54,62 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
 
-> Both pcf2127_i2c_probe() and pcf2127_spi_probe() declare config as a
-> static struct regmap_config and update it in place based on the chip
-> variant.
->=20
-> In pcf2127_spi_probe(), if a PCF2131 probes first, read_flag_mask and
-> write_flag_mask are overwritten to 0 and never restored. Any PCF2127 or
-> PCF2129 probed later reuses those zeroed masks instead of 0xa0/0x20,
-> breaking SPI register access. Modifying static max_register and flag
-> masks also races if multiple instances probe concurrently.
->=20
-> Replace the shared mutable config structs in both probe paths with
-> per-variant static const struct regmap_config tables, and drop the
-> now-unused max_register field from struct pcf21xx_config.
->=20
-> Fixes: fd28ceb4603f ("rtc: pcf2127: add variant-specific configuration st=
-ructure")
-> Fixes: fa78e9b606a4 ("rtc: pcf2127: fix SPI command byte for PCF2131")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Akshat Rawat <akshatrawat095@gmail.com>
+Hi Prasanth,
 
-Sashiko has reviewed this patch and found no issues.
+Le mercredi 25 novembre 2026 =C3=A0 16:20 +0900, Prasanth R a =C3=A9crit=C2=
+=A0:
+> From: Prasanth R <ragaprasanth@gmail.com>
+>=20
+> The driver has no remove callback, so the wake IRQ set with
+> dev_pm_set_wake_irq() and the wakeup source enabled with
+> device_init_wakeup() are never released on unbind.
+>=20
+> When the driver is bound again, dev_pm_set_wake_irq() finds the old wake
+> IRQ, warns "wake irq already initialized" and returns -EEXIST, so probe
+> fails with "Failed to set wake irq" and the RTC cannot be bound again.
+>=20
+> Use the device-managed variants so both are released on unbind.
+>=20
+> Compile-tested only.
+>=20
+> I used an AI assistant (Claude) to find this and write the change.
+>=20
+> Fixes: 3b2dc19ff9a1 ("rtc: jz4740: use dev_pm_set_wake_irq() to simplify
+> code")
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261125124416.468-=
-1-akshatrawat095@gmail.com?part=3D1
+Should probably Cc: stable@vger.kernel.org then.
+
+> Signed-off-by: Prasanth R <prasanth.r@lineo.co.jp>
+
+(Your family name is R?)
+
+> ---
+> =C2=A0drivers/rtc/rtc-jz4740.c | 4 ++--
+> =C2=A01 file changed, 2 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/rtc/rtc-jz4740.c b/drivers/rtc/rtc-jz4740.c
+> index 32c331f3f..41501c9ed 100644
+> --- a/drivers/rtc/rtc-jz4740.c
+> +++ b/drivers/rtc/rtc-jz4740.c
+> @@ -367,9 +367,9 @@ static int jz4740_rtc_probe(struct platform_device *p=
+dev)
+> =C2=A0
+> =C2=A0	platform_set_drvdata(pdev, rtc);
+> =C2=A0
+> -	device_init_wakeup(dev, true);
+> +	devm_device_init_wakeup(dev);
+
+I see devm_device_init_wakeup() can return an error, which should be handle=
+d.
+
+Cheers,
+-Paul
+
+> =C2=A0
+> -	ret =3D dev_pm_set_wake_irq(dev, irq);
+> +	ret =3D devm_pm_set_wake_irq(dev, irq);
+> =C2=A0	if (ret)
+> =C2=A0		return dev_err_probe(dev, ret, "Failed to set wake irq\n");
+> =C2=A0
