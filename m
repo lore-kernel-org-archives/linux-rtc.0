@@ -1,84 +1,83 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.170
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.177
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795591263;
-	b=W0pQJZchLkUzwkLmrtY85lRl0nxppFiEx6fTX4Fk8rRtwkAoJiUxs9G+K2ACTwXonWQF
-	 Mx6ST05dAFCWnK5hUPUHs5UClBQtVm7QKQRQGl0xkutUZEZpuvCQGiRU6n4igOyzmhUW8
-	 kZcVR/W2M+rH3RSIfhejUOwHZW7LxfYhNI26TIKp0IAnALEujFkDXEqcWYcSPaQgz2DJk
-	 U1pzuZOE36GiP1GmgLjexWLavzR4hnihwcSrmz6xAoDZ9ts+RQAO1UMOCwDzwGf0L5lwB
-	 +yIUiFfm4t8Ghhayf7b/uWRNk8p2A/QDU8zYfvEGLBqGcr3bdLrn6UYwCeLmz1XplxQ==
+	t=1795591265;
+	b=uVlFQviVAi1hh7HRf3WJgivislTCTMErck84oYw1Gtcjx8dI7vZ6cTfdCCp7A0Y6VwRK
+	 +/9OnLNfYtRb/UvUF4eVvb+JHns9BvNzDktiAFv6qw9+L+SxTfu7hbjo0AmEfxEevGENd
+	 /UVGnyLFJjQyFbgMxX58r6s1+n2i49uUbP1X7wXxfuiiJnTRCeB3Zn1HCt0uVWUkpj6pY
+	 xA8JQGAtkAOaT347MqF964ZBKrD1jEhETEm422q91yDAMaAIWX1K0zymrJpN+/gMbFzHo
+	 56dU1ctAf+JeW6hSXF2MkBo0ezzVGW2sjmi6vrw1GNrP9ZTdBQZzaf0081AjUB3VSxQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795591263;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795591265;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:X-Google-Original-From:To:Cc:Subject:Date:Message-Id:X-Mailer:
 	 In-Reply-To:References:MIME-Version:Content-Transfer-Encoding;
-	bh=FtVSmu/GGPVuhZAgkgs5kn9m+hoaQiyFsreDAgh6jZo=;
-	b=hAxrtAgpEpVla7L7tPMGNnpZovLXFqSWYk6dJI8wvI5fAAfeYd1b0Co8ighRln35WQPp
-	 cpK83K4Us56pRTqK4jUYH0ialw5BNe0q/+I31wiZoze91MPjjGzbnHkvB8eABlGN49Z+m
-	 +lazXvSU8oJqjctJ+f4Fd9bugdWwOYu4uKG5v06rr22Vdx828pLUUDb3PT90ZuM3VHzgS
-	 ZRaxQjAwP2sgxAmYz198vSKxZR/1qjrJmGWEeqHq/+i3+lwHs8QP4QvRhUZaoG8gH9h0w
-	 uD6JSZy7EzoqsJ0wenCiABYz4c9VMQSVBvNyfyi/gBlYUr9kgXosH18CFE3NLyt5mcQ==
+	bh=nvNpguFZ8dgL57oZbzRJkOYpYD8+B/VysS9gBllwJ8Y=;
+	b=dnVMfKeIpCh8tKBmx8zY8SGlbwfYdIAtD7J4qsAPcm/P7CeMAAi9eNCQpZFb+IDiMQ5J
+	 4AE8j9fW6GqPn/PbEqoryhzL5Xx7MtTyJraA2kb/In8h619zD2chGWCt58Z+PjqdFTPIS
+	 ptl0t0FNi3jtu8eIGKADU7+gfSRthY8ynL28E8SctCFDpeGf/m1SRrnUB3qFUNM7TTxew
+	 4Xv4zjUVpD9V92l4KgikBRMyEfB2jHlR7vQH+BR4gwLgmpZDykDXtcuLNaFPvy8HwbOTN
+	 p+IT88lUD5umqIZeGTPFN/mi4I0rT7w91ITqHdjeZXioqlyFq9nxsz9SmPJo1bmPI0g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Iy+ARhJn;
-	arc=none smtp.remote-ip=74.125.82.170
-Received: from mail-dy1-f170.google.com (mail-dy1-f170.google.com [74.125.82.170])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=l+7wZ+uR;
+	arc=none smtp.remote-ip=74.125.82.177
+Received: from mail-dy1-f177.google.com (mail-dy1-f177.google.com [74.125.82.177])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFA8A606A321
-	for <linux-rtc@vger.kernel.org>; Wed, 25 Nov 2026 07:21:02 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CFA8A606A321
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10899606A31E
+	for <linux-rtc@vger.kernel.org>; Wed, 25 Nov 2026 07:21:04 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 10899606A31E
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Iy+ARhJn
-Received: by mail-dy1-f170.google.com with SMTP id 5a478bee46e88-38190551625so10862836eec.1
-        for <linux-rtc@vger.kernel.org>; Tue, 24 Nov 2026 23:21:02 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=l+7wZ+uR
+Received: by mail-dy1-f177.google.com with SMTP id 5a478bee46e88-386bd881d39so3833339eec.1
+        for <linux-rtc@vger.kernel.org>; Tue, 24 Nov 2026 23:21:04 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795591262; x=1796196062; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1795591264; x=1796196064; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=FtVSmu/GGPVuhZAgkgs5kn9m+hoaQiyFsreDAgh6jZo=;
-        b=Iy+ARhJnmfYE7tL3sQzw0P10feOOpCgboqPDl7Wg7r4INy9tTccRM2trmVkf3w30S9
-         e8WFyGIq0xuS4BA1369M3FtefEHx3BbtOa3uys+535IBCXNNeE91XQ/1WLIYl3Vjo5kf
-         ir2OFjcBn+rRs5j7A4iXv7MDI+XDB75gU0KQqHFnlhee3dVTcfC8ygLXM1BixPfoTXeO
-         uMHpK8pjdLINIuYPinCY5qGS/LGuS45DYTZbxLtjic4z959+W3o2sJFMJuDh9E/w0bsZ
-         z8AVlPQa0i7fmxK+vEYIqBWspZyfrO4W5P4/6nTcCJSFOpljLrMUaM0NpNcLy546Dk38
-         B+uw==
+        bh=nvNpguFZ8dgL57oZbzRJkOYpYD8+B/VysS9gBllwJ8Y=;
+        b=l+7wZ+uRMU5L9Y3iw9iR0vQ56PzFuAqOTVajti9f8T0P497l3uY0X71+HyaoHNJYlj
+         ysqt3L/0+JFPMTmsBmKlRs+RvJZm2a9d/Tymcfm9lP0TMCSobeI7oVrlrSnMbHAelVen
+         ENqoJLFmcOqPNac5Bd1+auEf/pAGwDXNq/DOJhAitri/XoFUEZoaulRMMZYqWCd8x/uu
+         hhoa7kUOPRrwrurg9g5TkSeYVCfF9pyKV8VQldFLqwrNTT9cnwagOa/ySt9Amlz3ickV
+         w2QcGokSWaEbB7cmsX1oNu2Js5qW3hfv8BK2+bKCDIhfcBDhVIujIvFzKwcT2fRAJE4w
+         bwvw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795591262; x=1796196062;
+        d=1e100.net; s=20260707; t=1795591264; x=1796196064;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=FtVSmu/GGPVuhZAgkgs5kn9m+hoaQiyFsreDAgh6jZo=;
-        b=2R/4VeCK1DkAv0bdUs+g5tSKEihAtJ/U/vohSxaqVdcSIwqQOF215Y33zNNkcAkJIs
-         ohwSMDbuuGcT2fb0UNf7ULCLvxsRWeOfsnm6ucl6R+jMh/bqBWzKA5ipUjGPH5ZRrA+o
-         +hwbp17sO/PRS62C0QKAHsyD9I2LqaxGzDDgbZt3O6XCt6hBg5S5dZEjK+4A1km3GB9T
-         rt+LZ/4wRfgFcKQ0clYCiiXCU0jeBtGAsEArjO5rz/9iWEXtqHnAPHpmyBgpfmy1EqzD
-         eeRcXvBr4LIC9GvKIttjACPG3nwhtsffUfaDh4tJb7OZ2iro7ygb8Fk9ZHK5kK04fDn/
-         AVmg==
-X-Forwarded-Encrypted: i=1; AL+hErF45KgS1OV6KvavPTRLTRp0OsjCKp/4HAkultGrpJtq497hd+yhKX2LCpJjtdGqmCwu1g+I1OOXlYw=@vger.kernel.org
-X-Gm-Message-State: APuU4Z/S7SHlJwL1mTLmhQEkntVqcHqwFoDq3G0XcGe6n6sx78FP8HjF
-	vP/DKNdsZ4QbG20nGviYi8B9461y7bKFupt+iGp19TZv3yJjPcvx17pP
-X-Gm-Gg: AZFdTZeGrv5ebDYsnIRW67rmv3STZ9LxHqym5prS6ZTRmxJJN14YAYO65iAqx3v1Zxw
-	UaKzjNEUXXw2NHv8UjiJnLTbdtQycLSS8HudjFzxHjL7Lr/Rg+3GGrzcuO9/R0rA2V5v7spLCt+
-	mupPrx2lLFZBc601cyaYjBJgMmZETZ0Q2yQzK8Jj6yP67AZzqHlrmCwx+MIwT8ZaEHy8CFNKhNB
-	E6O5i/c8tOrFqhoHZGIOflJfwrQNnO/0s3BsNmw9f9/8wlu+uL85IwoRBTcGUhmGPznLB0HsHQT
-	5fA48TwXj+II0HNwWpK51rqMAYkOvYoWLY4BktlOgXohxL6wS9QReuPhTmX4Dhzl5LojE73mLtW
-	Wz64Q1bodGOyNpR56zd13fz3DfTDbtKxbftCJEXU9a9gfpIo3PWdw9LHP5BKrxY3NQhasZbOFAw
-	XB1Wx7mes6G9CeUdLtzHk5yDeVPz9vs9ZJEwREYuW1J73amPZBLSO54qa6EGqWRlHi2vOhs2T7Q
-	bK+SttS0/7O3DAntODc3PMqeOrsO38BmFkwui3WiM6yItmo7VJ9CkHpVxZUYUvOYxNRHNPjE3bX
-	mZvjN3HStorM3bwmeFtLTiPvWhMfKMqlnEwS8wWLPODkzfz167kDJ1ntmyCpNdBm3XTi57eHDFv
-	8IvZvjK0AHw==
-X-Received: by 2002:a05:7300:f68e:b0:36c:a42d:9bc9 with SMTP id 5a478bee46e88-3857015357fmr17092295eec.25.1795591261375;
-        Tue, 24 Nov 2026 23:21:01 -0800 (PST)
+        bh=nvNpguFZ8dgL57oZbzRJkOYpYD8+B/VysS9gBllwJ8Y=;
+        b=LG2GTda1XTfaE8WqJzlRrbc1taoF6V2Nv1frMQKXOztWLgAejjWUbq5iSHTlDIBpM7
+         +Ckk2CmRHN0uX3i2dxJTF8h9y3wrk9c5TYrUCTDgL08Dg+v5x5axpj8GreB9YvxtGTUO
+         r61qdmxuguH6ReRI20zwo91PuDn+zf651EzK/pjZtsK7sJ1DeF0YdXWxcJb3w5TRH+q9
+         z751cridZzH2tXw8XRH3RB7ake1NnYebEowGHeZMtReTk/WEmLwe1/zbpIV/cf+D5elm
+         tXkhp+AbRUs03clWRDiGV6sObOuH2+ES6yGq4pp/+yyBPd1t9kiK8ha6gxiqSmt5LRfa
+         +Fbg==
+X-Forwarded-Encrypted: i=1; AL+hErEANpSQRQlEtzFipRfS0aS3htK4M7q6IelvNWGAL0rQA4e1tJLGwrcCK1I5fL1T5u43I233qi4197M=@vger.kernel.org
+X-Gm-Message-State: APuU4Z/qp5PQw199RHnaABd7aq6xuLJgR0HE/8dBq6qk1PZfnZttdsuB
+	nPlQXwQbTQvQ2GvjQHxc7Pw/1qS33C7057Jx5kLXrgqJmsbiGrASyjlE
+X-Gm-Gg: AZFdTZdR9RnMJuStGOchBXHCHiR9kf6FrkxSfERNIOIt+n2NgazBMCtyV4s1mFOJ3t5
+	Y+GyScCqPFup5/AUmh9k3d6WUH0WxLI6bpGxDpaWsMSp2Klrhj4ujFDK0qCIT3ueHD6xEqlIJje
+	Au1t34r5BXOMAWhC87w5R4RezNA/vWw5J/7+r/vOUsinx86t99k+ddG+agRUTKqmYlKHl1oeoMa
+	mH7JnYm2r/Krvxin8YqbL30B/rQD4Ww2sH2j+3b1H9Hr6vXv5jO8ReqGgMrfSpyJ4+9lVvHKLEP
+	1/xblKilpQmbaXkZNbSANYA2lw/5IjPfPzHi9LYU4+YP9P6buHRJ5ffswuudSES7YYKsNrXosQQ
+	C6vv5M7S+WFS0ffv0m5PP/+EHzTrpPJkmp+URbx72REf7fq/YriAWZ+V0oq178yDzyj7IpU92Lo
+	qDS25pR9+V1hF8rsgP+UevcC0xQdO3vN7BikhSpcsu9llq+AYBZP7cW8gwj8vkbeqioP+pNilkw
+	MT/nkUEvlwVoE9a4TZWYWVn5txoSHKD/0+lIEZ4VsDRWiccJo1g/US1nzBRRT9SJ6Ov/799VUDR
+	/xI4+YKYaVOAaLOm5OfUCmMHYk89H9Ji0zd3VR/BP/SZXYe8BRikiUvXwPknLRQO
+X-Received: by 2002:a05:7300:5994:b0:386:a915:8b97 with SMTP id 5a478bee46e88-386a9158dcamr12709277eec.27.1795591264064;
+        Tue, 24 Nov 2026 23:21:04 -0800 (PST)
 Received: from prasanth.alps.lineo.co.jp (vpn1.lineo.co.jp. [203.141.200.204])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-38567abb870sm42767121eec.25.2026.11.24.23.20.58
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-38567abb870sm42767121eec.25.2026.11.24.23.21.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Nov 2026 23:21:01 -0800 (PST)
+        Tue, 24 Nov 2026 23:21:03 -0800 (PST)
 From: Prasanth R <ragaprasanth@gmail.com>
 X-Google-Original-From: Prasanth R <prasanth.r@lineo.co.jp>
 To: Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -95,9 +94,9 @@ Cc: Frank Li <Frank.Li@nxp.com>,
 	linux-mips@vger.kernel.org,
 	Prasanth R <ragaprasanth@gmail.com>,
 	Prasanth R <prasanth.r@lineo.co.jp>
-Subject: [PATCH 08/12] rtc: jz4740: clear the wake IRQ on unbind
-Date: Wed, 25 Nov 2026 16:20:22 +0900
-Message-Id: <20261125072026.2997493-9-prasanth.r@lineo.co.jp>
+Subject: [PATCH 09/12] rtc: atcrtc100: clear the wake IRQ on unbind
+Date: Wed, 25 Nov 2026 16:20:23 +0900
+Message-Id: <20261125072026.2997493-10-prasanth.r@lineo.co.jp>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20261125072026.2997493-1-prasanth.r@lineo.co.jp>
 References: <20261125072026.2997493-1-prasanth.r@lineo.co.jp>
@@ -120,7 +119,7 @@ device_init_wakeup() are never released on unbind.
 
 When the driver is bound again, dev_pm_set_wake_irq() finds the old wake
 IRQ, warns "wake irq already initialized" and returns -EEXIST, so probe
-fails with "Failed to set wake irq" and the RTC cannot be bound again.
+fails with "Failed to set wake IRQ" and the RTC cannot be bound again.
 
 Use the device-managed variants so both are released on unbind.
 
@@ -128,27 +127,36 @@ Compile-tested only.
 
 I used an AI assistant (Claude) to find this and write the change.
 
-Fixes: 3b2dc19ff9a1 ("rtc: jz4740: use dev_pm_set_wake_irq() to simplify code")
+Fixes: 7adca706fe16 ("rtc: atcrtc100: Add ATCRTC100 RTC driver")
 Signed-off-by: Prasanth R <prasanth.r@lineo.co.jp>
 ---
- drivers/rtc/rtc-jz4740.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-atcrtc100.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/rtc/rtc-jz4740.c b/drivers/rtc/rtc-jz4740.c
-index 32c331f3f..41501c9ed 100644
---- a/drivers/rtc/rtc-jz4740.c
-+++ b/drivers/rtc/rtc-jz4740.c
-@@ -367,9 +367,9 @@ static int jz4740_rtc_probe(struct platform_device *pdev)
+diff --git a/drivers/rtc/rtc-atcrtc100.c b/drivers/rtc/rtc-atcrtc100.c
+index 25183331a..2c78192db 100644
+--- a/drivers/rtc/rtc-atcrtc100.c
++++ b/drivers/rtc/rtc-atcrtc100.c
+@@ -318,17 +318,15 @@ static int atcrtc_probe(struct platform_device *pdev)
+ 				     "Failed to allocate RTC device\n");
  
- 	platform_set_drvdata(pdev, rtc);
- 
--	device_init_wakeup(dev, true);
-+	devm_device_init_wakeup(dev);
- 
--	ret = dev_pm_set_wake_irq(dev, irq);
-+	ret = devm_pm_set_wake_irq(dev, irq);
+ 	set_bit(RTC_FEATURE_ALARM, atcrtc_dev->rtc_dev->features);
+-	ret = device_init_wakeup(&pdev->dev, true);
++	ret = devm_device_init_wakeup(&pdev->dev);
  	if (ret)
- 		return dev_err_probe(dev, ret, "Failed to set wake irq\n");
+ 		return dev_err_probe(&pdev->dev, ret,
+ 				     "Failed to initialize wake capability\n");
+ 
+-	ret = dev_pm_set_wake_irq(&pdev->dev, atcrtc_dev->alarm_irq);
+-	if (ret) {
+-		device_init_wakeup(&pdev->dev, false);
++	ret = devm_pm_set_wake_irq(&pdev->dev, atcrtc_dev->alarm_irq);
++	if (ret)
+ 		return dev_err_probe(&pdev->dev, ret,
+ 				     "Failed to set wake IRQ\n");
+-	}
+ 
+ 	atcrtc_dev->rtc_dev->ops = &rtc_ops;
  
 -- 
 2.43.0
