@@ -1,105 +1,56 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.180
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795591273;
-	b=ztfYzqcYw2HPRSYBtNaD7v6v3E8ssExHYBwMENNTWu7OWi+DqjwKLXX/X5EPNqFjuxSP
-	 nXDX+cztB2aImg7Gk9jLa6FO/vF+tqr0wl4GnpYgXygzUe9hysky4Noa9vcDMPRxfLhFd
-	 qib24yf63gXMPgnHrG9Wa29XWWvFoQJ5A3YNSwxdBF6ZZTsxhTA3VJh44VL+WqRcopuBG
-	 868IkZ7PAyKBE4ZHjTZgzFtsQMiNQ2EBR/uPsP6H40k0RER+BewAzU7zV18mRYuZOHtmj
-	 HVsRUHBhsDeNGnXwyZBSLAMBeoA5tu0+yUHgiXup7rMwq6r0SSZR9e9gpdPljAhV4/w==
+	t=1795591510;
+	b=wYWzw1bfCQJ8AMJ/DhfKR7IVrvPZVEu5Tzdwvl0TFuGOrN9W8L0QGT+gZz9aOxTb8Apk
+	 p3V10ahY0L1XL7/jksU7trNpGWjCpcpHqkCPcknMggMOpo/uqTk5LTT5iDTjjdOtscE8F
+	 tcU3PAsbrgwl3Jqqs+JwI664CMKcgC7wPINyMsH6mh0yqNDbPjpgygN0f3qd4CQMjDy6Q
+	 emn9raO57zBlbBK677yfra1u3Iuywhf6WzncKsyHCvJqfCDBi9KLSw4ev/XPPcI/z/Vip
+	 IwWxIqwguIKjH4nBDCwjFwdbRj9LlHitSne8SfB/dMeba2bu8hclrC8r8PjkVxTfE9Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795591273;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:X-Google-Original-From:To:Cc:Subject:Date:Message-Id:X-Mailer:
-	 In-Reply-To:References:MIME-Version:Content-Transfer-Encoding;
-	bh=io0jgXINzxf8Pk44PIZlHBE77FZbFSzj7shA0YE3rU8=;
-	b=JfF0kKg5OqKw2PcGZxRMMdzSUcdkKFlyLmbraQodbYFEabHXtDGApR9JhuD18GiJNNbU
-	 vigkGCkKfSwEJn9jWDNmIKz2rzg0ekKoffDSnvfqdr3j84yBjQMZ5Mc0MeIbkzyr8nqEb
-	 t6i4Blhm4f2zxTNdYDn5/Jl7SHTp981MDazXkz3Zi8TOMzL5uoW6VhOAdQ7NgjwqybAw/
-	 MNrD+3kXXWEvpogKJeYhnyhnZMdkPcRkg9qclc+i/7aBZKC7Ji1+086O9qOVGjEeX17rS
-	 sX+AgzWIEf+l7bQjnSpULvfuoAQDs5TbXLxY8lFOemtL/GhdRyCr58oOoILO180wPyQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795591510;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=JI4Qym6cD0gnhU9vLY1J21V/Ym2HT/rP/tSxSRmWjgE=;
+	b=ASrtQ72HDLNbPN62h575c/hIKiqWm+bNJOiNPJq4pXrVJo0S7VEeSjwZp+hcMjLUXiEJ
+	 7VNDsplraOKI8oiH/3fwcOjNoWSS4bxcUCMrLVPLpskp3Gt6OxDqgqO2YZ1tS3O+tn63B
+	 IODHA9wVPgmwu8D2QpkotCtF3/1w2dQjdjxnsASnMEaEqJ5X+ZACGgq+UORLMDEjsossg
+	 NyvKBIjQ2rZlExQiO7uFtglYFs0Ol5Zl+n0ncBHCQawdWHXff7hzxVbG3Um/zMgOSjiFG
+	 YGFzNjNsq4MO2DqFMKVeOz14f9YA6JkKAK9wQmL9QKUnVWjzsUnzFL8TPQUUlyhlW+A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=zvlzmq0J;
-	arc=none smtp.remote-ip=74.125.82.180
-Received: from mail-dy1-f180.google.com (mail-dy1-f180.google.com [74.125.82.180])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="bzT/idmb";
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 887D7606A326
-	for <linux-rtc@vger.kernel.org>; Wed, 25 Nov 2026 07:21:13 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 887D7606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77AA9606A31E;
+	Wed, 25 Nov 2026 07:25:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=zvlzmq0J
-Received: by mail-dy1-f180.google.com with SMTP id 5a478bee46e88-385d8a00598so8000524eec.1
-        for <linux-rtc@vger.kernel.org>; Tue, 24 Nov 2026 23:21:13 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795591273; x=1796196073; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=io0jgXINzxf8Pk44PIZlHBE77FZbFSzj7shA0YE3rU8=;
-        b=zvlzmq0JNRMXODOQ6bRMsc1ufObKLRC6fNoaiRRx17W/nAwJ8ADIQ0uKyr6gvX9JFz
-         m6gr1/uYcXgDGvUckNyp9lBTJzAWaidG0ZC6dMzAKqfwI4V3m3vztqALvmEWtVxVr0rg
-         TYVA/PKiXaRL4uAwh3b6Kx3wq7pKq37/UYCIulPnhPymM+wdD7jUTIWEFkXFarYe+LVa
-         +3HR+JmEEy0q7fp0a0caTsjfERsEoXcUc9ogr5Nt9vzJh6tZHkA49CMrOUS1hMshNiVB
-         H325aAxrN77sQ3lDk74FDht/k98on8uKDEGh0gfxA7hWH1U+Jvi0UGFjeXgbj5cE23QY
-         h7Kw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795591273; x=1796196073;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=io0jgXINzxf8Pk44PIZlHBE77FZbFSzj7shA0YE3rU8=;
-        b=e3xNGtraLLiaqfxI0TNns2f15aNX3x9q2rSBi2s+wzhTaSAQDO5RDqJYEErRcqJQRq
-         +eNt2PNn3HT4YF9EnHlvpwUSt0Qxq/AqUcyvgOt3WmaBUN9SoFYITilW6VzQVoSPK1Eq
-         2PqsDnrv5kkmgMJV33rlcjn2aq3gWN944vRUYG9OA0rjERcTeWvKfYOKePZwYJqFZT2U
-         kfcKb6St4vpUd4kvbjGXtljGYTH5WR0V2+nAPjUaxN9wwSPVAgwB5tyqkOff0qm8ESOj
-         2TXRTf3wOqQwMlIU8IFU98lp4IbRHJdMlC5YGQALYpVqReEvK7LkBrIeV91De1Xwebtl
-         zpiQ==
-X-Forwarded-Encrypted: i=1; AL+hErF4Olb1sYg5XgLXl7iFica/mhRp0Lv/G9cXVYSIGetfnQVlrYJF7Jz/tMETncSylM/9MxM+JLrmxNk=@vger.kernel.org
-X-Gm-Message-State: APuU4Z+8f6L4wLZcNydzqGJF1UHBfwPJR5o7beLzPgLVaGQ30pyGtHUn
-	hHYVhO5xKt7beQWfVwdJYMJEdZtxRjtlLmds7vuZQck77ebQGP4c5scI
-X-Gm-Gg: AZFdTZeBElTFDMQMNZ0w4fIk0is5CHTYTiGT1bGj2TxKYh4cBhl2QCbIFSguPwb1XRg
-	mExDvNjJ4E/4t/pT9w9/OJD0GogxMM8scuQuN9L6A4UZENI4tsyiIe16klJNQkuYt1Q8FbTmaCi
-	ko6GmG77sKrzQW2/ekTc7Cx4NVtm4BTBMQ0u3XKXtxhWJiZ1NPSWZTwpcU5CrQfZt8cWApqn80m
-	a3TQmY0ooCaWqY8keTd7VUrKetFvXj36WIxtbzu9Vw4eSzLjsJGJCf6h3EQKNaiYV48MjkJRgHh
-	LUta9x4gS/AeZxJJeQOqoouEB/MvJUyCfGlB1qa+i+3yXH6F/LM5HdYDOlQ2Oxzd/nuABifhheZ
-	IsYOGk0biSxfpR2hjT7L/gk4BgQf1yCw12aSyRB+5qRfksx5t9GCWwVesd6VC3bnrN29+t+Ob6Z
-	EtNr5Z1QxhWXRgD2dT1cvtQqw+YIc0JAw81qfSpVY/PwlyU9fUXcT2Ydjxx19w5ksfGG8MJiCvl
-	YfxeBU7QpgkHT1EXCNqFOe9dCDHe2bpccAlNnj8q1AHPeeTxgXY1qyGiDnQMhQWmK8JNezVycwN
-	Nyuk8uwOxBej//8we586jr7a8VBnoEZGgjKmKqeGdJNQVG2zAVu2z1bZT4ck/F9N
-X-Received: by 2002:a05:7300:fb97:b0:381:6ac8:ef2e with SMTP id 5a478bee46e88-3856ff5db0bmr24055433eec.25.1795591272607;
-        Tue, 24 Nov 2026 23:21:12 -0800 (PST)
-Received: from prasanth.alps.lineo.co.jp (vpn1.lineo.co.jp. [203.141.200.204])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-38567abb870sm42767121eec.25.2026.11.24.23.21.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Nov 2026 23:21:12 -0800 (PST)
-From: Prasanth R <ragaprasanth@gmail.com>
-X-Google-Original-From: Prasanth R <prasanth.r@lineo.co.jp>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	linux-rtc@vger.kernel.org
-Cc: Frank Li <Frank.Li@nxp.com>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>,
-	Support Opensource <support.opensource@diasemi.com>,
-	Paul Cercueil <paul@crapouillou.net>,
-	CL Wang <cl634@andestech.com>,
-	imx@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mips@vger.kernel.org,
-	Prasanth R <ragaprasanth@gmail.com>,
-	Prasanth R <prasanth.r@lineo.co.jp>
-Subject: [PATCH 12/12] rtc: rv8803: clear the wake IRQ on unbind
-Date: Wed, 25 Nov 2026 16:20:26 +0900
-Message-Id: <20261125072026.2997493-13-prasanth.r@lineo.co.jp>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20261125072026.2997493-1-prasanth.r@lineo.co.jp>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bzT/idmb
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 200BC1F000C0;
+	Wed, 25 Nov 2026 07:25:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795591510;
+	bh=JI4Qym6cD0gnhU9vLY1J21V/Ym2HT/rP/tSxSRmWjgE=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=bzT/idmb0kudE/FXoeMwTUidd52pnO+1yOPKAzC/naxT2EiGFugZfCmXSs0LCCgaa
+	 G7oFoegMLzSdRofe2cJORAWtHDe0aXdvu1lwxLwOMGcY9QSnYkDPN5kuN4GOWIdkXT
+	 ZmVeql+ZdhdgtSJD0HRhGmmXFlSkBmhwA/c2gRLmR/fE7yfFC0gIouJWtESR5PDP+o
+	 uHi1AuIsDJmZdq3E6SP02Q+WxXen1K0y/7IxNNNE3flQqAaYPRkVlpG+/vvM/H4k3q
+	 uuhkx/9++jw28TA+f/6mtG+cpOejy2CEQZThxK+cKNw9ncxjJobi2fIijsvVty35W1
+	 t++3sQ19+PKoA==
+Message-ID: <sashiko-outbox-232779@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 04/12] rtc: mxc_v2: clear the wake IRQ on unbind
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Prasanth R" <ragaprasanth@gmail.com>, linux-rtc@vger.kernel.org
+Cc: imx@lists.linux.dev, Frank.Li@kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
+In-Reply-To: <20261125072026.2997493-5-prasanth.r@lineo.co.jp>
 References: <20261125072026.2997493-1-prasanth.r@lineo.co.jp>
+ <20261125072026.2997493-5-prasanth.r@lineo.co.jp>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 25 Nov 2026 07:25:09 +0000
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -108,54 +59,56 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-From: Prasanth R <ragaprasanth@gmail.com>
+Thank you for your contribution! Sashiko AI review found no new issues
+in this patch, but noticed 1 related pre-existing issue it does not
+introduce:
+- [High] rtc: mxc_v2: unhandled interrupt storm in mxc_rtc_remove() [1]
+--
 
-The driver has no remove callback, so the wake IRQ set with
-dev_pm_set_wake_irq() and the wakeup source enabled with
-device_init_wakeup() are never released on unbind.
+commit f8f7168b7242f3f7ce38e7545b8decc669f9b81a
+Author: Prasanth R <ragaprasanth@gmail.com>
 
-When the driver is bound again, dev_pm_set_wake_irq() finds the old wake
-IRQ, warns "wake irq already initialized" and returns -EEXIST, so the
-driver prints "failed to set wake IRQ".
+rtc: mxc_v2: clear the wake IRQ on unbind
 
-Use the device-managed variants so both are released on unbind, also for
-the wakeup-source case without an IRQ.
+This commit replaces device_init_wakeup() and dev_pm_set_wake_irq() with
+their device-managed variants in mxc_rtc_probe() so the wakeup source and
+wake IRQ are released on unbind.
 
-Compile-tested only.
+> diff --git a/drivers/rtc/rtc-mxc_v2.c b/drivers/rtc/rtc-mxc_v2.c
+> index 35a18b75c1098..fe3a55b00418b 100644
+> --- a/drivers/rtc/rtc-mxc_v2.c
+> +++ b/drivers/rtc/rtc-mxc_v2.c
+> @@ -301,8 +301,8 @@ static int mxc_rtc_probe(struct platform_device *pdev)
+>  	if (pdata->irq < 0)
+>  		return pdata->irq;
+> =20
+> -	device_init_wakeup(&pdev->dev, true);
+> -	ret =3D dev_pm_set_wake_irq(&pdev->dev, pdata->irq);
+> +	devm_device_init_wakeup(&pdev->dev);
+> +	ret =3D devm_pm_set_wake_irq(&pdev->dev, pdata->irq);
+>  	if (ret)
+>  		dev_err(&pdev->dev, "failed to enable irq wake\n");
+> =20
 
-I used an AI assistant (Claude) to find this and write the change.
+[Severity: High]
+This problem wasn't introduced by this patch, but can unbinding the driver
+while a hardware alarm is armed trigger an unhandled interrupt storm
+[1]?
 
-Fixes: 2f80de657f83 ("rtc: rv8803: Add power management support")
-Signed-off-by: Prasanth R <prasanth.r@lineo.co.jp>
----
- drivers/rtc/rtc-rv8803.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+drivers/rtc/rtc-mxc_v2.c:mxc_rtc_remove() {
+	struct mxc_rtc_data *pdata =3D platform_get_drvdata(pdev);
 
-diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
-index 7445c8151..9dbbaffcd 100644
---- a/drivers/rtc/rtc-rv8803.c
-+++ b/drivers/rtc/rtc-rv8803.c
-@@ -700,14 +700,14 @@ static int rv8803_probe(struct i2c_client *client)
- 			dev_warn(&client->dev, "unable to request IRQ, alarms disabled\n");
- 			client->irq = 0;
- 		} else {
--			device_init_wakeup(&client->dev, true);
--			err = dev_pm_set_wake_irq(&client->dev, client->irq);
-+			devm_device_init_wakeup(&client->dev);
-+			err = devm_pm_set_wake_irq(&client->dev, client->irq);
- 			if (err)
- 				dev_err(&client->dev, "failed to set wake IRQ\n");
- 		}
- 	} else {
- 		if (device_property_read_bool(&client->dev, "wakeup-source"))
--			device_init_wakeup(&client->dev, true);
-+			devm_device_init_wakeup(&client->dev);
- 		else
- 			clear_bit(RTC_FEATURE_ALARM, rv8803->rtc->features);
- 	}
--- 
-2.43.0
+	clk_unprepare(pdata->clk);
+}
 
+mxc_rtc_remove() does not clear SRTC_LPCR_ALP or SRTC_LPCR_WAE before
+devres unregisters the IRQ handler.  If a pending alarm fires afterward,
+no handler is left to acknowledge it and the IRQ core disables the line
+with "nobody cared".
+
+[1] https://sashiko.dev/#/bug/linux-4a7ad9ff-00aa-4c3f-aa57-966cdc8a71a1
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261125072026.2997=
+493-1-prasanth.r@lineo.co.jp?part=3D4
