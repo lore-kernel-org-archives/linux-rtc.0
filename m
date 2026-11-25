@@ -1,56 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795591510;
-	b=wYWzw1bfCQJ8AMJ/DhfKR7IVrvPZVEu5Tzdwvl0TFuGOrN9W8L0QGT+gZz9aOxTb8Apk
-	 p3V10ahY0L1XL7/jksU7trNpGWjCpcpHqkCPcknMggMOpo/uqTk5LTT5iDTjjdOtscE8F
-	 tcU3PAsbrgwl3Jqqs+JwI664CMKcgC7wPINyMsH6mh0yqNDbPjpgygN0f3qd4CQMjDy6Q
-	 emn9raO57zBlbBK677yfra1u3Iuywhf6WzncKsyHCvJqfCDBi9KLSw4ev/XPPcI/z/Vip
-	 IwWxIqwguIKjH4nBDCwjFwdbRj9LlHitSne8SfB/dMeba2bu8hclrC8r8PjkVxTfE9Q==
+	t=1795591787;
+	b=OZyJNSHnId/ZhToel1v/HevyDA6brmcc8uPCE21wPTLjwRpoThXX/KGD9yfduHT94rC3
+	 3QzRWtwrEbGztCosncrvVJwpQdhmvN19EChZbbtZ6Tr0UbCknzw5764UWy2g51af27nUG
+	 PBWYmBkDK5ktQ+G1ZqI272ZAm0emwq2f+9nh5896vA7OMcaLGMRorwKQAJbBGgRnkCmdM
+	 Vd//4GkK0H29ajnFHyu3e0XL/rioOcwL6AZcQM7e48P8KsPCZ2C81RyKk6HWYIpIDHL4E
+	 QjmN+ZRU3tELDqUbPocO417+2O711s/U9W7pjpS4UvqCSCVM8MAhZHzGmIWfduh/DEQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795591510;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795591787;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=JI4Qym6cD0gnhU9vLY1J21V/Ym2HT/rP/tSxSRmWjgE=;
-	b=ASrtQ72HDLNbPN62h575c/hIKiqWm+bNJOiNPJq4pXrVJo0S7VEeSjwZp+hcMjLUXiEJ
-	 7VNDsplraOKI8oiH/3fwcOjNoWSS4bxcUCMrLVPLpskp3Gt6OxDqgqO2YZ1tS3O+tn63B
-	 IODHA9wVPgmwu8D2QpkotCtF3/1w2dQjdjxnsASnMEaEqJ5X+ZACGgq+UORLMDEjsossg
-	 NyvKBIjQ2rZlExQiO7uFtglYFs0Ol5Zl+n0ncBHCQawdWHXff7hzxVbG3Um/zMgOSjiFG
-	 YGFzNjNsq4MO2DqFMKVeOz14f9YA6JkKAK9wQmL9QKUnVWjzsUnzFL8TPQUUlyhlW+A==
+	bh=K4N+z+qZkTaLCmo/VXO6ehCCwqsZm8UjOH4rKUfK5go=;
+	b=U5wD6zhbYDNKcZGJA/l/kqIbioH71E1xseGbSgCms2cYY86TCzlXY06AG8i0AgauHs19
+	 fPYPeDdArn+pYuEEN2H8utF29hdmLruR/xwPRXSFM3g9oTtT0cJ+5I5Z2dYIMie2EYNmD
+	 ntgu3Sc/qm+3nrDp6PWUR4Fml/CfEUAgVQxrrsV0rtCO9lB0lVXvlwnqnkSCfRt8mQ4kR
+	 Sj6EohIXQhKYgyBS9YibTdr/JYpN/Aw84A77hlzeNBsButRxKRoRRsFerzCx6jY0jlXTF
+	 tBgP9pne9SSlRxWeGrq3HmC/TAWa/4hACQRgGXSfio5EQLfUKwzRSq4GzgynPDtt4zA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="bzT/idmb";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lBI0c2gK;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77AA9606A31E;
-	Wed, 25 Nov 2026 07:25:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F02B606A31E;
+	Wed, 25 Nov 2026 07:29:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bzT/idmb
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 200BC1F000C0;
-	Wed, 25 Nov 2026 07:25:10 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lBI0c2gK
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C3FA1F000D0;
+	Wed, 25 Nov 2026 07:29:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795591510;
-	bh=JI4Qym6cD0gnhU9vLY1J21V/Ym2HT/rP/tSxSRmWjgE=;
+	s=k20260515; t=1795591787;
+	bh=K4N+z+qZkTaLCmo/VXO6ehCCwqsZm8UjOH4rKUfK5go=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=bzT/idmb0kudE/FXoeMwTUidd52pnO+1yOPKAzC/naxT2EiGFugZfCmXSs0LCCgaa
-	 G7oFoegMLzSdRofe2cJORAWtHDe0aXdvu1lwxLwOMGcY9QSnYkDPN5kuN4GOWIdkXT
-	 ZmVeql+ZdhdgtSJD0HRhGmmXFlSkBmhwA/c2gRLmR/fE7yfFC0gIouJWtESR5PDP+o
-	 uHi1AuIsDJmZdq3E6SP02Q+WxXen1K0y/7IxNNNE3flQqAaYPRkVlpG+/vvM/H4k3q
-	 uuhkx/9++jw28TA+f/6mtG+cpOejy2CEQZThxK+cKNw9ncxjJobi2fIijsvVty35W1
-	 t++3sQ19+PKoA==
-Message-ID: <sashiko-outbox-232779@kernel.org>
+	b=lBI0c2gK320ivmsG0O2ZdnN1GMrIWh8lk4P2pCRrwZ1KyIUUyiDHP96LYAKrEsio+
+	 1joiAEZI+boLyx0VeR+FMrC0uoshI+yaml2dtyXyX4EgLyvYBPpX07wvTcGUI4nwZx
+	 VIiEJC3HJtjnAWI6eP8En+VbJMw1/Gw22VWI2CKgwuywrsZtgrvHambO2+nDSM5Bzl
+	 t5HEz1nE04tMlu45VLVxnq8yhrg1MEMW+nPncQRerzLudsRe82XyUZbXQDO76zASm8
+	 AN9UamQV54mWbYgXAr3RQw1ai4rmjNmIkrc+6TTKyt7iVtWWW90XYPx6gcf7gcra1x
+	 BoXEW8yTM4a9A==
+Message-ID: <sashiko-outbox-232800@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 04/12] rtc: mxc_v2: clear the wake IRQ on unbind
+Subject: Re: [PATCH 11/12] rtc: pcf85063: clear the wake IRQ on unbind
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Prasanth R" <ragaprasanth@gmail.com>, linux-rtc@vger.kernel.org
 Cc: imx@lists.linux.dev, Frank.Li@kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20261125072026.2997493-5-prasanth.r@lineo.co.jp>
+In-Reply-To: <20261125072026.2997493-12-prasanth.r@lineo.co.jp>
 References: <20261125072026.2997493-1-prasanth.r@lineo.co.jp>
- <20261125072026.2997493-5-prasanth.r@lineo.co.jp>
+ <20261125072026.2997493-12-prasanth.r@lineo.co.jp>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 25 Nov 2026 07:25:09 +0000
+Date: Wed, 25 Nov 2026 07:29:46 +0000
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -60,55 +60,44 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found no new issues
-in this patch, but noticed 1 related pre-existing issue it does not
-introduce:
-- [High] rtc: mxc_v2: unhandled interrupt storm in mxc_rtc_remove() [1]
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [Low] rtc: pcf85063: Fixes trailer cites 05cb3a56ee8c instead of
+  a3c7f7e16ea8f
 --
 
-commit f8f7168b7242f3f7ce38e7545b8decc669f9b81a
+commit 02e3d5d53e616f78f39dfc9fe5c12cd70b022082
 Author: Prasanth R <ragaprasanth@gmail.com>
 
-rtc: mxc_v2: clear the wake IRQ on unbind
+> rtc: pcf85063: clear the wake IRQ on unbind
+>
+> The driver has no remove callback, so the wake IRQ set with
+> dev_pm_set_wake_irq() and the wakeup source enabled with
+> device_init_wakeup() are never released on unbind.
+>
+> When the driver is bound again, dev_pm_set_wake_irq() finds the old wake
+> IRQ, warns "wake irq already initialized" and returns -EEXIST, so the
+> driver prints "failed to enable irq wake".
+>
+> Use the device-managed variants so both are released on unbind.
+>
+> Compile-tested only.
+>
+> I used an AI assistant (Claude) to find this and write the change.
+>
+> Fixes: 05cb3a56ee8c ("rtc: pcf85063: add alarm support")
+> Signed-off-by: Prasanth R <prasanth.r@lineo.co.jp>
 
-This commit replaces device_init_wakeup() and dev_pm_set_wake_irq() with
-their device-managed variants in mxc_rtc_probe() so the wakeup source and
-wake IRQ are released on unbind.
+[Severity: Low]
+In 05cb3a56ee8c ("rtc: pcf85063: add alarm support"), this driver only
+registered an i2c_driver, and the I2C core's i2c_device_remove() already
+calls dev_pm_clear_wake_irq() and device_init_wakeup(dev, false) on
+unbind.  The unbind leak only became possible when SPI support was added
+via rv8063_probe(), since spi_remove() does not clear the wake IRQ or
+wakeup source.  Should the Fixes tag instead be:
 
-> diff --git a/drivers/rtc/rtc-mxc_v2.c b/drivers/rtc/rtc-mxc_v2.c
-> index 35a18b75c1098..fe3a55b00418b 100644
-> --- a/drivers/rtc/rtc-mxc_v2.c
-> +++ b/drivers/rtc/rtc-mxc_v2.c
-> @@ -301,8 +301,8 @@ static int mxc_rtc_probe(struct platform_device *pdev)
->  	if (pdata->irq < 0)
->  		return pdata->irq;
-> =20
-> -	device_init_wakeup(&pdev->dev, true);
-> -	ret =3D dev_pm_set_wake_irq(&pdev->dev, pdata->irq);
-> +	devm_device_init_wakeup(&pdev->dev);
-> +	ret =3D devm_pm_set_wake_irq(&pdev->dev, pdata->irq);
->  	if (ret)
->  		dev_err(&pdev->dev, "failed to enable irq wake\n");
-> =20
-
-[Severity: High]
-This problem wasn't introduced by this patch, but can unbinding the driver
-while a hardware alarm is armed trigger an unhandled interrupt storm
-[1]?
-
-drivers/rtc/rtc-mxc_v2.c:mxc_rtc_remove() {
-	struct mxc_rtc_data *pdata =3D platform_get_drvdata(pdev);
-
-	clk_unprepare(pdata->clk);
-}
-
-mxc_rtc_remove() does not clear SRTC_LPCR_ALP or SRTC_LPCR_WAE before
-devres unregisters the IRQ handler.  If a pending alarm fires afterward,
-no handler is left to acknowledge it and the IRQ core disables the line
-with "nobody cared".
-
-[1] https://sashiko.dev/#/bug/linux-4a7ad9ff-00aa-4c3f-aa57-966cdc8a71a1
+  Fixes: a3c7f7e16ea8 ("rtc: pcf85063: add support for RV8063")
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261125072026.2997=
-493-1-prasanth.r@lineo.co.jp?part=3D4
+493-1-prasanth.r@lineo.co.jp?part=3D11
