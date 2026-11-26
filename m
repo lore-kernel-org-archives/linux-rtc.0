@@ -1,55 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795678243;
-	b=COkFi/3cny1+A7zE86x2LX4bo9AZ/PN6LvBqR7VqoYsgDoTXoSrC+7V+3cnO2Vd645R2
-	 xc5YT8eNviiRT2JOdHc0SRkaifnvLUhwzKnJoT6pfh5NSLLKtwmKF07TyQV+OF3kF+5dk
-	 s2Ab3D3jg1GDXII5Ox0AcQDN/S0FTExbnGlEO17jCK0uTpdNn4hIGFEpzvFBU9C+WcPDV
-	 caBE67PXaE5v413Y/a2PqVoS1qxwgGLelTmygoMIEQ3FJ2U2+29jwG47tKWwkBirje00G
-	 /7HbxXx2nvRg7stjsjzBjo+LMAtnA7jp2FKRZ9otwywOkti4If6tSM7J82ZQl50IMmg==
+	t=1795698837;
+	b=s/i/a2o63N80nAMmmZ+A6oeui4bCrWt6cEe53SSO502PxXOlxRj7DXG5Nms6onKk9k8u
+	 aCpzED8JL8qnw7G9yhKFcQNEA8K7ncIF6RDafB9m53tsgKyTC21JJQs72WvaBXjV59ZBM
+	 wSGNqBz6NAdUaLqrLixHVS+5gghJgMQqNokMOwerermDPnmRIjQZRt2gUvmGzteummppU
+	 Ttp948erJ6H05IHjLfbg9q/oKRUA72c3O0E0RKDE6FngJZ8Fv5NTqg/EzWpt5GpQ5GjcX
+	 cqUT9ivgzrZ4qwNv4XNZF9ayn7O39GoFBwigFj/BYX8CJolPhkSOZlmLSU3/O/THXHg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795678243;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=TIIUeINvbUXL44ktRwRbmC6y5EWQo3f4y6Mesu+e860=;
-	b=R8CrLZrWxXmrjlq6PCCaXcV3cTCUu6DsQmv5+Mh8DCZwjXBj1jpm24N7W/3YDWSH3JOH
-	 pGIpklI6q4MIm5wsSY381nmrb4vUjpN66fLLvOVPzAcA7oINKP/wQEt5uuZa5ccRpAjIM
-	 6Uctq7zwV/H4Zdc0obIOAU3+nOxXLvWb26XlaglqHv2RNq8RxJfLZsoX7h2BB57vkis+d
-	 T9tmK50NxZaBIPz5cab2ayn0EDmB8nigcobL/r37py62AHdgnXkzdhc6XQdyrpCy8b/+D
-	 vnnUQzcoUm1TZlUCY1alf6jBnOzAX8No9IKSqdPEmAI6WnP9g1A6ZxH+TCHwbmTlHvQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795698837;
+	h=Received:DKIM-Signature:Received:X-Forwarded-Encrypted:
+	 X-Gm-Message-State:X-Received:MIME-Version:References:In-Reply-To:
+	 From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:Message-ID:
+	 Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=NGKjIx/lsrYSs635frFVwYK8gqcYIaaf5ELPmMFxaA4=;
+	b=J2xc0wui9E5jXI00OuU1+NVrTfMpHlwBBxvATz8yiju+6Oz6m77Sn5F8m0xts+UtB7W7
+	 tiAoloWfMyyzI9dG3n38wKXqNthjbcR6hn7RUCnNY6ZYwBXB7X2sCYyhayk4/lhWBQNuv
+	 eIaS35EBUA9IX8nK34kog5p9/Vr8XekERt87ydL8HtMZ97xPbI6mS/nXqelqGWfnH4U+I
+	 4IOTQ9wj2Jz7rlYC0uA8rL5P2Y4Khei4gEPeXpwl5Tu+epD8XDkCPfL7mJ3xS3nuii1Dw
+	 ASVZfmcAdb2b9UZQ9+r/lPEyci6TftkBGRtWvfjsSkadZI5b3HmrmCXnZWkx3hpqLpw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bOr6Tb+5;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=E76uDGxf;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C875606A31E;
-	Thu, 26 Nov 2026 07:30:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B7D9606A321
+	for <linux-rtc@vger.kernel.org>; Thu, 26 Nov 2026 13:13:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bOr6Tb+5
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCD041F000D2;
-	Thu, 26 Nov 2026 07:30:42 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=E76uDGxf
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC9571F000EB
+	for <linux-rtc@vger.kernel.org>; Thu, 26 Nov 2026 13:13:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795678243;
-	bh=TIIUeINvbUXL44ktRwRbmC6y5EWQo3f4y6Mesu+e860=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=bOr6Tb+5zWJRUnDfZZ4APQNCE8JMGAVU0zqSKQn5+3DZGEXw+OOfnuRZGVLFcEC+7
-	 OclDdLqmJaQSsYYCjrkwlFTtn4J9vN/tnE4ztyA7C3o+tvLl6TMMmhdMkrJiQ7CEUr
-	 RUKbo1Uzbt0oFfKviV96Ue1wA5eiwUtfPMHqhGBcOJxZEnPYjV6TbAt4Sq/59GI7LW
-	 O7fPqVWef+pRo/4++7FIuRukiXJ5RaKsb7K+y+fDDeqkeyYaAFnqdZUZp64P1TZJqs
-	 AGhKHnBbOAGkrkStee+bhiNJZOFZBxfAOP36eny9GQnWN3pexVhms0aeadoB6OtIya
-	 jmLd57u5U0Uqw==
-Message-ID: <sashiko-outbox-234958@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 0/4] rtc: Add NXP PCF8525 RTC support
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Shiv Prakash Gupta" <shivprakash.gupta@nxp.com>, linux-rtc@vger.kernel.org, linux-hwmon@vger.kernel.org
-Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20261126071124.2383368-1-shivprakash.gupta@nxp.com>
-References: <20261126071124.2383368-1-shivprakash.gupta@nxp.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 26 Nov 2026 07:30:41 +0000
+	s=k20260515; t=1795698836;
+	bh=NGKjIx/lsrYSs635frFVwYK8gqcYIaaf5ELPmMFxaA4=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc;
+	b=E76uDGxfRoHMxGSx1n/KhJ+/uaL9TdbXC0lWWjb9UmJO+qdb3//M1VgGazAdje1Pf
+	 pJKZvnJMW10Z7G9wYhRoZnqJ+GttWxUDW/DmhV5zn1mTSj62mG2eFCOp+qUwhw10Sm
+	 kwMz/4/CQQJansfi+O1ysUveSuxNaDvXslw2VllzhDvIe+QiM8Vm0h0/3bZ2eQ73fG
+	 EhicxdctRdXs9uh9tuvm+2zx+teaJl8bI2B9RZ0nLnVpHgQLf6ZBJDU0MbqVoUQedI
+	 lIG7xfKPt0LJUj6A7L1VG+g9H9szNvIYHLeSPeiQFwyybnEgI1FqgszUlIkUVpSGZW
+	 mpeycp5SAbIow==
+Received: by mail-lf1-f44.google.com with SMTP id 2adb3069b0e04-5c15ccd7fb5so4379762e87.2
+        for <linux-rtc@vger.kernel.org>; Thu, 26 Nov 2026 05:13:56 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AL+hErELPnZp2IvK2BWxoy7USRgiDWEADF64mcHaQwQHJAzVg5bYpBPAuHU3bR5jCyQI1vlsH5H2vlU7uCQ=@vger.kernel.org
+X-Gm-Message-State: APuU4Z/+wp24lzq5Vjge5h5PfTgZWPtBMm47Sb4rFcrFNw+a6QJHwJyO
+	ErBbT5l1kdBs0uSMMZCRjXXxgFtLAJjZywpElNZlxUDT2yf5AEMXUYvJhoX/QRlRnAHE5Xzkz0H
+	tfltuVp/qGoRCZjnKYIyzLZlwewVl9Nc=
+X-Received: by 2002:a05:6512:304d:b0:5c0:a65:ad2 with SMTP id
+ 2adb3069b0e04-5c1bc814bccmr7600916e87.49.1795698835538; Thu, 26 Nov 2026
+ 05:13:55 -0800 (PST)
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -58,17 +58,54 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+References: <20261114-v861-v1-0-eb71ec3ee523@iscas.ac.cn>
+In-Reply-To: <20261114-v861-v1-0-eb71ec3ee523@iscas.ac.cn>
+From: Linus Walleij <linusw@kernel.org>
+Date: Thu, 26 Nov 2026 14:13:40 +0100
+X-Gmail-Original-Message-ID: <CAD++jLkSr5Rw3vzQH_t2uGq3ZSnFDuFxwhMpdPbZ-OHmTqiMvg@mail.gmail.com>
+X-Gm-Features: Aa3M54q_yjAB_gF_ehQIHoUZMFIkQNhkQlSji1urlQGfqAlyuSk3xRkB3BtsRVk
+Message-ID: <CAD++jLkSr5Rw3vzQH_t2uGq3ZSnFDuFxwhMpdPbZ-OHmTqiMvg@mail.gmail.com>
+Subject: Re: [PATCH 00/19] riscv: add initial support for the Allwinner V861
+ and Avaota F2
+To: gaohan@iscas.ac.cn
+Cc: Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
+	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Guo Ren <guoren@kernel.org>, 
+	Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>, 
+	Samuel Holland <samuel.holland@sifive.com>, Daniel Lezcano <daniel.lezcano@kernel.org>, 
+	Anup Patel <anup@brainfault.org>, Stephen Boyd <sboyd@kernel.org>, 
+	Brian Masney <bmasney+clk@redhat.com>, Jerome Brunet <jbrunet+clk@baylibre.com>, 
+	Chen-Yu Tsai <wens@kernel.org>, Jernej Skrabec <jernej.skrabec@gmail.com>, 
+	Samuel Holland <samuel@sholland.org>, Philipp Zabel <p.zabel@pengutronix.de>, 
+	Alexandre Belloni <alexandre.belloni@bootlin.com>, Maxime Ripard <mripard@kernel.org>, 
+	Andre Przywara <andre.przywara@arm.com>, Han Gao <rabenda.cn@gmail.com>, 
+	linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org, 
+	Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@sifive.com>, 
+	Conor Dooley <conor@kernel.org>, devicetree@vger.kernel.org, linux-csky@vger.kernel.org, 
+	linux-sunxi@lists.linux.dev, linux-clk@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org, 
+	linux-gpio@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Sashiko has finished reviewing this 4-patch series:
+Hi Han,
 
-- Patches 1 and 4: no issues found.
-- Patch 2 ("rtc: pcf8525: Add NXP PCF8525 RTC driver"): 1 potential
-  issue (1 Medium)
-- Patch 3 ("rtc: pcf8525: Add watchdog support"): 1 potential issue (1
-  High)
+thanks for your patches!
 
-Detailed reviews have been sent as separate replies to patches 2 and 3.
+On Fri, Nov 13, 2026 at 11:33=E2=80=AFPM Han Gao via B4 Relay
+<devnull+gaohan.iscas.ac.cn@kernel.org> wrote:
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261126071124.2383=
-368-1-shivprakash.gupta@nxp.com
+
+>       dt-bindings: pinctrl: add the Allwinner V861 pin controllers
+>       pinctrl: sunxi: allow a per-controller IRQ register base
+>       pinctrl: sunxi: add support for the Allwinner V861 PIO
+>       pinctrl: sunxi: add support for the Allwinner V861 R-PIO
+
+Can you send these four patches separately so I can review and merge
+them in isolation?
+
+I think entire-SoC patch bombs only delay merging the things piecemal.
+
+Thanks!
+Linus Walleij
