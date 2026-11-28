@@ -1,97 +1,51 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.45
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=45.254.49.198
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795852799;
-	b=KS4cR7plH1buacz0RnqfyJcCjXgILZFzPD8kiGv9V2ODBbxeQz7OCjEujrnIGf6iVL+l
-	 SCPB9FndzdSq+f5dCFyMw+jAzFKQobcYbpIE2X4i0YILhSyzNcHFW08FrPUMMBci7NqIm
-	 2irOdR9dFF46pCV5K9QndraYXT44ccFVF2FhHEvRtStD1DOD71RkoWhZjWXkBUPRYb35b
-	 NGhi4NOScGEtSBLfCGxOajJSLIIQFpi02UrQjCXPZzSrxha1V43L21F+giLhVjQfW5aQe
-	 CVXyamvIDsRNPywUOuw5/i202kC7qZO/qG1U1CY5M1RMkSb7tBjUQn24aNjyQ36PmWA==
+	t=1795859805;
+	b=wONgbSW9VtURlQoS1QFRvnW32FLkbs1kALwfAEamaMnYuW2fzRNBPlap+AK4fBPNvwvT
+	 CRFteKrwgXBA7FNFmeQqbJ6JOWJA4hhU3dMmF0USL7A3ahd4LyMGJT29O7N6VWUoLwZoQ
+	 toxGwyhJgF+X7Csq23xU84SdgUrOUOJLjLCFEpkQO3UTVWRCyrUBBtXSerdtvpbRxxO1r
+	 ReHGpPbgdce2JSR6EUUCCO8bQS7laROhdLlISlpkQqD7SthnoJFBhuP5qlUaDJdiq6svD
+	 kF+ERfRgm1jNGnoGP6GqDHieO8unilmPjw1osPRw94/zwYb7oit1CIQcEG7hj/cp9Zg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795852799;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=rECzFDCKo4XXlZnw/34prSvNBZQ0YYwmq2ei4FG0uow=;
-	b=S3+uciOSLck8hEztHysUa51zqCvrlweDNLta7eRypnL0V8J+0qoepKqPpyBfK6GjYgke
-	 x/gMHQhiobypt3KaLMY15WRPRDvUQm639/QXt6o6XNv2ET7XNwMEt/TsrRptGGyVzhQdi
-	 Rk/KMRga5Jo+e9qUzB5oKL676xZUZQPhq8hQjcpKvay3AmLJQM7+O4pFw/Apkcz2PaXPT
-	 lrmFOxZMCJfWsMo4e4g7FGh8ferct5rKC7UsZPrSeH0OoQwXosI5BFOmNESYx9llO4NF1
-	 LnB3rAmECfNJDFXYOAbNrxgRcbcGuyIAXNxNJi4DHNS9o9xWh+gH3qcI1D+R4W3DUjA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795859805;
+	h=DMARC-Filter:Received:From:To:Cc:Subject:Date:Message-Id:X-Mailer:
+	 MIME-Version:Content-Transfer-Encoding:X-HM-Tid:X-HM-MType:
+	 X-HM-Spam-Status:DKIM-Signature;
+	bh=S60cZbyK9HGaK3s93mo0tQxG0ITRxxHJ4dgWHxHq4Gk=;
+	b=5ICbGyihLODbOEtp4wT3e3hnG5K6cL/AH4tG4MqOi/zbb4d5d0sn0Ipf3YCOq50BRo/G
+	 V1losBg3wvFJ2xlKInPuWYoslbXrd7FFJfD1McIc3TJ0Mx5hxmxlP++JPx/B1Xcy98kMa
+	 NFlyQ/I5DC0DIHgj8gEZeX4pIuSf6W8+UIC1/F6rqptbHF8OZE4k4hGS32jNCXMU3XcEP
+	 f3B42EoUy48f/w1BQnQVhch19KtHHO4xeLljrUv1tZb8/uw7byzwKmOOOjviEupjFPjNK
+	 /cXB+xAQaRU5nj08O2xKfhWUS9BNgWwYdXOZOPcfTDWrk13Kkc2hxCiZsa6MrhaZFag==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=baylibre.com;
-	spf=pass smtp.mailfrom=baylibre.com;
-	dkim=pass header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b="i/U/to+v";
-	arc=none smtp.remote-ip=209.85.221.45
-Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=mail.sdu.edu.cn;
+	spf=pass smtp.mailfrom=mail.sdu.edu.cn;
+	dkim=pass header.d=mail.sdu.edu.cn header.i=@mail.sdu.edu.cn header.a=rsa-sha256 header.s=default header.b=KiBrWL80;
+	arc=none smtp.remote-ip=45.254.49.198
+Received: from mail-m49198.qiye.163.com (mail-m49198.qiye.163.com [45.254.49.198])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE3CF606A324
-	for <linux-rtc@vger.kernel.org>; Sat, 28 Nov 2026 07:59:58 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CE3CF606A324
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39486606A31C;
+	Sat, 28 Nov 2026 09:56:42 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 39486606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=mail.sdu.edu.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mail.sdu.edu.cn
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=i/U/to+v
-Received: by mail-wr1-f45.google.com with SMTP id ffacd0b85a97d-4a42b34e930so7725044f8f.2
-        for <linux-rtc@vger.kernel.org>; Fri, 27 Nov 2026 23:59:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1795852797; x=1796457597; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=rECzFDCKo4XXlZnw/34prSvNBZQ0YYwmq2ei4FG0uow=;
-        b=i/U/to+vCmL1lcMOCEc3owu39hWkCjDpqJ213buTkVu7MoriXmrx+7OGqlR5mKjN0K
-         HJznAwo3QdHX+mccxMSx8rXVqDLQlnkM3P4KKsZD+//BlVONCBDPn8pZ4yevOzRiXp/I
-         gJxK0s6juwE0bQ5bE/7yzG82cu1twxYL71VfcfhRCV7DMYxDCXh5JSCk5HmLwiBDbGcK
-         /3LWwAPMgikzdeET6ZLrmfguyXOEAu3q8eXawDWa1Mz3qgEI2CVV/tpVSCKAYuyGlmKD
-         c7Nrf1KPWTMmTIelV6zqs20Kg89Kf0hmSLldDN2UR8QXyMgoiMgC0Yrgxd++VBF30AKW
-         lUrg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795852797; x=1796457597;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=rECzFDCKo4XXlZnw/34prSvNBZQ0YYwmq2ei4FG0uow=;
-        b=H/3yNuhTZ96WKnR5xCct7PXFfcrIBC/LM1Fpi2CzxebQNnyGDcghYbuzZFWcZSDiVa
-         kAnqswhRJjrq/uGfmQRi7C2uyc61EndiIny9boIi3gpGKUy9DfECWg9vj1onVVRipSgM
-         CJ/Vbq5s/091h+bALNSGof7V5ENohlb4WYEYePkoRIsIP11OtFexlPYNIU79/6BYsp03
-         8YSdCdZqF+j7kuFt/CNbeR61St0DSrjX3dSsk6mvI7yNhSsdTzsDnUltcO5Xc5do4CH8
-         BHhPzl5BhTT3mNkIGELi1OtyWRNiTsJMW22Y1nSFi9Z80TQFhEVaN5b3EKcRlRU+tKwp
-         zUVg==
-X-Forwarded-Encrypted: i=1; AL+hErFpsUhfGgUtsvxo8hDY3fYv3hj7kqlOMJwOZgfuwtNsY3vp77OHcU2wIcUaDUBiWhAJ4bmvfoX4CA0=@vger.kernel.org
-X-Gm-Message-State: APuU4Z/9QkKsRtNojbtr71Hm/whKuJ9riOR+x86S9UpKEsUQSRIfC5dX
-	jiTPMyCjGqhMgNubzBvVJq0VJP4Pra8x0CiWeEH7pTR/AVMTohoPFzWflO8v7enW6iw=
-X-Gm-Gg: AZFdTZed5sn+hsVwf5t6QvPVcCjeG35m4vO+e8Zv6RYc/qTe1ldGZ41n/W6djo2BJF0
-	C6DE6ZL6mW2f8FwS5tW9j0cOi7psk8qvucPtGFj0Vu8QZczoJkOlzajgOZktkxwjaaIoFyv8STA
-	D1YXt+6wEnXIB9uOoeTeb8/ysl0y/vbykt8asMDgZR8OeHpE5TIRbUlthJ+W61uPQa+6jiBO2sy
-	35CPxla2Lfrfl4XAm2hcKIWxClNF+7anqRnOrMU4A1An/hD1A4cPFsCYSbHCKABpqrEWVEzcE+I
-	Xr6fVmlYThOXJoZNC5+gXWFa9+s77AiOYMTGLEkF3dLaUgBXR3fvpPb8cCHGau9TZ3rNrN/EQHo
-	uFGBfocJMglYqMetaUiOZC6nRE+lzCB9JBNx+R5mAb3gB75ewcFg4gd93M936d0g1zwmykSojbI
-	RGb7qlBEz+Hr6LHLaU6G4iA8GOMFjP4fNgUIEEKV6psE0I/Cc0odafD8VFZR4w5H11IbJTqbwue
-	So0FUD5kZH1hApF5KGQHkkOoihcXPKfIO6eZGJQUJtVX3c8+ueySoMml/Ts2vCJ8bccu20uOwmd
-	ivlkPgGoV/7h8Vukow/bee9lsl66xgQ/FYbUUFM60l1t8dYQwGGgZSMB7bV8Rsf7nzl8sSDz2XX
-	m
-X-Received: by 2002:a05:6000:2893:b0:493:f3f2:2241 with SMTP id ffacd0b85a97d-4abb272746fmr52992473f8f.23.1795852797142;
-        Fri, 27 Nov 2026 23:59:57 -0800 (PST)
-Received: from localhost (ip-005-146-085-079.um05.pools.vodafone-ip.de. [5.146.85.79])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-4ab6b110ba3sm42679550f8f.35.2026.11.27.23.59.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 27 Nov 2026 23:59:55 -0800 (PST)
-Date: Sat, 28 Nov 2026 08:59:53 +0100
-From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
-To: Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
-Cc: linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org, 
-	linux-hwmon@vger.kernel.org, linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org, 
-	alexandre.belloni@bootlin.com, krzk+dt@kernel.org, robh@kernel.org, conor+dt@kernel.org, 
-	linux@roeck-us.net, wim@linux-watchdog.org, vikash.bansal@nxp.com, 
-	priyanka.jain@nxp.com, lakshay.piplani@nxp.com
-Subject: Re: [PATCH v6 2/4] rtc: pcf8525: Add NXP PCF8525 RTC driver
-Message-ID: <awqJkqQ_8tXGIqo9@monoceros>
-References: <20261127083807.2844507-1-shivprakash.gupta@nxp.com>
- <20261127083807.2844507-3-shivprakash.gupta@nxp.com>
+	dkim=pass (1024-bit key) header.d=mail.sdu.edu.cn header.i=@mail.sdu.edu.cn header.a=rsa-sha256 header.s=default header.b=KiBrWL80
+Received: from user.localdomain (unknown [223.80.110.101])
+	by smtp.qiye.163.com (Hmail) with ESMTP id 5655966b0;
+	Sat, 28 Nov 2026 17:56:39 +0800 (GMT+08:00)
+From: Tian Xuechen <202300460064@mail.sdu.edu.cn>
+To: paul@crapouillou.net,
+	alexandre.belloni@bootlin.com,
+	maarten@treewalker.org
+Cc: linux-mips@vger.kernel.org,
+	linux-rtc@vger.kernel.org
+Subject: [PATCH v2] rtc: jz4740: Register the power-off handler with devres
+Date: Sat, 28 Nov 2026 17:56:38 +0800
+Message-Id: <20261128095638.840312-1-202300460064@mail.sdu.edu.cn>
+X-Mailer: git-send-email 2.34.1
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -101,45 +55,94 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="5kez4omv4kntvob6"
-Content-Disposition: inline
-In-Reply-To: <20261127083807.2844507-3-shivprakash.gupta@nxp.com>
+Content-Transfer-Encoding: 8bit
+X-HM-Tid: 0aa22195dbf103a2kunm6fb6b2a93c934a
+X-HM-MType: 10
+X-HM-Spam-Status: e1kfGhgUHx5ZQUpXWQgPGg8OCBgUHx5ZQUlOS1dZFg8aDwILHllBWSg2Ly
+	tZV1koWUFITzdXWRgWCB1ZQUpXWS1ZQUlXWQ8JGhUIEh9ZQVlCSBgfVk5NHR9NSB1PSENIGFYeHw
+	5VEwETFhoSFyQUDg9ZV1kYEgtZQVlJSUhVQ0tVSkpLVUpLSllXWRYaDxIVHRRZQVlPS0hVSktJQk
+	NDTFVKS0tVS1kG
+DKIM-Signature: a=rsa-sha256;
+	b=KiBrWL807U3Me2eXIvUrrBh0eWpf2k9ggwOFEAkKt5MBGSCo+CFl3x+lLCLfV2o3Q2Fw9n+TrX040wMXswLNFNEBGfWx4j+Y/WNJprfwqfLcEBOhkZCo9zYygAeRANjmz/BDxZZkRP43PJs0umWlLJ4zaVGWzBkUKLWG6W5VY4c=; s=default; c=relaxed/relaxed; d=mail.sdu.edu.cn; v=1;
+	bh=S60cZbyK9HGaK3s93mo0tQxG0ITRxxHJ4dgWHxHq4Gk=;
+	h=date:mime-version:subject:message-id:from;
 
+From: Tian Xuechen <202300460064@mail.sdu.edu.cn>
 
---5kez4omv4kntvob6
-Content-Type: text/plain; protected-headers=v1; charset=us-ascii
-Content-Disposition: inline
-Subject: Re: [PATCH v6 2/4] rtc: pcf8525: Add NXP PCF8525 RTC driver
-MIME-Version: 1.0
+A clock registration failure or driver removal leaves the power-off
+callback pointing at the old RTC. Register a managed handler with
+the device as its callback argument.
 
-Hello,
+This issue was found by our static analysis tool under development.
 
-On Fri, Nov 27, 2026 at 02:08:05PM +0530, Shiv Prakash Gupta wrote:
-> +#include <linux/i2c.h>
-> [...]
-> +#include <linux/mod_devicetable.h>
+Fixes: f9eb69d1ae2f ("rtc: jz4740: Add support for acting as the system power controller")
+Signed-off-by: Tian Xuechen <202300460064@mail.sdu.edu.cn>
+---
+v2:
+  - Return notifier_from_errno(-EIO) if kernel_halt() returns, as
+    suggested by Paul Cercueil.
 
-Both of_device_id and i2c_device_id are provided by <linux/i2c.h>
-without additional build dependencies as are introduced by
-<linux/mod_devicetable.h>. So please drop the latter.
+ drivers/rtc/rtc-jz4740.c | 22 ++++++++++------------
+ 1 file changed, 10 insertions(+), 12 deletions(-)
 
-Best regards
-Uwe
+diff --git a/drivers/rtc/rtc-jz4740.c b/drivers/rtc/rtc-jz4740.c
+index 32c331f3feb3..825dc035de2e 100644
+--- a/drivers/rtc/rtc-jz4740.c
++++ b/drivers/rtc/rtc-jz4740.c
+@@ -68,7 +68,6 @@ struct jz4740_rtc {
+ 	spinlock_t lock;
+ };
+ 
+-static struct device *dev_for_power_off;
+ 
+ static inline uint32_t jz4740_rtc_reg_read(struct jz4740_rtc *rtc, size_t reg)
+ {
+@@ -253,10 +252,12 @@ static void jz4740_rtc_poweroff(struct device *dev)
+ 	jz4740_rtc_reg_write(rtc, JZ_REG_RTC_HIBERNATE, 1);
+ }
+ 
+-static void jz4740_rtc_power_off(void)
++static int jz4740_rtc_power_off(struct sys_off_data *data)
+ {
+-	jz4740_rtc_poweroff(dev_for_power_off);
++	jz4740_rtc_poweroff(data->dev);
+ 	kernel_halt();
++
++	return notifier_from_errno(-EIO);
+ }
+ 
+ static const struct of_device_id jz4740_rtc_of_match[] = {
+@@ -396,15 +397,6 @@ static int jz4740_rtc_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		return dev_err_probe(dev, ret, "Failed to request rtc irq\n");
+ 
+-	if (of_device_is_system_power_controller(np)) {
+-		dev_for_power_off = dev;
+-
+-		if (!pm_power_off)
+-			pm_power_off = jz4740_rtc_power_off;
+-		else
+-			dev_warn(dev, "Poweroff handler already present!\n");
+-	}
+-
+ 	if (device_property_present(dev, "#clock-cells")) {
+ 		rtc->clk32k.init = CLK_HW_INIT_HW("clk32k", __clk_get_hw(clk),
+ 						  &jz4740_rtc_clk32k_ops, 0);
+@@ -421,6 +413,12 @@ static int jz4740_rtc_probe(struct platform_device *pdev)
+ 					     "Unable to register clk32k clock provider\n");
+ 	}
+ 
++	if (of_device_is_system_power_controller(np)) {
++		ret = devm_register_power_off_handler(dev, jz4740_rtc_power_off, NULL);
++		if (ret)
++			dev_warn(dev, "Failed to register power-off handler: %d\n", ret);
++	}
++
+ 	return 0;
+ }
+ 
 
---5kez4omv4kntvob6
-Content-Type: application/pgp-signature; name="signature.asc"
+base-commit: 4dce97c6c265544342e716e62fd24bbb232590c5
+-- 
+2.43.0
 
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmsKifYACgkQj4D7WH0S
-/k7agQf/dUy7wCorcL/I4owilXhYjnsXPrSYVFuZTI3zBHYDbdxpHZa80WwZlBG7
-E4SFU0OwJbEJe6jfB4zfEAJno76UQtmfOsPNrRBjhVwTHfHa+eurWy0zb9D/2CE3
-T9IHil5xV6MLLjEsteKu/ubZ5uOQpl/GemFXCbkkgQnOoNk3fu9vTRW3m81xJ9bm
-uNWYCMXorvZ4Wx7PB2OLQd5RwRNUormhf1E7zoUUE4ilF3XfUbBOvueHDCr0dCy2
-b/wJgjIiQzRLVsEcMQ1QhPUbCxlrMuzkchAgFdHqygmuxVmNh8Sz3yBHvjK4aG4Y
-MLYKgxWCCTBVfnXialkv/zpFTTAkgg==
-=jkpr
------END PGP SIGNATURE-----
-
---5kez4omv4kntvob6--
